@@ -257,35 +257,50 @@ begin
     'echo Starting Vybe AI Assistant Installation...' + #13#10 +
     'cd /d "' + ExpandConstant('{tmp}') + '"' + #13#10 +
     'echo Trying to run installer with Python...' + #13#10 +
+    'echo.' + #13#10 +
+    '' + #13#10 +
+    'REM Create log file for debugging' + #13#10 +
+    'set LOG_FILE="' + ExpandConstant('{app}') + '\installer_debug.log"' + #13#10 +
+    'echo Installation started at %DATE% %TIME% > %LOG_FILE%' + #13#10 +
+    'echo Installation directory: "' + ExpandConstant('{app}') + '" >> %LOG_FILE%' + #13#10 +
     '' + #13#10 +
     'REM Determine if models should be downloaded' + #13#10 +
     'set MODEL_FLAG=' + #13#10 +
     'if "' + GetModelDownloadFlag() + '" == "true" set MODEL_FLAG=--download-models' + #13#10 +
     'if "' + GetModelDownloadFlag() + '" == "false" set MODEL_FLAG=--no-models' + #13#10 +
+    'echo Model download flag: %MODEL_FLAG% >> %LOG_FILE%' + #13#10 +
     '' + #13#10 +
     'REM Try different Python commands' + #13#10 +
-    'python installer_status_window.py "' + ExpandConstant('{app}') + '" %MODEL_FLAG%' + #13#10 +
+    'echo Trying python command... >> %LOG_FILE%' + #13#10 +
+    'python installer_status_window.py "' + ExpandConstant('{app}') + '" %MODEL_FLAG% 2>>%LOG_FILE%' + #13#10 +
     'if %ERRORLEVEL% EQU 0 goto :success' + #13#10 +
     '' + #13#10 +
-    'py -3 installer_status_window.py "' + ExpandConstant('{app}') + '" %MODEL_FLAG%' + #13#10 +
+    'echo Trying py -3 command... >> %LOG_FILE%' + #13#10 +
+    'py -3 installer_status_window.py "' + ExpandConstant('{app}') + '" %MODEL_FLAG% 2>>%LOG_FILE%' + #13#10 +
     'if %ERRORLEVEL% EQU 0 goto :success' + #13#10 +
     '' + #13#10 +
-    'py -3.11 installer_status_window.py "' + ExpandConstant('{app}') + '" %MODEL_FLAG%' + #13#10 +
+    'echo Trying py -3.11 command... >> %LOG_FILE%' + #13#10 +
+    'py -3.11 installer_status_window.py "' + ExpandConstant('{app}') + '" %MODEL_FLAG% 2>>%LOG_FILE%' + #13#10 +
     'if %ERRORLEVEL% EQU 0 goto :success' + #13#10 +
     '' + #13#10 +
-    '"C:\Program Files\Python311\python.exe" installer_status_window.py "' + ExpandConstant('{app}') + '" %MODEL_FLAG%' + #13#10 +
+    'echo Trying Python 3.11 from Program Files... >> %LOG_FILE%' + #13#10 +
+    '"C:\Program Files\Python311\python.exe" installer_status_window.py "' + ExpandConstant('{app}') + '" %MODEL_FLAG% 2>>%LOG_FILE%' + #13#10 +
     'if %ERRORLEVEL% EQU 0 goto :success' + #13#10 +
     '' + #13#10 +
-    '"C:\Program Files\Python310\python.exe" installer_status_window.py "' + ExpandConstant('{app}') + '" %MODEL_FLAG%' + #13#10 +
+    'echo Trying Python 3.10 from Program Files... >> %LOG_FILE%' + #13#10 +
+    '"C:\Program Files\Python310\python.exe" installer_status_window.py "' + ExpandConstant('{app}') + '" %MODEL_FLAG% 2>>%LOG_FILE%' + #13#10 +
     'if %ERRORLEVEL% EQU 0 goto :success' + #13#10 +
     '' + #13#10 +
     'echo ERROR: Could not find Python to run the installer!' + #13#10 +
     'echo Please install Python 3.9+ and try again.' + #13#10 +
+    'echo Python search failed at %DATE% %TIME% >> %LOG_FILE%' + #13#10 +
+    'echo Check log file at %LOG_FILE% for details.' + #13#10 +
     'pause' + #13#10 +
     'exit /b 1' + #13#10 +
     '' + #13#10 +
     ':success' + #13#10 +
     'echo Installation completed successfully!' + #13#10 +
+    'echo Installation completed at %DATE% %TIME% >> %LOG_FILE%' + #13#10 +
     'exit /b 0', False);
 end;
 
@@ -335,6 +350,9 @@ end;
 procedure CurStepChanged(CurStep: TSetupStep);
 var
   ResultCode: Integer;
+  FlagFile: string;
+  WaitCount: Integer;
+  MaxWait: Integer;
 begin
   case CurStep of
     ssInstall:
@@ -353,10 +371,29 @@ begin
       
     ssPostInstall:
       begin
-        // Verify installation completed successfully
-        if FileExists(ExpandConstant('{app}\instance\setup_complete.flag')) then
+        // Wait for installation to complete with polling and timeout
+        FlagFile := ExpandConstant('{app}\instance\setup_complete.flag');
+        WaitCount := 0;
+        MaxWait := 300; // 300 seconds = 5 minutes maximum wait
+        
+        // Poll for completion flag with timeout
+        while (not FileExists(FlagFile)) and (WaitCount < MaxWait) do
+        begin
+          Sleep(1000); // Wait 1 second
+          WaitCount := WaitCount + 1;
+          
+          // Update progress every 10 seconds
+          if (WaitCount mod 10) = 0 then
+          begin
+            Log('Waiting for installation to complete... (' + IntToStr(WaitCount) + 's elapsed)');
+          end;
+        end;
+        
+        // Check if installation completed successfully
+        if FileExists(FlagFile) then
         begin
           InstallSuccess := True;
+          Log('Installation completed successfully - flag file found');
           
           // Set up Windows Defender exclusions (optional, requires admin)
           Exec('powershell.exe', 
@@ -365,8 +402,13 @@ begin
         end
         else
         begin
-          MsgBox('Installation may not have completed successfully. Please check the installation log for errors.', 
-                 mbInformation, MB_OK);
+          Log('Installation timeout or failure - flag file not found after ' + IntToStr(MaxWait) + ' seconds');
+          if WaitCount >= MaxWait then
+            MsgBox('Installation timed out after 5 minutes. The installation may still be in progress. Please check the installation log for details.', 
+                   mbInformation, MB_OK)
+          else
+            MsgBox('Installation may not have completed successfully. Please check the installation log for errors.', 
+                   mbInformation, MB_OK);
         end;
       end;
       
