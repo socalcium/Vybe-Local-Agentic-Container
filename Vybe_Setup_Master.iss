@@ -50,22 +50,7 @@ Name: "startmenu"; Description: "Add to Start Menu"; GroupDescription: "{cm:Addi
 Name: "systemtray"; Description: "Start with Windows (System Tray)"; GroupDescription: "Startup Options"; Flags: unchecked
 
 [Files]
-; Core Installation Scripts
-Source: "{tmp}\setup_python_env.bat"; DestDir: "{app}"; Flags: ignoreversion external; Components: core
-Source: "{tmp}\installer_backend.py"; DestDir: "{app}"; Flags: ignoreversion external; Components: core
-Source: "{tmp}\download_default_model.py"; DestDir: "{app}"; Flags: ignoreversion external; Components: core
-Source: "{tmp}\run.py"; DestDir: "{app}"; Flags: ignoreversion external; Components: core
-Source: "{tmp}\requirements.txt"; DestDir: "{app}"; Flags: ignoreversion external; Components: core
-Source: "{tmp}\pyproject.toml"; DestDir: "{app}"; Flags: ignoreversion external; Components: core
-
-; Launch Scripts
-Source: "{tmp}\launch_vybe_master.bat"; DestDir: "{app}"; Flags: ignoreversion external; Components: core
-Source: "{tmp}\shutdown.bat"; DestDir: "{app}"; Flags: ignoreversion external; Components: core
-Source: "{tmp}\shutdown_quiet.bat"; DestDir: "{app}"; Flags: ignoreversion external; Components: core
-
-; Documentation
-Source: "{tmp}\README.md"; DestDir: "{app}"; Flags: ignoreversion external; Components: docs
-Source: "{tmp}\LICENSE.txt"; DestDir: "{app}"; Flags: ignoreversion external; Components: docs
+; No files are copied during installation - everything is downloaded from GitHub during the [Run] phase
 
 [Dirs]
 Name: "{app}\instance"; Permissions: users-full
@@ -81,11 +66,11 @@ Name: "{group}\Vybe Desktop"; Filename: "{app}\vybe-desktop\vybe-desktop.exe"; W
 Name: "{group}\{cm:UninstallProgram,Vybe AI Assistant}"; Filename: "{uninstallexe}"; Components: shortcuts
 
 ; Desktop
-Name: "{autodesktop}\Vybe AI Assistant"; Filename: "{app}\launch_vybe.bat"; WorkingDir: "{app}"; IconFilename: "{app}\assets\VybeLight.ico"; Tasks: desktopicon
+Name: "{autodesktop}\Vybe AI Assistant"; Filename: "{app}\launch_vybe_master.bat"; WorkingDir: "{app}"; IconFilename: "{app}\assets\VybeLight.ico"; Tasks: desktopicon
 Name: "{autodesktop}\Vybe Desktop"; Filename: "{app}\vybe-desktop\vybe-desktop.exe"; WorkingDir: "{app}\vybe-desktop"; IconFilename: "{app}\assets\VybeLight.ico"; Tasks: desktopicon; Components: desktop
 
 ; Quick Launch
-Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\Vybe AI"; Filename: "{app}\launch_vybe.bat"; WorkingDir: "{app}"; IconFilename: "{app}\assets\VybeLight.ico"; Tasks: quicklaunchicon
+Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\Vybe AI"; Filename: "{app}\launch_vybe_master.bat"; WorkingDir: "{app}"; IconFilename: "{app}\assets\VybeLight.ico"; Tasks: quicklaunchicon
 
 [Registry]
 ; Add to Windows Path (optional)
@@ -95,20 +80,23 @@ Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environmen
 Root: HKCR; Subkey: ".vybe"; ValueType: string; ValueName: ""; ValueData: "VybeProject"
 Root: HKCR; Subkey: "VybeProject"; ValueType: string; ValueName: ""; ValueData: "Vybe AI Project"
 Root: HKCR; Subkey: "VybeProject\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\assets\VybeLight.ico"
-Root: HKCR; Subkey: "VybeProject\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\launch_vybe.bat"" ""%1"""
+Root: HKCR; Subkey: "VybeProject\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\launch_vybe_master.bat"" ""%1"""
 
 ; Startup registry entry (if selected)
-Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "VybeAI"; ValueData: """{app}\launch_vybe.bat"" --minimized"; Tasks: systemtray
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "VybeAI"; ValueData: """{app}\launch_vybe_master.bat"" --minimized"; Tasks: systemtray
 
 [Run]
 ; Download files from GitHub
-Filename: "powershell.exe"; Parameters: "-ExecutionPolicy Bypass -Command ""Write-Host 'Downloading Vybe from GitHub...'; try {{ Invoke-WebRequest -Uri 'https://github.com/socalcium/Vybe-Local-Agentic-Container/archive/refs/heads/main.zip' -OutFile '{tmp}\vybe-main.zip' -UseBasicParsing; Write-Host 'Download completed successfully' }} catch {{ Write-Host 'Download failed:' $_.Exception.Message; exit 1 }}"""; WorkingDir: "{tmp}"; Flags: waituntilterminated; StatusMsg: "Downloading application files from GitHub..."
+Filename: "powershell.exe"; Parameters: "-ExecutionPolicy Bypass -Command ""Write-Host 'Downloading Vybe from GitHub...'; try {{ Invoke-WebRequest -Uri 'https://github.com/socalcium/Vybe-Local-Agentic-Container/archive/refs/heads/master.zip' -OutFile '{tmp}\vybe-master.zip' -UseBasicParsing; Write-Host 'Download completed successfully' }} catch {{ Write-Host 'Download failed:' $_.Exception.Message; exit 1 }}"""; WorkingDir: "{tmp}"; Flags: waituntilterminated; StatusMsg: "Downloading application files from GitHub..."
 
 ; Extract downloaded files
-Filename: "powershell.exe"; Parameters: "-ExecutionPolicy Bypass -Command ""Write-Host 'Extracting application files...'; try {{ Expand-Archive -Path '{tmp}\vybe-main.zip' -DestinationPath '{tmp}' -Force; Write-Host 'Extraction completed' }} catch {{ Write-Host 'Extraction failed:' $_.Exception.Message; exit 1 }}"""; WorkingDir: "{tmp}"; Flags: waituntilterminated; StatusMsg: "Extracting application files..."
+Filename: "powershell.exe"; Parameters: "-ExecutionPolicy Bypass -Command ""Write-Host 'Extracting application files...'; try {{ Expand-Archive -Path '{tmp}\vybe-master.zip' -DestinationPath '{tmp}' -Force; Write-Host 'Extraction completed' }} catch {{ Write-Host 'Extraction failed:' $_.Exception.Message; exit 1 }}"""; WorkingDir: "{tmp}"; Flags: waituntilterminated; StatusMsg: "Extracting application files..."
 
 ; Copy application files to installation directory
-Filename: "powershell.exe"; Parameters: "-ExecutionPolicy Bypass -Command ""Write-Host 'Installing application files...'; try {{ $src = '{tmp}\Vybe-Local-Agentic-Container-main'; $dst = '{app}'; if (Test-Path $src) {{ Copy-Item -Path '$src\*' -Destination $dst -Recurse -Force; Write-Host 'Application files installed successfully' }} else {{ Write-Host 'Source directory not found'; exit 1 }} }} catch {{ Write-Host 'Installation failed:' $_.Exception.Message; exit 1 }}"""; WorkingDir: "{app}"; Flags: waituntilterminated; StatusMsg: "Installing application files..."
+Filename: "powershell.exe"; Parameters: "-ExecutionPolicy Bypass -Command ""Write-Host 'Installing application files...'; try {{ $src = '{tmp}\Vybe-Local-Agentic-Container-master'; $dst = '{app}'; if (Test-Path $src) {{ Copy-Item -Path '$src\*' -Destination $dst -Recurse -Force; Write-Host 'Application files installed successfully' }} else {{ Write-Host 'Source directory not found'; exit 1 }} }} catch {{ Write-Host 'Installation failed:' $_.Exception.Message; exit 1 }}"""; WorkingDir: "{app}"; Flags: waituntilterminated; StatusMsg: "Installing application files..."
+
+; Verify critical files were copied successfully
+Filename: "powershell.exe"; Parameters: "-ExecutionPolicy Bypass -Command ""Write-Host 'Verifying installation...'; $critical_files = @('setup_python_env.bat', 'run.py', 'requirements.txt'); $missing = @(); foreach ($file in $critical_files) {{ if (-not (Test-Path (Join-Path '{app}' $file))) {{ $missing += $file }} }}; if ($missing.Count -gt 0) {{ Write-Host 'ERROR: Missing critical files:' ($missing -join ', '); exit 1 }} else {{ Write-Host 'All critical files verified successfully' }}"""; WorkingDir: "{app}"; Flags: waituntilterminated; StatusMsg: "Verifying installation..."
 
 ; Download and install Python if needed
 Filename: "powershell.exe"; Parameters: "-ExecutionPolicy Bypass -Command ""if (-not (Get-Command python -ErrorAction SilentlyContinue)) {{ Write-Host 'Downloading Python 3.11...'; Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.11.9/python-3.11.9-amd64.exe' -OutFile '{tmp}\python-installer.exe' -UseBasicParsing; Write-Host 'Installing Python...'; Start-Process '{tmp}\python-installer.exe' -ArgumentList '/quiet','InstallAllUsers=1','PrependPath=1','Include_test=0' -Wait }} else {{ Write-Host 'Python already installed' }}"""; WorkingDir: "{tmp}"; Flags: waituntilterminated; StatusMsg: "Installing Python 3.11..."; Check: not IsPythonInstalled
