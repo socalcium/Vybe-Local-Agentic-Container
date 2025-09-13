@@ -1,0 +1,387 @@
+/* Video Portal Styles */
+
+/* Custom Tab Styling */
+.custom-tabs {
+    display: flex;
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: 1.5rem;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.custom-tab-btn {
+    background: var(--bg-color-secondary);
+    border: none;
+    color: var(--text-color-muted);
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    border-radius: 8px 8px 0 0;
+    position: relative;
+    font-size: 0.9rem;
+}
+
+.custom-tab-btn:hover {
+    color: #dc3545;
+    background-color: rgba(220, 53, 69, 0.1);
+    transform: translateY(-1px);
+}
+
+.custom-tab-btn.active {
+    color: #dc3545;
+    background-color: var(--bg-color-primary);
+    border-bottom: 2px solid #dc3545;
+    z-index: 1;
+}
+
+.video-portal {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.service-status-card {
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+}
+
+.service-status-card .card-body {
+    padding: 1.5rem;
+}
+
+/* Video Generation Form */
+.video-generation-form {
+    background: var(--panel-bg, #f8f9fa);
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+#video-prompt {
+    border-radius: 8px;
+    border: 2px solid #e9ecef;
+    transition: border-color 0.3s ease;
+}
+
+#video-prompt:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+/* Video Gallery */
+.video-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem 0;
+}
+
+.video-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.video-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.video-thumbnail {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    background: linear-gradient(45deg, #f0f0f0 25%, transparent 25%), 
+                linear-gradient(-45deg, #f0f0f0 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #f0f0f0 75%), 
+                linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+}
+
+.video-card-body {
+    padding: 1rem;
+}
+
+.video-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.video-meta {
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.video-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.video-actions .btn {
+    flex: 1;
+    font-size: 0.8rem;
+}
+
+/* Job Queue */
+.job-item {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #007bff;
+}
+
+.job-item.completed {
+    border-left-color: #28a745;
+}
+
+.job-item.failed {
+    border-left-color: #dc3545;
+}
+
+.job-item.processing {
+    border-left-color: #ffc107;
+}
+
+.job-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.job-prompt {
+    font-weight: 600;
+    color: #333;
+}
+
+.job-status {
+    font-size: 0.8rem;
+}
+
+.job-meta {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.job-progress {
+    margin-top: 0.5rem;
+}
+
+/* Status Badges */
+.status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-running {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-stopped {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.status-installing {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+/* Example Prompts */
+.example-prompt {
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+
+.example-prompt:hover {
+    background-color: #667eea;
+    border-color: #667eea;
+    color: white;
+}
+
+/* Service Controls */
+.service-controls {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.service-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 0.5rem;
+}
+
+.service-indicator.running {
+    background-color: #28a745;
+    animation: pulse 2s infinite;
+}
+
+.service-indicator.stopped {
+    background-color: #dc3545;
+}
+
+.service-indicator.installing {
+    background-color: #ffc107;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/* Parameters Panel */
+.parameters-panel {
+    background-color: var(--panel-bg, #f8f9fa);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.parameter-group {
+    margin-bottom: 1rem;
+}
+
+.parameter-label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.parameter-control {
+    width: 100%;
+}
+
+/* Video Preview */
+.video-preview {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    background: black;
+}
+
+.video-preview video {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.video-preview:hover .video-overlay {
+    opacity: 1;
+}
+
+.video-overlay .btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid white;
+    color: white;
+    backdrop-filter: blur(10px);
+}
+
+/* Toast Customization */
+.toast {
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.toast-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .video-gallery {
+        grid-template-columns: 1fr;
+    }
+    
+    .service-status-card .d-flex {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 1rem;
+    }
+    
+    .service-controls {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+
+/* Loading States */
+.loading-placeholder {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 2s infinite;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.video-skeleton {
+    height: 200px;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.text-skeleton {
+    height: 1rem;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+}
+
+.text-skeleton.short {
+    width: 70%;
+}
+
+.text-skeleton.medium {
+    width: 85%;
+}
+
+/* Dark mode support */
+.theme-dark .service-status-card,
+.theme-dark .video-card,
+.theme-dark .job-item,
+.theme-dark .parameters-panel,
+.theme-dark .video-generation-form { --panel-bg: #1f2937; color: #e5e7eb; }

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include '_head.html' %}
+    <title>Vybe - Web Search</title>
+    <!-- Page-specific CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/search.css') }}">
+    <script>
+        // Initialize theme early to prevent flash
+        (function() {
+            function setTheme(theme) {
+                const html = document.documentElement;
+                html.classList.remove('theme-light', 'theme-dark', 'theme-system');
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (theme === 'system') {
+                    const body = document.body;
+                    html.classList.add('theme-system');
+                    html.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+                    body.classList.toggle('dark-mode', prefersDark);
+                } else {
+                    html.classList.add(`theme-${theme}`);
+                    html.setAttribute('data-theme', theme);
+                    document.body.classList.toggle('dark-mode', theme === 'dark');
+                }
+            }
+            
+            // Load theme from API or localStorage
+            fetch('/api/settings/theme_mode')
+                .then(response => response.ok ? response.json() : Promise.reject())
+                .then(data => {
+                    if (data && data.theme_mode) {
+                        setTheme(data.theme_mode || 'system');
+                    } else {
+                        setTheme('system');
+                    }
+                })
+                .catch(() => setTheme('system'));
+        })();
+    </script>
+</head>
+<body>
+    <div class="container">
+        {% include '_header_new.html' %}
+
+        <div class="page-title">
+            <h1>🌐 Web Search</h1>
+        </div>
+
+        <div class="search-container">
+            <div class="search-section">
+                <h2>Search the Web</h2>
+                <div class="search-input-container">
+                    <input 
+                        type="text" 
+                        id="search-query" 
+                        class="search-input" 
+                        placeholder="Enter your search query..."
+                        aria-label="Web search query input"
+                        autocomplete="off"
+                    >
+                    <button id="search-button" class="search-button" aria-label="Execute web search">
+                        <span class="search-icon">🔍</span>
+                        Search
+                    </button>
+                </div>
+                <div class="search-options">
+                    <div class="search-options-row">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="safe-search" checked>
+                            Safe Search
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="rag-integration">
+                            Enable RAG Integration
+                        </label>
+                    </div>
+                    <div class="search-options-row">
+                        <label class="results-count-label">
+                            Results: 
+                            <select id="results-count" class="results-count-select">
+                                <option value="5">5</option>
+                                <option value="10" selected>10</option>
+                                <option value="15">15</option>
+                                <option value="20">20</option>
+                            </select>
+                        </label>
+                        <label class="rag-collection-label" id="rag-collection-container" style="display: none;">
+                            RAG Collection: 
+                            <select id="rag-collection" class="rag-collection-select">
+                                <option value="web_search_results">Web Search Results</option>
+                                <option value="research_documents">Research Documents</option>
+                                <option value="knowledge_base">Knowledge Base</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="search-status" id="search-status" style="display: none;">
+                <div class="status-indicator">
+                    <div class="loading-spinner"></div>
+                    <span id="status-text">Searching...</span>
+                </div>
+            </div>
+
+            <div class="search-results-container">
+                <div class="results-actions" id="results-actions" style="display: none;">
+                    <button id="add-all-rag-btn" class="action-button rag-action-btn">
+                        📚 Add All to RAG
+                    </button>
+                    <button id="export-results-btn" class="action-button export-btn">
+                        📊 Export Results
+                    </button>
+                    <button id="clear-results-btn" class="action-button clear-btn">
+                        🗑️ Clear Results
+                    </button>
+                </div>
+                <div id="search-results" class="search-results">
+                    <!-- Search results will be populated here -->
+                </div>
+
+                <div id="no-results-message" class="no-results-message" style="display: none;">
+                    <div class="no-results-content">
+                        <div class="no-results-icon">🔍</div>
+                        <h3>No Results Found</h3>
+                        <p>Try different keywords or check your spelling.</p>
+                    </div>
+                </div>
+
+                <div id="error-message" class="error-message" style="display: none;">
+                    <div class="error-content">
+                        <div class="error-icon">⚠️</div>
+                        <h3>Search Error</h3>
+                        <p id="error-text">An error occurred while searching.</p>
+                        <button id="retry-button" class="retry-button">Try Again</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="search-tips">
+                <h3>Search Tips</h3>
+                <ul>
+                    <li>Use specific keywords for better results</li>
+                    <li>Put phrases in quotes for exact matches</li>
+                    <li>Use the minus sign (-) to exclude words</li>
+                    <li>Try different word combinations if you don't find what you're looking for</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    {% include '_scripts.html' %}
+    <!-- Page-specific scripts -->
+    <script src="{{ url_for('static', filename='js/web_search_standalone.js') }}"></script>
+</body>
+</html>

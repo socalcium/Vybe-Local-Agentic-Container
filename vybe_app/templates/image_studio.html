@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include '_head.html' %}
+    <title>Vybe - Image Studio</title>
+    <!-- Page-specific CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/image_studio.css') }}">
+    <script>
+        // Initialize theme early to prevent flash
+        (function() {
+            function setTheme(theme) {
+                const html = document.documentElement;
+                html.classList.remove('theme-light', 'theme-dark', 'theme-system');
+                
+                if (theme === 'system') {
+                    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    html.classList.add('theme-system');
+                    html.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+                } else {
+                    html.classList.add(`theme-${theme}`);
+                    html.setAttribute('data-theme', theme);
+                }
+            }
+            
+            // Load theme from API or localStorage
+            fetch('/api/settings/theme_mode')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        setTheme(data.theme_mode || 'system');
+                    } else {
+                        setTheme('system');
+                    }
+                })
+                .catch(() => setTheme('system'));
+        })();
+    </script>
+</head>
+<body>
+    <div class="container">
+        {% include '_header_new.html' %}
+
+        <div class="page-title">
+            <h1>🎨 Image Studio</h1>
+            <div class="help-section">
+                <div class="help-toggle" onclick="toggleHelp()">
+                    <span id="help-icon">❓</span>
+                    <span>Help</span>
+                </div>
+                <div id="help-content" class="help-content" style="display: none;">
+                    <p><strong>What is Image Studio?</strong></p>
+                    <p>Generate stunning AI-powered images using Stable Diffusion technology. Create detailed prompts to bring your imagination to life.</p>
+                    <ul>
+                        <li><strong>Prompts:</strong> Describe what you want to see in detail</li>
+                        <li><strong>Negative Prompts:</strong> Specify what to avoid in the image</li>
+                        <li><strong>Advanced Settings:</strong> Control quality, size, and generation parameters</li>
+                        <li><strong>Gallery:</strong> View, download, and manage your generated images</li>
+                    </ul>
+                    <p><strong>Tips:</strong> Be specific with your prompts and experiment with different styles and settings for the best results.</p>
+                </div>
+            </div>
+        </div>
+
+        <main class="settings-main">
+            <!-- Service Status Section -->
+            <div class="settings-section">
+                <h2>Service Status</h2>
+                <div class="status-display">
+                    <div class="status-indicator" id="statusIndicator">
+                        <span class="status-dot" id="statusDot"></span>
+                        <span class="status-text" id="statusText">Checking...</span>
+                    </div>
+                    <div class="status-controls">
+                        <button id="refreshStatus" class="btn btn-secondary btn-sm">
+                            <span class="btn-icon">🔄</span>
+                            Refresh
+                        </button>
+                        <button id="startService" class="btn btn-success btn-sm" style="display: none;">
+                            <span class="btn-icon">▶️</span>
+                            Start Service
+                        </button>
+                        <button id="stopService" class="btn btn-error btn-sm" style="display: none;">
+                            <span class="btn-icon">⏹️</span>
+                            Stop Service
+                        </button>
+                    </div>
+                </div>
+                <div class="status-details" id="statusDetails" style="display: none;">
+                    <div class="detail-item">
+                        <span class="detail-label">Installation:</span>
+                        <span class="detail-value" id="installStatus">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Service:</span>
+                        <span class="detail-value" id="serviceStatus">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Models Available:</span>
+                        <span class="detail-value" id="modelsCount">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Two-column layout -->
+            <div class="image-studio-content">
+                <!-- Left Column: Generation Controls -->
+                <div class="generation-section">
+                    <div class="settings-section">
+                        <h2>Generate Image</h2>
+                        
+                        <div class="generation-form" id="generationForm">
+                            <!-- Prompt Section -->
+                            <div class="form-group">
+                                <label class="form-label" for="prompt">Prompt *</label>
+                                <textarea id="prompt" class="form-control" placeholder="Describe what you want to generate..." rows="3" required></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="negativePrompt">Negative Prompt</label>
+                                <textarea id="negativePrompt" class="form-control" placeholder="What to avoid in the image..." rows="2"></textarea>
+                            </div>
+
+                            <!-- Model and Sampler Selection -->
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label" for="modelSelect">Model</label>
+                                    <select id="modelSelect" class="form-control">
+                                        <option value="">Loading models...</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="samplerSelect">Sampler</label>
+                                    <select id="samplerSelect" class="form-control">
+                                        <option value="Euler a">Euler a</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Image Dimensions -->
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label" for="width">Width</label>
+                                    <select id="width" class="form-control">
+                                        <option value="512">512px</option>
+                                        <option value="768">768px</option>
+                                        <option value="1024">1024px</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="height">Height</label>
+                                    <select id="height" class="form-control">
+                                        <option value="512">512px</option>
+                                        <option value="768">768px</option>
+                                        <option value="1024">1024px</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Advanced Settings -->
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label" for="steps">
+                                        Steps: <span class="range-value" id="stepsValue">20</span>
+                                    </label>
+                                    <input type="range" id="steps" class="form-range" min="1" max="50" value="20">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="cfgScale">
+                                        CFG Scale: <span class="range-value" id="cfgValue">7.0</span>
+                                    </label>
+                                    <input type="range" id="cfgScale" class="form-range" min="1" max="20" step="0.5" value="7">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="seed">Seed (optional)</label>
+                                <input type="number" id="seed" class="form-control" placeholder="Random seed (-1 for random)" value="-1">
+                            </div>
+
+                            <!-- Generate Button -->
+                            <div class="form-group">
+                                <button id="generateBtn" class="btn btn-primary btn-lg">
+                                    <span class="btn-icon">✨</span>
+                                    Generate Image
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Generation Progress -->
+                        <div class="generation-progress" id="generationProgress" style="display: none;">
+                            <div class="progress-content">
+                                <div class="spinner"></div>
+                                <h3>Generating Image...</h3>
+                                <p id="progressText">Preparing generation...</p>
+                            </div>
+                        </div>
+
+                        <!-- Generation Result -->
+                        <div class="generation-result" id="generationResult" style="display: none;">
+                            <div class="result-header">
+                                <h3>Generation Complete!</h3>
+                                <button id="generateAnother" class="btn btn-secondary btn-sm">Generate Another</button>
+                            </div>
+                            <div class="result-image-container">
+                                <img id="resultImage" class="result-image" alt="Generated image">
+                            </div>
+                            <div class="result-actions">
+                                <button id="downloadImage" class="btn btn-secondary">
+                                    <span class="btn-icon">📥</span>
+                                    Download
+                                </button>
+                                <button id="addToGallery" class="btn btn-primary">
+                                    <span class="btn-icon">🖼️</span>
+                                    View in Gallery
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Gallery -->
+                <div class="gallery-section">
+                    <div class="settings-section">
+                        <div class="section-header">
+                            <h2>Gallery</h2>
+                            <button id="refreshGallery" class="btn btn-secondary btn-sm">
+                                <span class="btn-icon">🔄</span>
+                                Refresh
+                            </button>
+                        </div>
+                        
+                        <div class="gallery-container" id="galleryContent">
+                            <div class="gallery-loading">
+                                <div class="spinner"></div>
+                                <p>Loading gallery...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Image Modal -->
+        <div class="modal" id="imageModal" style="display: none;">
+            <div class="modal-overlay" id="modalOverlay"></div>
+            <div class="modal-content modal-large">
+                <div class="modal-header">
+                    <h3>Image Details</h3>
+                    <button class="modal-close" id="modalClose">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div class="modal-image-section">
+                        <img id="modalImage" class="modal-image" alt="Full size image">
+                    </div>
+                    <div class="modal-info-section">
+                        <div class="info-section">
+                            <h4>Generation Details</h4>
+                            <div class="metadata-list" id="modalMetadata">
+                                <!-- Metadata will be populated here -->
+                            </div>
+                        </div>
+                        <div class="modal-actions">
+                            <button id="modalReuseSettings" class="btn btn-primary">
+                                <span class="btn-icon">🔄</span>
+                                Reuse Settings
+                            </button>
+                            <button id="modalDownload" class="btn btn-secondary">
+                                <span class="btn-icon">📥</span>
+                                Download
+                            </button>
+                            <button id="modalDelete" class="btn btn-error">
+                                <span class="btn-icon">🗑️</span>
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/image_studio.js') }}"></script>
+    <script>
+        function toggleHelp() {
+            const helpContent = document.getElementById('help-content');
+            const helpIcon = document.getElementById('help-icon');
+            
+            if (helpContent.style.display === 'none') {
+                helpContent.style.display = 'block';
+                helpIcon.textContent = '❌';
+            } else {
+                helpContent.style.display = 'none';
+                helpIcon.textContent = '❓';
+            }
+        }
+    </script>
+    {% include '_scripts.html' %}
+    <!-- Page-specific scripts -->
+    <script src="{{ url_for('static', filename='js/image_studio.js') }}"></script>
+</body>
+</html>

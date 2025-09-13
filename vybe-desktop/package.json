@@ -1,0 +1,29 @@
+{
+  "name": "vybe-desktop",
+  "version": "1.2.0",
+  "description": "Vybe AI Assistant - Desktop Frontend",
+  "main": "src/main.js",
+  "scripts": {
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build --verbose",
+    "dev": "tauri dev",
+    "build": "tauri build --verbose",
+    "build:debug": "tauri build --debug --verbose"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^1.5.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^1.5.0"
+  },
+  "keywords": [
+    "tauri",
+    "desktop",
+    "ai",
+    "assistant",
+    "vybe"
+  ],
+  "author": "Vybe Team",
+  "license": "MIT"
+}

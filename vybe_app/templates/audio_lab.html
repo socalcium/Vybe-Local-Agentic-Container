@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include '_head.html' %}
+    <title>Audio & Voice Lab - Vybe</title>
+    <!-- Page-specific CSS -->
+    <link href="{{ url_for('static', filename='css/audio_lab.css') }}" rel="stylesheet">
+</head>
+<body>
+    {% include '_header_new.html' %}
+    
+    <div class="container-fluid">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h2>🎵 Audio & Voice Laboratory</h2>
+            <p>Generate speech, transcribe audio, and manage voice models</p>
+        </div>
+
+        <!-- Service Status Cards -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="service-card tts-card">
+                    <div class="service-header">
+                        <h4>🎤 Text-to-Speech</h4>
+                        <span class="service-status ready">Ready</span>
+                        <button class="service-toggle active">Active</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="service-card transcription-card">
+                    <div class="service-header">
+                        <h4>📝 Transcription</h4>
+                        <span class="service-status ready">Ready</span>
+                        <button class="service-toggle active">Active</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Tabs -->
+        <div class="audio-tabs">
+            <button class="audio-tab-btn active" data-target="tts-panel">
+                🎤 Text-to-Speech
+            </button>
+            <button class="audio-tab-btn" data-target="transcription-panel">
+                📝 Transcription
+            </button>
+            <button class="audio-tab-btn" data-target="voice-cloning-panel">
+                🎭 Voice Cloning
+            </button>
+            <button class="audio-tab-btn" data-target="models-panel">
+                ⚙️ Audio Models
+            </button>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="audio-content">
+            <!-- Text-to-Speech Panel -->
+            <div class="tab-panel active" id="tts-panel">
+                <div class="audio-panel">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="input-section">
+                                <label for="tts-text">Text to Convert</label>
+                                <textarea id="tts-text" placeholder="Enter text to convert to speech..." rows="4"></textarea>
+                                <div class="char-counter">
+                                    <span id="char-count">0</span> characters
+                                </div>
+                            </div>
+                            
+                            <div class="controls-section">
+                                <div class="control-group">
+                                    <label for="voice-select">Voice</label>
+                                    <select id="voice-select">
+                                        <option value="">Loading voices...</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="control-group">
+                                    <label for="speed-slider">Speed: <span id="speed-value">1.0</span>x</label>
+                                    <input type="range" id="speed-slider" min="0.5" max="2.0" step="0.1" value="1.0">
+                                </div>
+                                
+                                <button id="generate-speech-btn" class="generate-btn">Generate Speech</button>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="preview-section" id="audio-preview" style="display: none;">
+                                <h5>Generated Audio</h5>
+                                <audio id="audio-player" controls></audio>
+                                <div class="audio-info">
+                                    <p>Voice: <span id="used-voice">-</span></p>
+                                    <p>Length: <span id="audio-length">-</span></p>
+                                </div>
+                                <button id="download-audio" class="download-btn">Download Audio</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transcription Panel -->
+            <div class="tab-panel" id="transcription-panel">
+                <div class="audio-panel">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="upload-section">
+                                <div class="upload-area" id="audio-upload-area">
+                                    <div class="upload-content">
+                                        <div class="upload-icon">🎵</div>
+                                        <p>Drop audio file here or click to browse</p>
+                                        <input type="file" id="audio-file-input" accept="audio/*" hidden>
+                                        <button class="browse-btn">Browse Files</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="transcription-results">
+                                <h5>Transcription Result</h5>
+                                <div id="transcription-output" class="transcription-text">
+                                    Upload an audio file to get transcription
+                                </div>
+                                <div class="transcription-actions">
+                                    <button id="copy-transcription" class="copy-btn" disabled>Copy Text</button>
+                                    <button id="download-transcription" class="download-btn" disabled>Download</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Voice Cloning Panel -->
+            <div class="tab-panel" id="voice-cloning-panel">
+                <div class="audio-panel">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="clone-upload-section">
+                                <h5>Upload Voice Sample</h5>
+                                <div class="upload-area" id="voice-upload-area">
+                                    <div class="upload-content">
+                                        <div class="upload-icon">🎤</div>
+                                        <p>Drop voice sample here (30+ seconds recommended)</p>
+                                        <input type="file" id="voice-file-input" accept="audio/*" hidden>
+                                        <button class="browse-btn">Browse Voice Files</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="clone-controls">
+                                    <input type="text" id="voice-name" placeholder="Voice name..." maxlength="50">
+                                    <button id="clone-voice-btn" class="clone-btn" disabled>Clone Voice</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="cloned-voices-section">
+                                <h5>Cloned Voices</h5>
+                                <div id="cloned-voices-list" class="voices-list">
+                                    <p class="no-voices">No cloned voices yet</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Audio Models Panel -->
+            <div class="tab-panel" id="models-panel">
+                <div class="audio-panel">
+                    <div class="models-section">
+                        <div class="models-header">
+                            <h4>Available Audio Models</h4>
+                            <button id="refresh-models-btn" class="refresh-btn">Refresh</button>
+                        </div>
+                        
+                        <div class="models-grid">
+                            <div class="model-category">
+                                <h5>Speech Recognition (Whisper)</h5>
+                                <div id="whisper-models" class="models-list">
+                                    <div class="loading-indicator">Loading Whisper models...</div>
+                                </div>
+                            </div>
+                            
+                            <div class="model-category">
+                                <h5>Text-to-Speech Models</h5>
+                                <div id="tts-models" class="models-list">
+                                    <div class="loading-indicator">Loading TTS models...</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="quick-actions">
+                            <button id="test-models-btn" class="test-btn">Test Models</button>
+                            <button id="open-audio-studio-btn" class="studio-btn">Open Audio Studio</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    {% include '_scripts.html' %}
+    <script src="{{ url_for('static', filename='js/audio_lab.js') }}"></script>
+</body>
+</html>

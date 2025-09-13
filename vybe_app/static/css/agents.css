@@ -1,0 +1,546 @@
+/* Modern Agents Page Design - Complete Rewrite */
+
+:root {
+    --agents-primary: #6366f1;
+    --agents-primary-hover: #5855eb;
+    --agents-secondary: #8b5cf6;
+    --agents-accent: #06b6d4;
+    --agents-success: #10b981;
+    --agents-warning: #f59e0b;
+    --agents-danger: #ef4444;
+    --agents-bg: var(--bg-color-primary, #f8fafc);
+    --agents-surface: var(--bg-color-secondary, #ffffff);
+    --agents-border: var(--border-color, #e2e8f0);
+    --agents-text: var(--text-color-primary, #334155);
+    --agents-text-light: var(--text-color-secondary, #64748b);
+    --agents-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --agents-shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    --agents-radius: 16px;
+    --agents-radius-lg: 24px;
+}
+
+/* Dark theme overrides */
+[data-theme="dark"] {
+    --agents-bg: var(--bg-color-primary, #0f172a);
+    --agents-surface: var(--bg-color-secondary, #1e293b);
+    --agents-border: var(--border-color, #334155);
+    --agents-text: var(--text-color-primary, #f1f5f9);
+    --agents-text-light: var(--text-color-secondary, #94a3b8);
+}
+
+/* Global Layout */
+body {
+    background: var(--agents-bg);
+    color: var(--agents-text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.container-fluid {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+/* Agents Main Layout - FIXED SCROLLING */
+.agents-main-layout {
+    display: grid;
+    grid-template-columns: 400px 1fr;
+    gap: 2rem;
+    margin-top: 2rem;
+    height: calc(100vh - 200px);
+    overflow: visible; /* Fix dropdown clipping */
+}
+
+.agents-sidebar {
+    position: sticky;
+    top: 2rem;
+    height: fit-content;
+    max-height: calc(100vh - 4rem);
+    overflow-y: auto;
+    overflow-x: visible; /* Allow dropdowns to expand horizontally */
+    z-index: 100; /* Higher z-index for dropdowns */
+}
+
+.agents-content {
+    overflow-y: auto;
+    height: 100%;
+    padding-right: 1rem;
+}
+
+@media (max-width: 1024px) {
+    .agents-main-layout {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+    
+    .agents-sidebar {
+        position: relative;
+        top: auto;
+        max-height: none;
+        margin-bottom: 2rem;
+    }
+    
+    .agents-content {
+        height: auto;
+        overflow-y: visible;
+    }
+}
+
+/* Header Section */
+.page-header {
+    background: linear-gradient(135deg, var(--agents-primary) 0%, var(--agents-secondary) 100%);
+    color: white;
+    padding: 3rem 2rem;
+    border-radius: var(--agents-radius-lg);
+    margin-bottom: 3rem;
+    box-shadow: var(--agents-shadow-lg);
+    position: relative;
+    overflow: hidden;
+}
+
+.page-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g fill="%23ffffff" fill-opacity="0.1"><circle cx="30" cy="30" r="2"/></g></svg>');
+    opacity: 0.3;
+}
+
+.page-header h2 {
+    margin: 0 0 0.75rem 0;
+    font-weight: 700;
+    font-size: 2.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.page-header p {
+    margin: 0;
+    font-size: 1.1rem;
+    opacity: 0.9;
+    position: relative;
+    z-index: 1;
+    line-height: 1.6;
+}
+
+.feature-badges {
+    margin-top: 1.5rem;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.feature-badges .badge {
+    font-size: 0.875rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 50px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    font-weight: 500;
+    transition: all 0.3s ease;
+    cursor: default;
+}
+
+.feature-badges .badge:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+}
+
+/* Modern Card Design */
+.card {
+    background: var(--agents-surface);
+    border: 1px solid var(--agents-border);
+    border-radius: var(--agents-radius);
+    box-shadow: var(--agents-shadow);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--agents-shadow-lg);
+}
+
+.card-header {
+    background: linear-gradient(135deg, var(--agents-surface) 0%, var(--agents-bg) 100%);
+    border-bottom: 1px solid var(--agents-border);
+    padding: 1.5rem;
+    border-radius: var(--agents-radius) var(--agents-radius) 0 0 !important;
+}
+
+.card-header h5, .card-header h6 {
+    margin: 0;
+    font-weight: 600;
+    color: var(--agents-text);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+/* Agent Creation Card Specific - Fixed scrolling */
+.agent-creation-card {
+    position: sticky;
+    top: 2rem;
+    max-height: calc(100vh - 4rem);
+    overflow-y: auto;
+    z-index: 10;
+    background: var(--agents-surface);
+}
+
+/* Ensure the output column doesn't interfere */
+.col-lg-8 {
+    z-index: 1;
+}
+
+/* Form Elements */
+.form-label {
+    font-weight: 600;
+    color: var(--agents-text);
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.form-control, .form-select {
+    border: 2px solid var(--agents-border);
+    border-radius: 12px;
+    padding: 0.875rem 1rem;
+    font-size: 1rem;
+    background: var(--agents-surface);
+    color: var(--agents-text);
+    transition: all 0.3s ease;
+    position: relative; /* Ensure proper stacking */
+    z-index: 50; /* Higher than containers */
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--agents-primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    outline: none;
+    z-index: 100; /* Even higher when focused */
+}
+
+/* Specific fix for dropdown clipping on agent creation form */
+#system-prompt-select,
+#tools-checklist,
+.tools-checklist {
+    z-index: 200 !important;
+    position: relative !important;
+}
+
+/* Ensure dropdown options are visible */
+select option {
+    z-index: 300 !important;
+}
+
+.form-text {
+    font-size: 0.875rem;
+    color: var(--agents-text-light);
+    margin-top: 0.5rem;
+}
+
+/* Tools Checklist */
+.tools-checklist {
+    background: var(--agents-bg);
+    border: 2px solid var(--agents-border);
+    border-radius: 12px;
+    padding: 1rem;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.form-check {
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.form-check-input {
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2px solid var(--agents-border);
+    border-radius: 6px;
+    margin: 0;
+    transition: all 0.3s ease;
+}
+
+.form-check-input:checked {
+    background-color: var(--agents-primary);
+    border-color: var(--agents-primary);
+}
+
+.form-check-label {
+    font-weight: 500;
+    color: var(--agents-text);
+    cursor: pointer;
+    margin: 0;
+}
+
+/* Buttons */
+.btn {
+    padding: 0.875rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.975rem;
+    border: none;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--agents-primary) 0%, var(--agents-primary-hover) 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+}
+
+.btn-outline-primary {
+    background: transparent;
+    border: 2px solid var(--agents-primary);
+    color: var(--agents-primary);
+}
+
+.btn-outline-primary:hover {
+    background: var(--agents-primary);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, var(--agents-success) 0%, #059669 100%);
+    color: white;
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, var(--agents-warning) 0%, #d97706 100%);
+    color: white;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, var(--agents-danger) 0%, #dc2626 100%);
+    color: white;
+}
+
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+
+/* Agent Cards */
+.agent-card {
+    background: var(--agents-surface);
+    border: 2px solid var(--agents-border);
+    border-radius: var(--agents-radius);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.agent-card:hover {
+    border-color: var(--agents-primary);
+    transform: translateY(-2px);
+    box-shadow: var(--agents-shadow-lg);
+}
+
+.agent-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.agent-status.running {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--agents-success);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.agent-status.stopped {
+    background: rgba(107, 114, 128, 0.1);
+    color: var(--agents-text-light);
+    border: 1px solid rgba(107, 114, 128, 0.3);
+}
+
+.agent-status.error {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--agents-danger);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Agent Output */
+.agent-output {
+    background: var(--agents-surface);
+    border: 2px solid var(--agents-border);
+    border-radius: var(--agents-radius);
+    padding: 1.5rem;
+    margin-top: 1rem;
+}
+
+.agent-output-header {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--agents-border);
+}
+
+.output-content {
+    background: var(--agents-bg);
+    border: 1px solid var(--agents-border);
+    border-radius: 8px;
+    padding: 1rem;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.875rem;
+    max-height: 400px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    line-height: 1.5;
+}
+
+/* Progress Indicators */
+.progress-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: var(--agents-bg);
+    border: 1px solid var(--agents-border);
+    border-radius: 12px;
+    margin: 1rem 0;
+}
+
+.progress-spinner {
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 2px solid var(--agents-border);
+    border-top: 2px solid var(--agents-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container-fluid {
+        padding: 0 1rem;
+    }
+    
+    .page-header {
+        padding: 2rem 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .page-header h2 {
+        font-size: 2rem;
+    }
+    
+    .feature-badges {
+        justify-content: center;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .agent-creation-card {
+        position: static;
+        max-height: none;
+        margin-bottom: 2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .page-header h2 {
+        font-size: 1.75rem;
+    }
+    
+    .feature-badges .badge {
+        font-size: 0.8rem;
+        padding: 0.5rem 1rem;
+    }
+    
+    .btn {
+        padding: 0.75rem 1.25rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* Custom Scrollbar */
+.tools-checklist::-webkit-scrollbar,
+.output-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.tools-checklist::-webkit-scrollbar-track,
+.output-content::-webkit-scrollbar-track {
+    background: var(--agents-bg);
+    border-radius: 3px;
+}
+
+.tools-checklist::-webkit-scrollbar-thumb,
+.output-content::-webkit-scrollbar-thumb {
+    background: var(--agents-border);
+    border-radius: 3px;
+}
+
+.tools-checklist::-webkit-scrollbar-thumb:hover,
+.output-content::-webkit-scrollbar-thumb:hover {
+    background: var(--agents-text-light);
+}
+
+/* Loading States */
+.loading-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    color: var(--agents-text-light);
+}
+
+.loading-state .spinner-border {
+    margin-right: 0.75rem;
+}
+
+/* Empty States */
+.empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--agents-text-light);
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-state h5 {
+    margin-bottom: 0.5rem;
+    color: var(--agents-text);
+}

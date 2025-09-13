@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include '_head.html' %}
+    <title>Vybe - Starting up…</title>
+    <style>
+        .splash-wrap { display:flex; align-items:center; justify-content:center; height:100vh; padding:2rem; }
+        .card { max-width: 720px; width:100%; background: var(--surface-color); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.15); padding: 24px; }
+        .title { display:flex; align-items:center; gap:.5rem; font-size:1.25rem; margin-bottom:.5rem; }
+        .progress { height: 10px; background: var(--border-color); border-radius: 999px; overflow:hidden; }
+        .bar { height: 100%; width:0%; background: var(--primary-color); transition: width .4s ease; }
+        .steps { margin-top: 12px; font-size: .95rem; }
+        .step { display:flex; align-items:center; gap:.5rem; margin:.2rem 0; }
+        .muted { color: var(--text-muted); font-size: .9rem; }
+        .tip { margin-top: 10px; font-size: .9rem; color: var(--text-secondary); }
+    </style>
+</head>
+<body>
+    <div class="splash-wrap">
+        <div class="card">
+            <div class="title">🤖 Vybe is getting ready…</div>
+            <div class="muted" id="status-summary">Initializing…</div>
+            <div class="progress" style="margin:12px 0 16px"><div class="bar" id="progress-bar"></div></div>
+            <div id="feature-cards" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:6px 0 10px;">
+                <div class="mini-card" style="border:1px solid var(--border-color);border-radius:8px;padding:8px;">
+                    <div><strong>Models</strong></div>
+                    <div class="muted" id="card-models-text">Checking local 32k+ model…</div>
+                </div>
+                <div class="mini-card" style="border:1px solid var(--border-color);border-radius:8px;padding:8px;">
+                    <div><strong>LLM Backend</strong></div>
+                    <div class="muted" id="card-llm-text">Waiting for backend to start…</div>
+                </div>
+                <div class="mini-card" style="border:1px solid var(--border-color);border-radius:8px;padding:8px;">
+                    <div><strong>AI Tools</strong></div>
+                    <div class="muted" id="card-tools-text">Detecting SD/Comfy/TTS…</div>
+                </div>
+                <div class="mini-card" style="border:1px solid var(--border-color);border-radius:8px;padding:8px;">
+                    <div><strong>Finalize</strong></div>
+                    <div class="muted" id="card-finalize-text">Preparing UI…</div>
+                </div>
+            </div>
+            <div class="steps" id="steps"></div>
+            <details style="margin-top:10px;">
+                <summary>Activity log</summary>
+                <pre id="activity-log" style="max-height:160px;overflow:auto;background:var(--bg-color-primary);border:1px solid var(--border-color);padding:8px;border-radius:6px;"></pre>
+            </details>
+            <div class="tip" id="splash-tip">Tip: You can configure auto-start for services in Settings → Startup</div>
+            <div id="preflight" class="muted" style="margin-top:8px; display:none"></div>
+            <div style="margin-top:12px; display:flex; gap:8px; align-items:center;">
+                <button id="continue-btn" style="display:none; padding:8px 12px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-color-primary); cursor:pointer;">Continue</button>
+                <a href="/system-health" id="logs-link" style="font-size:.9rem; color:var(--primary-color); text-decoration:none;">View system health</a>
+            </div>
+        </div>
+    </div>
+    <script>
+    const splashStart = Date.now();
+    let lastComponents = null;
+    let pollDelay = 900; // start slightly under 1s
+    const maxDelay = 5000;
+    const softCapMs = 60000;  // 60s soft cap
+    const hardCapMs = 90000;  // 90s hard cap
+    const continueBtn = document.getElementById('continue-btn');
+    let timeoutIds = []; // Track timeouts for cleanup
+    
+    continueBtn.addEventListener('click', () => { window.location.href = '/chat'; });
+    const activityLogEl = document.getElementById('activity-log');
+    
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+        timeoutIds.forEach(id => clearTimeout(id));
+        timeoutIds = [];
+    });
+    
+    function addTimeout(callback, delay) {
+        const id = setTimeout(callback, delay);
+        timeoutIds.push(id);
+        return id;
+    }
+
+    function logActivity(line){
+        if(!activityLogEl) return;
+        const ts = new Date().toLocaleTimeString();
+        activityLogEl.textContent += `[${ts}] ${line}\n`;
+        activityLogEl.scrollTop = activityLogEl.scrollHeight;
+    }
+
+    async function fetchStatus(){
+        try {
+            const resp = await fetch('/api/splash/status');
+            if(!resp.ok) return scheduleNext();
+            const data = await resp.json();
+            if(!data.success) return scheduleNext();
+            const progress = data.loading_progress || 0;
+            document.getElementById('status-summary').textContent = data.status_message || 'Starting…';
+            document.getElementById('progress-bar').style.width = Math.min(100, progress) + '%';
+            // Preflight: ensure 32k+ model exists; if not, offer 1-click download
+            try {
+                const pf = await fetch('/api/splash/preflight');
+                if (pf.ok) {
+                    const pj = await pf.json();
+                    const preflightEl = document.getElementById('preflight');
+                    if (pj.success && !pj.has_highctx_model) {
+                        preflightEl.style.display = 'block';
+                        const name = pj.recommended?.filename || pj.recommended?.name || 'recommended model';
+                        const size = pj.recommended?.size_mb ? `${pj.recommended.size_mb} MB` : 'unknown size';
+                        preflightEl.innerHTML = `Required ${pj.required_min_context.toLocaleString()} ctx model not found. <button id="pf-dl" style="margin-left:6px">Download ${name} (${size})</button>`;
+                        document.getElementById('pf-dl').onclick = async () => {
+                            const btn = document.getElementById('pf-dl');
+                            btn.disabled = true; btn.textContent = 'Downloading…';
+                            const resp = await fetch('/api/splash/download_default', {method:'POST'});
+                            if (resp.ok) {
+                                const upd = await resp.json().catch(()=>({}));
+                                btn.textContent = 'Download complete. Initializing…';
+                                if (upd && upd.updates && Array.isArray(upd.updates)) {
+                                    upd.updates.forEach(u=> {
+                                        logActivity(u.message || '…');
+                                        if (typeof u.percentage === 'number') {
+                                            const pct = Math.max(0, Math.min(100, Math.floor(u.percentage)));
+                                            document.getElementById('progress-bar').style.width = pct + '%';
+                                        }
+                                    });
+                                }
+                                // Give backend a moment, then keep polling
+                                setTimeout(()=>{}, 1500);
+                            } else {
+                                btn.disabled = false; btn.textContent = 'Retry download';
+                            }
+                        };
+                    } else {
+                        preflightEl.style.display = 'none';
+                    }
+                }
+            } catch {}
+
+            // Build steps based on components
+            const r = await fetch('/api/splash/readiness');
+            if(r.ok){
+                const j = await r.json();
+                if(j.success){
+                    const comp = j.components || j.details?.components || {};
+                    lastComponents = comp;
+                    const stepsEl = document.getElementById('steps');
+                    stepsEl.innerHTML='';
+                    const order = ['database','llm_backend','ai_tools','orchestrator','hardware','job_manager','monitoring'];
+                    order.forEach(k=>{
+                        if(comp[k]){
+                            const row = document.createElement('div');
+                            row.className='step';
+                            const ok = comp[k].ready ? '✅' : '⏳';
+                            // De-duplicate noisy messages by trimming generic errors
+                            const msg = (comp[k].message||'').replace(/edge-tts.*not available.*/i,'Using offline TTS');
+                            row.innerHTML = `${ok} <strong>${k.replace('_',' ')}</strong> — ${msg}`;
+                            stepsEl.appendChild(row);
+                        }
+                    });
+                    // Update cards
+                    const llmText = comp.llm_backend?.ready ? 'Backend running' : (comp.llm_backend?.message || 'Starting LLM backend…');
+                    const toolsText = comp.ai_tools?.message || 'Detecting tools…';
+                    const finalizeText = j.ready ? 'All set' : 'Final checks…';
+                    const modelsText = comp.llm_backend?.ready ? 'High-context model active' : 'Waiting for model/LLM…';
+                    const setIf = (id, val)=>{ const el=document.getElementById(id); if(el) el.textContent = val;};
+                    setIf('card-llm-text', llmText);
+                    setIf('card-tools-text', toolsText);
+                    setIf('card-finalize-text', finalizeText);
+                    setIf('card-models-text', modelsText);
+                    // If server reports ready, go to chat immediately
+                    if (j.ready) {
+                        return window.location.href = '/chat';
+                    }
+                }
+            }
+            // Proceed when ready or after a max wait if core components are OK
+            const elapsed = Date.now() - splashStart;
+            const dbReady = !!(lastComponents && lastComponents.database && lastComponents.database.ready);
+            const softReached = elapsed > softCapMs;
+            const hardReached = elapsed > hardCapMs;
+            // Show Continue button after 15s regardless, so users can proceed
+            if (elapsed > 15000) continueBtn.style.display = 'inline-block';
+            // Auto-redirect when fully ready, or after hard cap regardless
+            if (data.system_ready || hardReached){
+                return window.location.href = '/chat';
+            }
+            // If soft cap reached and DB is up, keep showing Continue; keep polling
+        } finally {
+            scheduleNext();
+        }
+    }
+    function scheduleNext(){
+        pollDelay = Math.min(maxDelay, Math.floor(pollDelay * 1.4));
+        setTimeout(fetchStatus, pollDelay);
+    }
+    fetchStatus();
+    </script>
+</body>
+</html>
+
+

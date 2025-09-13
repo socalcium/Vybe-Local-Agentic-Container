@@ -1,0 +1,851 @@
+/* RPG Interface Styles */
+
+/* Mobile Tab Bar - iOS Style */
+.mobile-tab-bar {
+    position: sticky;
+    top: var(--header-height);
+    z-index: 9999;
+    background: var(--bg-color);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border-color);
+    display: none;
+    align-items: center;
+    justify-content: space-around;
+    padding: 8px 16px;
+    margin-bottom: 16px;
+    min-height: 60px;
+}
+
+.mobile-tab-btn {
+    background: none;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 12px;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 500;
+    min-width: 64px;
+    cursor: pointer;
+}
+
+.mobile-tab-btn.active {
+    color: var(--primary-color);
+    background: rgba(var(--primary-rgb), 0.15);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.mobile-tab-btn:hover {
+    background: rgba(var(--text-rgb), 0.1);
+    color: var(--text-color);
+}
+
+.mobile-tab-btn.active:hover {
+    background: rgba(var(--primary-rgb), 0.2);
+    color: var(--primary-color);
+}
+
+.tab-icon {
+    font-size: 20px;
+    line-height: 1;
+}
+
+.tab-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Tab Content */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Desktop RPG Layout */
+.desktop-rpg-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+    height: calc(100vh - 80px);
+    max-height: calc(100vh - 80px);
+    padding: 1rem;
+}
+
+.rpg-container {
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+/* Adventure Panel (Left Column) */
+.adventure-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-height: 0;
+}
+
+.campaign-header {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-md);
+}
+
+.campaign-header .campaign-info h1 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-color-primary);
+    font-size: 1.5rem;
+}
+
+.campaign-header .campaign-info p {
+    margin: 0;
+    color: var(--text-color-secondary);
+    font-size: 0.9rem;
+}
+
+.campaign-controls {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.scene-container {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-md);
+    min-height: 120px;
+}
+
+.scene-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.scene-header h3 {
+    margin: 0;
+    color: var(--text-color-primary);
+    font-size: 1.1rem;
+}
+
+.scene-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.scene-content {
+    color: var(--text-color-primary);
+    line-height: 1.6;
+    font-size: 0.95rem;
+    background: var(--bg-color-tertiary);
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid var(--primary-color);
+    font-style: italic;
+    min-height: 60px;
+}
+
+.chat-container {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 300px;
+}
+
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.chat-header h3 {
+    margin: 0;
+    color: var(--text-color-primary);
+    font-size: 1.1rem;
+}
+
+.turn-counter {
+    background: var(--primary-color);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+    min-height: 200px;
+    max-height: 400px;
+}
+
+.chat-message {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-radius: 12px;
+    line-height: 1.5;
+    animation: fadeIn 0.3s ease;
+}
+
+.chat-message.user {
+    background: var(--primary-color);
+    color: white;
+    margin-left: 2rem;
+    border-bottom-right-radius: 4px;
+}
+
+.chat-message.dm {
+    background: var(--bg-color-tertiary);
+    color: var(--text-color-primary);
+    margin-right: 2rem;
+    border-bottom-left-radius: 4px;
+    border-left: 4px solid var(--success-color);
+}
+
+.chat-message.system {
+    background: var(--warning-color);
+    color: var(--text-color-primary);
+    text-align: center;
+    font-style: italic;
+    margin: 0.5rem 0;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}
+
+.chat-input-form {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border-color);
+    background: var(--bg-color-tertiary);
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+.input-group {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.input-group input {
+    flex: 1;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--input-bg);
+    color: var(--text-color-primary);
+    font-size: 0.9rem;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
+}
+
+.input-group input:disabled {
+    background: var(--bg-color-secondary);
+    color: var(--text-color-secondary);
+    cursor: not-allowed;
+}
+
+.quick-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.quick-action-btn {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-color-secondary);
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.quick-action-btn:hover:not(:disabled) {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.quick-action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Game State Panel (Right Column) */
+.game-state-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    overflow-y: auto;
+    max-height: 100%;
+}
+
+.stats-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: var(--shadow-md);
+}
+
+.stats-card h3 {
+    margin: 0 0 1rem 0;
+    color: var(--text-color-primary);
+    font-size: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.party-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    background: var(--bg-color-tertiary);
+    border-radius: 6px;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: var(--text-color-secondary);
+    font-weight: 600;
+}
+
+.stat-item span:last-child {
+    font-weight: 700;
+    color: var(--text-color-primary);
+}
+
+.character-card {
+    background: var(--bg-color-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    transition: transform 0.2s ease;
+}
+
+.character-card:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.character-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.character-name {
+    font-weight: 600;
+    color: var(--text-color-primary);
+}
+
+.character-level {
+    background: var(--primary-color);
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.health-bar {
+    background: var(--border-color);
+    border-radius: 4px;
+    height: 8px;
+    margin: 0.5rem 0;
+    overflow: hidden;
+}
+
+.health-fill {
+    height: 100%;
+    background: var(--success-color);
+    transition: width 0.3s ease;
+    border-radius: 4px;
+}
+
+.health-fill.low {
+    background: var(--warning-color);
+}
+
+.health-fill.critical {
+    background: var(--error-color);
+}
+
+.health-text {
+    font-size: 0.8rem;
+    color: var(--text-color-secondary);
+    text-align: center;
+}
+
+.npc-item, .inventory-item, .quest-item {
+    background: var(--bg-color-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-color-primary);
+}
+
+.event-log {
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.event-item {
+    background: var(--bg-color-tertiary);
+    border-left: 3px solid var(--info-color);
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: 0 4px 4px 0;
+    font-size: 0.85rem;
+    color: var(--text-color-primary);
+}
+
+/* Dice Roll Modal Specific Styles */
+.quick-dice {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+    margin: 1rem 0;
+}
+
+.dice-btn {
+    background: var(--bg-color-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-color-primary);
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.dice-btn:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.dice-result {
+    background: var(--success-color);
+    color: white;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    margin-top: 1rem;
+    animation: rollAnimation 0.5s ease;
+}
+
+.dice-result .result-total {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.dice-result .result-details {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+/* Buttons */
+.btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: var(--secondary-color);
+    color: white;
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: var(--bg-color-tertiary);
+    color: var(--text-color-primary);
+}
+
+.btn-success {
+    background: var(--success-color);
+    color: white;
+}
+
+.btn-success:hover:not(:disabled) {
+    background: var(--success-color);
+    filter: brightness(0.9);
+    transform: translateY(-1px);
+}
+
+.btn-outline-primary {
+    background: transparent;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+}
+
+.btn-outline-primary:hover:not(:disabled) {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+}
+
+.full-width {
+    width: 100%;
+}
+
+/* Modals */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    background-color: var(--card-bg);
+    margin: 10% auto;
+    padding: 0;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: var(--text-color-primary);
+}
+
+.close {
+    color: var(--text-color-secondary);
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.close:hover {
+    color: var(--text-color-primary);
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border-color);
+    text-align: right;
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--text-color-primary);
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--input-bg);
+    color: var(--text-color-primary);
+    font-size: 0.9rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.help-text {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.8rem;
+    color: var(--text-color-secondary);
+    font-style: italic;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes rollAnimation {
+    0% { transform: scale(0.8) rotate(-10deg); opacity: 0; }
+    50% { transform: scale(1.1) rotate(5deg); }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .rpg-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+        height: auto;
+        max-height: none;
+    }
+    
+    .game-state-panel {
+        order: -1;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .adventure-panel {
+        min-height: 400px;
+    }
+}
+
+@media (max-width: 768px) {
+    .rpg-container {
+        padding: 0.5rem;
+        gap: 1rem;
+    }
+    
+    .campaign-header,
+    .scene-container,
+    .chat-container,
+    .stats-card {
+        padding: 1rem;
+    }
+    
+    .campaign-controls {
+        flex-direction: column;
+    }
+    
+    .quick-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+    }
+    
+    .quick-dice {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .party-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .modal-content {
+        margin: 5% auto;
+        width: 95%;
+    }
+}
+
+/* Mobile RPG Layout - iOS Style */
+@media (max-width: 767px) {
+    .mobile-tab-bar {
+        display: flex;
+    }
+    
+    .desktop-rpg-layout {
+        display: none;
+    }
+    
+    .rpg-container {
+        padding: 0 8px;
+        height: auto;
+        max-height: none;
+    }
+    
+    /* Mobile tab content styling */
+    .tab-content {
+        padding: 16px 8px;
+    }
+    
+    .adventure-panel,
+    .game-state-panel {
+        height: auto;
+        max-height: none;
+        gap: 16px;
+    }
+    
+    .scene-container {
+        height: auto;
+        max-height: 300px;
+    }
+    
+    .scene-content {
+        max-height: 200px;
+    }
+    
+    .chat-container {
+        height: auto;
+        max-height: 400px;
+    }
+    
+    .chat-messages {
+        max-height: 250px;
+    }
+    
+    .stats-card {
+        margin-bottom: 16px;
+    }
+    
+    .campaign-controls {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .campaign-controls .btn {
+        width: 100%;
+    }
+    
+    .quick-actions {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    
+    .quick-action-btn {
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+}
+
+@media (min-width: 768px) {
+    .mobile-tab-bar {
+        display: none !important;
+    }
+    
+    .tab-content {
+        display: none !important;
+    }
+    
+    .desktop-rpg-layout {
+        display: grid !important;
+    }
+}
+
+/* Mobile Tab Bar Safe Area */
+@supports (padding: max(0px)) {
+    .mobile-tab-bar {
+        padding-left: max(16px, env(safe-area-inset-left));
+        padding-right: max(16px, env(safe-area-inset-right));
+    }
+    
+    /* Ensure proper bottom spacing on mobile */
+    .tab-content {
+        padding-bottom: max(2rem, env(safe-area-inset-bottom));
+    }
+    
+    .stats-card:last-child {
+        margin-bottom: max(2rem, env(safe-area-inset-bottom));
+    }
+}

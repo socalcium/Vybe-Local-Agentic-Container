@@ -1,0 +1,220 @@
+/**
+ * COMPLETE DARK MODE FLASHBANG FIX
+ * This CSS file eliminates all white flashbangs and ensures linear theming
+ */
+
+/* CRITICAL: Set background immediately on document load to prevent flashbang */
+html {
+    background: #1a1a1a !important; /* Dark by default to prevent flashbang */
+    color: #e0e0e0 !important;
+}
+
+/* Force immediate dark background on body */
+body {
+    background: #1a1a1a !important;
+    color: #e0e0e0 !important;
+    transition: none !important; /* No transition on initial load */
+}
+
+/* Prevent any white flashes during theme switching */
+html[data-theme="dark"],
+body[data-theme="dark"],
+.theme-dark,
+body.dark-mode {
+    background: #1a1a1a !important;
+    color: #e0e0e0 !important;
+}
+
+/* Override ALL potential white backgrounds in dark mode */
+.theme-dark *,
+[data-theme="dark"] *,
+body.dark-mode * {
+    background: inherit;
+    border-color: #444;
+}
+
+/* Fix specific elements that commonly flashbang */
+.theme-dark .container,
+[data-theme="dark"] .container,
+body.dark-mode .container {
+    background: #1a1a1a !important;
+    color: #e0e0e0 !important;
+}
+
+.theme-dark .surface,
+.theme-dark .card,
+.theme-dark .modal,
+.theme-dark .panel,
+.theme-dark .section,
+[data-theme="dark"] .surface,
+[data-theme="dark"] .card,
+[data-theme="dark"] .modal,
+[data-theme="dark"] .panel,
+[data-theme="dark"] .section,
+body.dark-mode .surface,
+body.dark-mode .card,
+body.dark-mode .modal,
+body.dark-mode .panel,
+body.dark-mode .section {
+    background: #2d2d2d !important;
+    color: #e0e0e0 !important;
+    border-color: #444 !important;
+}
+
+/* Fix form elements flashbang */
+.theme-dark input,
+.theme-dark textarea,
+.theme-dark select,
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] select,
+body.dark-mode input,
+body.dark-mode textarea,
+body.dark-mode select {
+    background: #3a3a3a !important;
+    color: #e0e0e0 !important;
+    border: 1px solid #555 !important;
+}
+
+/* Fix white button flashbangs */
+.theme-dark button,
+[data-theme="dark"] button,
+body.dark-mode button {
+    background: #3a3a3a !important;
+    color: #e0e0e0 !important;
+    border: 1px solid #555 !important;
+}
+
+.theme-dark .btn-primary,
+[data-theme="dark"] .btn-primary,
+body.dark-mode .btn-primary {
+    background: #4f8cff !important;
+    color: #ffffff !important;
+}
+
+/* Fix dropdown and menu flashbangs */
+.theme-dark .dropdown-menu,
+.theme-dark .menu,
+.theme-dark .nav-menu,
+[data-theme="dark"] .dropdown-menu,
+[data-theme="dark"] .menu,
+[data-theme="dark"] .nav-menu,
+body.dark-mode .dropdown-menu,
+body.dark-mode .menu,
+body.dark-mode .nav-menu {
+    background: #2d2d2d !important;
+    color: #e0e0e0 !important;
+    border: 1px solid #444 !important;
+}
+
+/* Fix table flashbangs */
+.theme-dark table,
+.theme-dark th,
+.theme-dark td,
+[data-theme="dark"] table,
+[data-theme="dark"] th,
+[data-theme="dark"] td,
+body.dark-mode table,
+body.dark-mode th,
+body.dark-mode td {
+    background: #2d2d2d !important;
+    color: #e0e0e0 !important;
+    border-color: #444 !important;
+}
+
+/* Fix sidebar and navigation flashbangs */
+.theme-dark .sidebar,
+.theme-dark .nav,
+.theme-dark .header,
+[data-theme="dark"] .sidebar,
+[data-theme="dark"] .nav,
+[data-theme="dark"] .header,
+body.dark-mode .sidebar,
+body.dark-mode .nav,
+body.dark-mode .header {
+    background: #2c5aa0 !important;
+    color: #ffffff !important;
+}
+
+/* Clipping fixes - ensure no overflow issues */
+* {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
+.container,
+.main-content,
+.page-content {
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+}
+
+/* Fix mobile clipping */
+@media (max-width: 768px) {
+    body {
+        overflow-x: hidden !important;
+    }
+    
+    .container {
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    /* Prevent horizontal scroll on mobile */
+    html, body {
+        overflow-x: hidden !important;
+        max-width: 100vw !important;
+    }
+}
+
+/* Prevent theme transition flicker */
+.theme-switching * {
+    transition: none !important;
+}
+
+/* Ensure all text is readable in dark mode */
+.theme-dark,
+[data-theme="dark"],
+body.dark-mode {
+    color: #e0e0e0 !important;
+}
+
+.theme-dark *:not(.text-white):not(.text-light),
+[data-theme="dark"] *:not(.text-white):not(.text-light),
+body.dark-mode *:not(.text-white):not(.text-light) {
+    color: inherit !important;
+}
+
+/* Light mode adjustments (for when explicitly selected) */
+[data-theme="light"] {
+    background: #f5f5f5 !important;
+    color: #333333 !important;
+}
+
+[data-theme="light"] .container {
+    background: #f5f5f5 !important;
+    color: #333333 !important;
+}
+
+/* System theme - default to dark to prevent flashbang */
+.theme-system {
+    background: #1a1a1a !important;
+    color: #e0e0e0 !important;
+}
+
+/* Media query to respect system preference */
+@media (prefers-color-scheme: light) {
+    .theme-system {
+        background: #f5f5f5 !important;
+        color: #333333 !important;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .theme-system {
+        background: #1a1a1a !important;
+        color: #e0e0e0 !important;
+    }
+}

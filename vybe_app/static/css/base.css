@@ -1,0 +1,593 @@
+/* Base Styles - Foundational styles and CSS reset */
+
+/* Universal box-sizing for consistent sizing */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+html {
+    height: 100%;
+    /* Support for dynamic viewport units */
+    height: 100vh;
+    height: calc(var(--vh, 1vh) * 100);
+    /* Better text rendering on all displays */
+    -webkit-text-size-adjust: none;
+    -moz-text-size-adjust: none;
+    -ms-text-size-adjust: none;
+    text-size-adjust: none;
+}
+
+body {
+    height: 100%;
+    height: 100vh;
+    height: calc(var(--vh, 1vh) * 100);
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 
+                sans-serif;
+    font-size: 14px; /* Base font size - will be overridden by responsive CSS */
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: var(--bg-color-primary);
+    color: var(--text-color-primary);
+    display: flex;
+    flex-direction: column;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    
+    /* Prevent horizontal scroll */
+    max-width: 100vw;
+    overflow-x: hidden;
+    
+    /* Ensure body doesn't create stacking context that interferes with navigation */
+    position: relative;
+    z-index: 0;
+    
+    /* Better scrolling on all platforms */
+    scroll-behavior: smooth;
+}
+
+/* CSS Custom Properties for theming */
+:root {
+    /* Light Theme (Default) */
+    --primary-color: #4f8cff;
+    --primary-hover: #3a7ae4;
+    --secondary-color: #6c757d;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --error-color: #dc3545;
+    --info-color: #17a2b8;
+    
+    /* Background Colors */
+    --bg-color-primary: #f5f5f5;
+    --bg-color-secondary: #ffffff;
+    --bg-color-tertiary: #f8f9fa;
+    --bg-color: #f5f5f5; /* Fallback */
+    --surface-color: #ffffff;
+    --card-bg: #ffffff;
+    
+    /* Text Colors */
+    --text-color-primary: #333333;
+    --text-color-secondary: #666666;
+    --text-color-muted: #888888;
+    --text-color: #333333; /* Fallback */
+    --text-muted: #6c757d; /* Fallback */
+    
+    /* Border and Interface */
+    --border-color: #ddd;
+    --border-color-light: #eee;
+    
+    /* Header */
+    --header-bg: #4f8cff;
+    --header-text: #ffffff;
+    
+    /* Chat specific */
+    --chat-bubble-user-bg: #e3f2fd;
+    --chat-bubble-ai-bg: #f5f5f5;
+    
+    /* Form Elements */
+    --input-bg: #ffffff;
+    --input-border: #ddd;
+    
+    /* Buttons */
+    --button-primary-bg: #4f8cff;
+    --button-primary-text: #ffffff;
+    --button-secondary-bg: #6c757d;
+    --button-secondary-text: #ffffff;
+    
+    /* Modal and Overlays */
+    --modal-overlay: rgba(0, 0, 0, 0.5);
+    
+    /* Shadows */
+    --shadow-light: rgba(0, 0, 0, 0.1);
+    --shadow-medium: rgba(0, 0, 0, 0.15);
+    --shadow-heavy: rgba(0, 0, 0, 0.3);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08);
+    --shadow-lg: 0 10px 15px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.05);
+    
+    /* Typography */
+    --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    
+    /* Border Radius */
+    --border-radius: 8px;
+    --border-radius-sm: 4px;
+    --border-radius-lg: 12px;
+    
+    /* Transitions */
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+}
+
+/* Dark Theme */
+.theme-dark,
+[data-theme="dark"],
+body.dark-mode {
+    --bg-color-primary: #1a1a1a;
+    --bg-color-secondary: #2d2d2d;
+    --bg-color-tertiary: #3a3a3a;
+    --bg-color: #1a1a1a; /* Fallback */
+    --surface-color: #2d2d2d;
+    --card-bg: #2d2d2d;
+    --card-bg-dark: #252525;
+    
+    --text-color-primary: #e0e0e0;
+    --text-color-secondary: #b0b0b0;
+    --text-color-muted: #888888;
+    --text-color: #ffffff; /* Fallback */
+    --text-color-dark: #ffffff;
+    --text-muted: #a0a0a0;
+    --text-muted-dark: #a0a0a0;
+    
+    --border-color: #444;
+    --border-color-light: #555;
+    --border-color-dark: #404040;
+    
+    --header-bg: #2c5aa0;
+    --header-text: #ffffff;
+    
+    --chat-bubble-user-bg: #1e3a5f;
+    --chat-bubble-ai-bg: #2d2d2d;
+    
+    --input-bg: #3a3a3a;
+    --input-border: #555;
+    
+    --button-primary-bg: #4f8cff;
+    --button-primary-text: #ffffff;
+    --button-secondary-bg: #5a6268;
+    --button-secondary-text: #ffffff;
+    
+    --modal-overlay: rgba(0, 0, 0, 0.7);
+    
+    --shadow-light: rgba(0, 0, 0, 0.3);
+    --shadow-medium: rgba(0, 0, 0, 0.4);
+    --shadow-heavy: rgba(0, 0, 0, 0.6);
+    
+    --primary-color: #5a9cff;
+    --primary-hover: #4a8ce6;
+    --secondary-color: #7c858d;
+    --success-color: #38b745;
+    --warning-color: #ffcc17;
+    --error-color: #ec4555;
+    --info-color: #27b2c8;
+}
+
+/* Light theme explicit */
+[data-theme="light"],
+.theme-light {
+    --bg-color: #f5f5f5;
+    --surface-color: #ffffff;
+    --card-bg: #ffffff;
+    --text-color: #333333;
+    --text-muted: #6c757d;
+    --border-color: #e0e0e0;
+    --primary-color: #4f8cff;
+    --primary-hover: #3a7ae4;
+    --secondary-color: #6c757d;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --error-color: #dc3545;
+    --info-color: #17a2b8;
+}
+
+/* System theme support */
+.theme-system {
+    /* Light theme as default */
+    --bg-color-primary: #f5f5f5;
+    --bg-color-secondary: #ffffff;
+    --bg-color-tertiary: #f8f9fa;
+    --bg-color: #f5f5f5;
+    --surface-color: #ffffff;
+    --text-color-primary: #333333;
+    --text-color-secondary: #666666;
+    --text-color-muted: #888888;
+    --text-color: #333333;
+    --text-muted: #6c757d;
+    --border-color: #ddd;
+    --border-color-light: #eee;
+    --header-bg: #4f8cff;
+    --header-text: #ffffff;
+    --chat-bubble-user-bg: #e3f2fd;
+    --chat-bubble-ai-bg: #f5f5f5;
+    --input-bg: #ffffff;
+    --input-border: #ddd;
+    --button-primary-bg: #4f8cff;
+    --button-primary-text: #ffffff;
+    --button-secondary-bg: #6c757d;
+    --button-secondary-text: #ffffff;
+    --modal-overlay: rgba(0, 0, 0, 0.5);
+    --shadow-light: rgba(0, 0, 0, 0.1);
+    --shadow-medium: rgba(0, 0, 0, 0.15);
+    --shadow-heavy: rgba(0, 0, 0, 0.3);
+    --primary-color: #4f8cff;
+    --primary-hover: #3a7ae4;
+    --secondary-color: #6c757d;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --error-color: #dc3545;
+    --info-color: #17a2b8;
+}
+
+/* System theme dark mode */
+@media (prefers-color-scheme: dark) {
+    .theme-system {
+        --bg-color-primary: #1a1a1a;
+        --bg-color-secondary: #2d2d2d;
+        --bg-color-tertiary: #3a3a3a;
+        --bg-color: #1a1a1a;
+        --surface-color: #2d2d2d;
+        --text-color-primary: #e0e0e0;
+        --text-color-secondary: #b0b0b0;
+        --text-color-muted: #888888;
+        --text-color: #ffffff;
+        --text-muted: #a0a0a0;
+        --border-color: #444;
+        --border-color-light: #555;
+        --header-bg: #2c5aa0;
+        --header-text: #ffffff;
+        --chat-bubble-user-bg: #1e3a5f;
+        --chat-bubble-ai-bg: #2d2d2d;
+        --input-bg: #3a3a3a;
+        --input-border: #555;
+        --button-primary-bg: #4f8cff;
+        --button-primary-text: #ffffff;
+        --button-secondary-bg: #5a6268;
+        --button-secondary-text: #ffffff;
+        --modal-overlay: rgba(0, 0, 0, 0.7);
+        --shadow-light: rgba(0, 0, 0, 0.3);
+        --shadow-medium: rgba(0, 0, 0, 0.4);
+        --shadow-heavy: rgba(0, 0, 0, 0.6);
+        --primary-color: #5a9cff;
+        --primary-hover: #4a8ce6;
+        --secondary-color: #7c858d;
+        --success-color: #38b745;
+        --warning-color: #ffcc17;
+        --error-color: #ec4555;
+        --info-color: #27b2c8;
+    }
+}
+
+/* Ensure SVG icons inherit color properly */
+svg {
+    color: inherit;
+    fill: currentColor;
+}
+
+/* Button icon color inheritance */
+button svg,
+.btn svg {
+    color: inherit;
+    fill: currentColor;
+}
+
+/* Focus styles for accessibility */
+*:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Remove focus outline for mouse users */
+*:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* Scrollbar styles */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: var(--border-radius-sm);
+}
+
+/* ===== MOBILE & DEVICE-SPECIFIC STYLES ===== */
+
+/* Device-specific classes */
+.device-mobile,
+.device-tablet {
+    /* Mobile-specific overrides */
+    touch-action: manipulation;
+}
+
+.device-desktop {
+    /* Desktop-specific overrides */
+    touch-action: auto;
+}
+
+/* iOS Safari specific fixes */
+.ios-safari {
+    /* Handle iOS Safari viewport issues */
+    height: 100vh;
+    height: calc(var(--vh, 1vh) * 100);
+}
+
+.ios-safari input,
+.ios-safari textarea {
+    /* Prevent zoom on focus */
+    font-size: 16px !important;
+    transform: translateZ(0);
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: 0;
+}
+
+/* Handle keyboard on mobile */
+.keyboard-open {
+    height: auto !important;
+    min-height: 100vh;
+    min-height: calc(var(--vh, 1vh) * 100);
+}
+
+.keyboard-open .chat-container {
+    height: auto !important;
+    max-height: calc(var(--vh, 1vh) * 100 - 60px);
+}
+
+/* Mobile viewport fixes */
+@media screen and (max-width: 768px) {
+    body {
+        /* Ensure body takes full height on mobile */
+        min-height: 100vh;
+        min-height: calc(var(--vh, 1vh) * 100);
+        height: auto;
+        /* Allow vertical scrolling, only prevent horizontal */
+        overflow-x: hidden;
+        position: relative;
+    }
+    
+    /* Prevent horizontal overflow */
+    html, body {
+        overflow-x: hidden;
+        max-width: 100vw;
+    }
+    
+    /* Mobile input styling */
+    input, textarea {
+        font-size: 16px; /* Prevent zoom on iOS */
+        border-radius: var(--border-radius-sm);
+        /* Prevent iOS input styling issues */
+        -webkit-appearance: none;
+        appearance: none;
+        background-color: transparent;
+    }
+    
+    /* Touch-friendly sizing */
+    button, .btn {
+        min-height: 44px; /* iOS recommended minimum */
+        min-width: 44px;
+        /* Prevent iOS button styling issues */
+        -webkit-appearance: none;
+        appearance: none;
+    }
+    
+    /* iOS Safari specific fixes */
+    .container {
+        /* Ensure container takes full height */
+        height: 100vh;
+        height: calc(var(--vh, 1vh) * 100);
+        overflow-y: auto;
+        position: relative;
+    }
+}
+
+/* iOS Safari specific fixes */
+@supports (-webkit-touch-callout: none) {
+    body {
+        /* Fixed positioning context for iOS Safari */
+        height: 100vh !important;
+        height: calc(var(--vh, 1vh) * 100) !important;
+        overflow: hidden !important;
+        position: fixed !important;
+        width: 100% !important;
+        top: 0 !important;
+        left: 0 !important;
+    }
+    
+    .container {
+        height: 100% !important;
+        overflow: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        position: relative !important;
+    }
+}
+
+/* Class-based overrides for detected iOS Safari */
+.ios-safari body {
+    position: fixed !important;
+    width: 100% !important;
+    height: 100vh !important;
+    height: calc(var(--vh, 1vh) * 100) !important;
+    overflow: hidden !important;
+}
+
+.ios-safari .container {
+    height: 100% !important;
+    overflow: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+/* Keyboard open state */
+.keyboard-open body {
+    height: 50vh !important;
+    height: calc(var(--vh, 1vh) * 50) !important;
+}
+
+.keyboard-open .container {
+    height: 100% !important;
+}
+
+/* Device mobile class overrides */
+.device-mobile body {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    position: relative !important;
+}
+
+.device-mobile .container {
+    height: 100% !important;
+    overflow: auto !important;
+}
+
+/* Tablet specific */
+@media screen and (min-width: 768px) and (max-width: 1024px) {
+    /* Tablet optimizations */
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    /* Retina display optimizations */
+}
+
+/* Safe area insets for devices with notches */
+@supports (padding: max(0px)) {
+    .safe-area-insets {
+        padding-left: max(12px, env(safe-area-inset-left));
+        padding-right: max(12px, env(safe-area-inset-right));
+        padding-top: max(12px, env(safe-area-inset-top));
+        padding-bottom: max(12px, env(safe-area-inset-bottom));
+    }
+}
+
+/* Mobile-friendly page bottom spacing */
+@media (max-width: 768px) {
+    .page-content,
+    .container,
+    .content-container {
+        padding-bottom: max(3rem, env(safe-area-inset-bottom)) !important;
+        margin-bottom: 0 !important;
+    }
+    
+    /* Ensure main content areas have proper spacing */
+    main, 
+    .main-content > *:last-child,
+    .app-body > main > *:last-child {
+        margin-bottom: max(2rem, env(safe-area-inset-bottom));
+    }
+    
+    /* Force all content elements below navigation */
+    .chat-container,
+    .rpg-container,
+    .settings-container,
+    .rag-manager-container,
+    .devtools-container,
+    .search-container,
+    .prompt-maker-container,
+    main > *,
+    .main-content > * {
+        z-index: 100 !important;
+        position: relative !important;
+    }
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
+/* Selection styles */
+::selection {
+    background: var(--primary-color);
+    color: white;
+}
+
+/* Accessibility Utilities */
+.sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+.sr-only-focusable:focus {
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    padding: 0.5rem !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    clip: auto !important;
+    white-space: normal !important;
+    border: 2px solid var(--primary-color) !important;
+    background: var(--bg-color-primary) !important;
+    color: var(--text-color-primary) !important;
+    z-index: 9999 !important;
+}
+
+/* Focus management for accessibility */
+*:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Skip link for keyboard navigation */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 6px;
+    background: var(--primary-color);
+    color: white;
+    padding: 8px;
+    text-decoration: none;
+    z-index: 10000;
+    border-radius: 4px;
+}
+
+.skip-link:focus {
+    top: 6px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    * {
+        border-color: currentColor !important;
+    }
+    
+    .btn, button {
+        border: 2px solid currentColor !important;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

@@ -1,0 +1,61 @@
+/* Mobile Navigation Z-Index Override - Highest Priority */
+/* This file ensures the mobile navigation always appears above all content */
+
+@media (max-width: 768px) {
+    /* Mobile Navigation - Highest Priority */
+    .mobile-nav-overlay {
+        z-index: 9999;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+    }
+    
+    .mobile-nav-content {
+        z-index: 9998;
+        position: absolute !important;
+    }
+    
+    .app-header {
+        z-index: 1000;
+        position: relative !important;
+    }
+    
+    .dropdown-menu {
+        z-index: 1001;
+        position: absolute !important;
+    }
+    
+    /* Force ALL other elements to lower z-index on mobile - BUT NOT OVERRIDE LAYOUT */
+    .main-content,
+    .chat-container,
+    .rpg-container,
+    .settings-container,
+    .devtools-container,
+    .rag-manager-container,
+    .search-container,
+    .prompt-maker-container {
+        z-index: 1;
+    }
+    
+    /* DO NOT override child elements with universal selectors - causes layout issues */
+    
+    /* Ensure modals still work but below nav */
+    .modal {
+        z-index: 9997;
+    }
+    
+    /* Override any specific high z-index elements */
+    [style*="z-index"] {
+        z-index: auto;
+    }
+    
+    /* Special handling for elements that might use transforms */
+    .mobile-nav-overlay,
+    .mobile-nav-content {
+        transform-style: flat !important;
+        backface-visibility: hidden !important;
+        perspective: none !important;
+    }
+}

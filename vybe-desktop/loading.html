@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vybe AI Assistant - Loading</title>
+    <link rel="stylesheet" href="loading.css">
+</head>
+<body>
+    <div class="loading-container">
+        <div class="loading-content">
+            <!-- Vybe Logo -->
+            <div class="logo-container">
+                <div class="logo-icon">
+                    <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="40" cy="40" r="35" fill="url(#gradient1)" opacity="0.8"/>
+                        <circle cx="40" cy="40" r="25" fill="url(#gradient2)"/>
+                        <path d="M25 35 L40 50 L55 35" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        <defs>
+                            <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                            </linearGradient>
+                            <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#f093fb;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#f5576c;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <h1 class="app-title">Vybe</h1>
+                <p class="app-subtitle">AI Assistant</p>
+            </div>
+
+            <!-- Status Message -->
+            <div class="status-container">
+                <p id="status-message" class="status-message">Initializing AI Core...</p>
+                <p id="progress-percentage" class="progress-percentage" style="display: none;">0%</p>
+                
+                <!-- Loading Animation -->
+                <div class="loading-animation">
+                    <div class="loading-bar">
+                        <div class="loading-progress" id="loading-progress"></div>
+                    </div>
+                    <div class="loading-dots">
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                    </div>
+                </div>
+                
+                <!-- First launch info -->
+                <div id="first-launch-info" class="first-launch-info" style="display: none;">
+                    <div class="info-box">
+                        <h3>🚀 Welcome to Vybe AI!</h3>
+                        <p>Setting up your AI assistant for the first time...</p>
+                        <ul id="setup-tasks">
+                            <li id="task-models">📦 AI Models (~637MB download)</li>
+                            <li id="task-backend">🔧 AI Backend</li>
+                            <li id="task-system">⚙️ System Configuration</li>
+                        </ul>
+                        <p class="note">This may take a few minutes.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Version Info -->
+            <div class="version-info">
+                <p>Version 1.0.0</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Background Animation -->
+    <div class="background-animation">
+        <div class="floating-particle"></div>
+        <div class="floating-particle"></div>
+        <div class="floating-particle"></div>
+        <div class="floating-particle"></div>
+        <div class="floating-particle"></div>
+    </div>
+
+    <script type="module" src="src/main.js"></script>
+</body>
+</html>

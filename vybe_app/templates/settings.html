@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include '_head.html' %}
+    <title>Vybe - Settings</title>
+    <!-- Page-specific CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}">
+    <script>
+        // Initialize theme early to prevent flash
+        (function() {
+            function setTheme(theme) {
+                const html = document.documentElement;
+                html.classList.remove('theme-light', 'theme-dark', 'theme-system');
+                
+                if (theme === 'system') {
+                    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    html.classList.add('theme-system');
+                    html.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+                } else {
+                    html.classList.add(`theme-${theme}`);
+                    html.setAttribute('data-theme', theme);
+                }
+            }
+            
+            // Load theme from API or localStorage
+            fetch('/api/settings/theme_mode')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        setTheme(data.theme_mode || 'system');
+                    } else {
+                        setTheme('system');
+                    }
+                })
+                .catch(() => setTheme('system'));
+        })();
+    </script>
+</head>
+<body>
+    <div class="container">
+       {% include '_header_new.html' %}
+
+        <div class="page-title">
+            <h1>⚙️ Settings</h1>
+        </div>
+
+        <main class="settings-main">
+            <div class="settings-section">
+                <h2>Appearance</h2>
+                <div class="setting-item">
+                    <label for="theme-selector">Theme:</label>
+                    <select id="theme-selector" class="settings-select">
+                        <option value="light">Light Mode</option>
+                        <option value="dark">Dark Mode</option>
+                        <option value="system">Follow System</option>
+                    </select>
+                    <div class="setting-description">Choose your preferred visual theme.</div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h2>Startup</h2>
+                <div class="setting-item">
+                    <label class="setting-label">Auto-launch services on app start</label>
+                    <div class="setting-controls">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="pref-auto-llm">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="setting-description">Start Backend LLM automatically</span>
+                    </div>
+                    <div class="setting-controls">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="pref-auto-sd">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="setting-description">Start Stable Diffusion (A1111) automatically</span>
+                    </div>
+                    <div class="setting-controls">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="pref-auto-comfy">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="setting-description">Start ComfyUI (Video) automatically</span>
+                    </div>
+                    <div class="setting-description">Note: Enabling these will extend splash screen time and display each service's startup status.</div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h2>Audio Preferences</h2>
+                <div class="setting-item">
+                    <div class="setting-controls">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="pref-enable-edge-tts">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="setting-description">Enable Edge TTS (online dependency). Offline TTS is used by default.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h2>AI Brain & Intelligence</h2>
+                <div class="setting-item">
+                    <a href="/orchestrator" class="settings-button primary">🧠 Orchestrator Settings</a>
+                    <div class="setting-description">Configure the AI brain that manages your Vybe experience. Select orchestrator models, enable personalization, and view system requirements.</div>
+                </div>
+                <div class="setting-item">
+                    <a href="/health" class="settings-button secondary">⚡ System Health Dashboard</a>
+                    <div class="setting-description">Real-time monitoring of system performance, AI services, and comprehensive diagnostics with actionable insights.</div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h2>🔌 External AI Providers</h2>
+                <div class="setting-item">
+                    <label class="setting-label">OpenAI API Key</label>
+                    <div class="setting-controls">
+                        <input type="password" id="openai-api-key" class="settings-input" placeholder="sk-...">
+                        <button id="save-openai-key" class="settings-button primary">Save</button>
+                        <span id="openai-status" class="setting-status">Not configured</span>
+                    </div>
+                    <div class="setting-description">Optional. Enables cloud routing for specific intents if configured. Keys are stored securely and never shown.</div>
+                </div>
+                <div class="setting-item">
+                    <label class="setting-label">Anthropic API Key</label>
+                    <div class="setting-controls">
+                        <input type="password" id="anthropic-api-key" class="settings-input" placeholder="claude-...">
+                        <button id="save-anthropic-key" class="settings-button primary">Save</button>
+                        <span id="anthropic-status" class="setting-status">Not configured</span>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <label class="setting-label">Routing Policy</label>
+                    <div class="setting-controls">
+                        <select id="routing-mode" class="settings-select">
+                            <option value="prefer_local">Prefer Local (fallback to cloud)</option>
+                            <option value="local_only">Local Only</option>
+                            <option value="cloud_only">Cloud Only</option>
+                        </select>
+                        <select id="default-provider" class="settings-select">
+                            <option value="local">Local</option>
+                            <option value="openai">OpenAI</option>
+                            <option value="anthropic">Anthropic</option>
+                        </select>
+                        <button id="save-routing" class="settings-button secondary">Save Routing</button>
+                        <div class="setting-description">Controls how the router selects a provider. Cloud requires a configured key.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h2>System Configuration</h2>
+                <div class="setting-item">
+                    <button id="toggle-prompt-editor" class="settings-button">Edit System Prompt</button>
+                    <div id="prompt-editor-section" class="prompt-editor-section" style="display: none;">
+                        <textarea id="system-prompt-editor" class="system-prompt-editor" placeholder="Enter your custom system prompt..."></textarea>
+                        <div class="prompt-editor-buttons">
+                            <button id="save-prompt" class="settings-button primary">Save Prompt</button>
+                            <button id="reset-prompt" class="settings-button secondary">Reset to Default</button>
+                        </div>
+                        <div id="prompt-status" class="prompt-status"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h2>System Prompt Manager</h2>
+                <div class="setting-item">
+                    <button id="manage-system-prompts" class="settings-button primary">Manage System Prompts</button>
+                    <div class="setting-description">Create, edit, and manage AI system prompts for different personas.</div>
+                </div>
+                <div class="setting-item">
+                    <label for="current-system-prompt">Current System Prompt:</label>
+                    <select id="current-system-prompt" class="settings-select">
+                        <option value="">Loading prompts...</option>
+                    </select>
+                    <div class="setting-description">Select the active system prompt for AI interactions.</div>
+                </div>
+            </div>
+
+            <!-- System Prompt Management Modal -->
+            <div id="system-prompts-modal" class="modal" style="display: none;">
+                <div class="modal-content large-modal">
+                    <div class="modal-header">
+                        <h3>System Prompt Manager</h3>
+                        <span class="close-modal">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <div class="prompt-manager-toolbar">
+                            <button id="create-new-prompt" class="settings-button primary">Create New Prompt</button>
+                        </div>
+                        <div id="system-prompts-list" class="system-prompts-list">
+                            <p>Loading prompts...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Prompt Editor Modal -->
+            <div id="prompt-editor-modal" class="modal" style="display: none;">
+                <div class="modal-content large-modal">
+                    <div class="modal-header">
+                        <h3 id="prompt-editor-title">Edit System Prompt</h3>
+                        <span class="close-modal">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <form id="prompt-editor-form">
+                            <input type="hidden" id="prompt-id" value="">
+                            <div class="form-group">
+                                <label for="prompt-name">Name:</label>
+                                <input type="text" id="prompt-name" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="prompt-description">Description:</label>
+                                <input type="text" id="prompt-description" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label for="prompt-content">Content:</label>
+                                <textarea id="prompt-content" class="form-textarea large" rows="15" required></textarea>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="settings-button primary">Save Prompt</button>
+                                <button type="button" id="cancel-prompt-edit" class="settings-button secondary">Cancel</button>
+                                <button type="button" id="delete-prompt" class="settings-button danger" style="display: none;">Delete Prompt</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h2>Chat Session Management</h2>
+                <div class="setting-item">
+                    <button id="save-chat-session" class="settings-button primary">Save Current Chat Session</button>
+                    <div class="setting-description">Save the current chat conversation with a custom title.</div>
+                </div>
+                <div class="setting-item">
+                    <button id="manage-chat-sessions" class="settings-button">Manage Saved Chats</button>
+                    <div class="setting-description">View, load, and manage your saved chat sessions.</div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h2>AI Tool Management</h2>
+                <div class="setting-item">
+                    <div class="setting-description">Enable or disable AI tools for enhanced functionality. File management tools operate within a secure workspace directory.</div>
+                </div>
+                <div id="tools-list" class="tools-list">
+                    <p>Loading tools...</p>
+                </div>
+                <div class="setting-item">
+                    <label for="workspace-path">AI Workspace Directory:</label>
+                    <div class="workspace-path-container">
+                        <input type="text" id="workspace-path" class="workspace-path-input" placeholder="Loading..." readonly>
+                        <button id="change-workspace" class="settings-button secondary">Change</button>
+                    </div>
+                    <div class="setting-description">All AI file operations are restricted to this directory for security.</div>
+                </div>
+            </div>
+
+            <!-- Debug and Terminal Section -->
+            <div class="settings-section">
+                <h2>🔧 Debug & Terminal</h2>
+                <div class="setting-item">
+                    <label for="debug-terminal-toggle">In-App Terminal:</label>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="debug-terminal-toggle" class="toggle-input">
+                        <span class="toggle-slider"></span>
+                    </div>
+                    <div class="setting-description">Show/hide the debugging terminal. Use Ctrl+` to toggle quickly.</div>
+                </div>
+                
+                <div class="setting-item">
+                    <label for="debug-mode-toggle">Debug Mode:</label>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="debug-mode-toggle" class="toggle-input">
+                        <span class="toggle-slider"></span>
+                    </div>
+                    <div class="setting-description">Enable enhanced error logging and debugging features.</div>
+                </div>
+                
+                <div class="setting-item">
+                    <button id="view-error-logs" class="settings-button">View Error Logs</button>
+                    <div class="setting-description">View recent application errors and debugging information.</div>
+                </div>
+                
+                <div class="setting-item">
+                    <button id="export-debug-data" class="settings-button">Export Debug Data</button>
+                    <div class="setting-description">Export error logs and system information for troubleshooting.</div>
+                </div>
+                
+                <div class="setting-item">
+                    <button id="clear-error-logs" class="settings-button secondary">Clear Error Logs</button>
+                    <div class="setting-description">Clear all stored error logs and debugging data.</div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="debug-info" id="debug-info">
+                        <h4>Debug Information:</h4>
+                        <div id="debug-status">Loading debug status...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Home Assistant Configuration Section -->
+            <div class="settings-section">
+                <h2>🏠 Home Assistant Integration</h2>
+                <div class="setting-item">
+                    <label for="ha-api-url">Home Assistant API URL:</label>
+                    <input type="text" id="ha-api-url" class="settings-input" placeholder="http://localhost:8123/api">
+                    <div class="setting-description">Enter the URL of your Home Assistant instance (including /api).</div>
+                </div>
+                <div class="setting-item">
+                    <label for="ha-api-token">Long-Lived Access Token:</label>
+                    <input type="password" id="ha-api-token" class="settings-input" placeholder="Paste your token here">
+                    <div class="setting-description">Generate a long-lived token in Home Assistant user profile settings.</div>
+                </div>
+                <div class="setting-item">
+                    <button id="save-ha-config" class="settings-button primary">Save Home Assistant Config</button>
+                    <button id="test-ha-connection" class="settings-button secondary">Test Connection</button>
+                    <span id="ha-config-status" class="setting-status"></span>
+                </div>
+            </div>
+
+            <!-- Backend AI Configuration Section -->
+            <div class="settings-section">
+                <h2>🤖 Backend AI Configuration</h2>
+                <div class="setting-item">
+                    <label>Minimum Context Requirement</label>
+                    <div class="setting-description">Backend requires a high-context model to operate.</div>
+                    <div class="setting-controls">
+                        <span class="setting-status" id="min-context-display">Loading…</span>
+                        <button id="download-recommended-model" class="settings-button primary">Download Recommended 32k Model</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Connectors Section -->
+            <div class="settings-section">
+                <h2>🔗 Data Connectors</h2>
+                <div class="setting-description" style="margin-bottom: 15px;">
+                    Connect external data sources to automatically sync content into your knowledge base.
+                </div>
+                
+                <div id="connectors-list">
+                    <!-- GitHub Connector -->
+                    <div class="setting-item connector-item" data-connector="github">
+                        <div class="connector-header">
+                            <label class="setting-label">
+                                <span class="connector-icon">📁</span>
+                                GitHub Repository
+                            </label>
+                            <span class="connector-status" id="github-status">Disconnected</span>
+                        </div>
+                        <div class="setting-description">
+                            Sync repository files, issues, and documentation from GitHub.
+                        </div>
+                        <div class="connector-controls">
+                            <button class="settings-button primary connect-btn" data-connector="github">
+                                Connect
+                            </button>
+                            <button class="settings-button secondary sync-btn" data-connector="github" style="display: none;">
+                                Sync Now
+                            </button>
+                            <button class="settings-button secondary config-btn" data-connector="github" style="display: none;">
+                                Configure
+                            </button>
+                            <button class="settings-button danger disconnect-btn" data-connector="github" style="display: none;">
+                                Disconnect
+                            </button>
+                        </div>
+                        <div class="connector-config" id="github-config" style="display: none;">
+                            <div class="config-item">
+                                <label for="github-token">GitHub Token:</label>
+                                <input type="password" id="github-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+                            </div>
+                            <div class="config-item">
+                                <label for="github-repo">Repository (owner/repo):</label>
+                                <input type="text" id="github-repo" placeholder="microsoft/vscode">
+                            </div>
+                            <div class="config-actions">
+                                <button class="settings-button primary save-config-btn" data-connector="github">
+                                    Save Configuration
+                                </button>
+                                <button class="settings-button secondary cancel-config-btn" data-connector="github">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Google Drive Connector -->
+                    <div class="setting-item connector-item" data-connector="gdrive">
+                        <div class="connector-header">
+                            <label class="setting-label">
+                                <span class="connector-icon">💾</span>
+                                Google Drive
+                            </label>
+                            <span class="connector-status" id="gdrive-status">Disconnected</span>
+                        </div>
+                        <div class="setting-description">
+                            Sync documents and files from your Google Drive.
+                        </div>
+                        <div class="connector-controls">
+                            <button class="settings-button primary connect-btn" data-connector="gdrive">
+                                Connect
+                            </button>
+                            <button class="settings-button secondary sync-btn" data-connector="gdrive" style="display: none;">
+                                Sync Now
+                            </button>
+                            <button class="settings-button secondary config-btn" data-connector="gdrive" style="display: none;">
+                                Configure
+                            </button>
+                            <button class="settings-button danger disconnect-btn" data-connector="gdrive" style="display: none;">
+                                Disconnect
+                            </button>
+                        </div>
+                        <div class="connector-config" id="gdrive-config" style="display: none;">
+                            <div class="config-item">
+                                <label for="gdrive-client-id">Client ID:</label>
+                                <input type="text" id="gdrive-client-id" placeholder="xxxxx.apps.googleusercontent.com">
+                            </div>
+                            <div class="config-item">
+                                <label for="gdrive-client-secret">Client Secret:</label>
+                                <input type="password" id="gdrive-client-secret" placeholder="Client secret">
+                            </div>
+                            <div class="config-item">
+                                <label for="gdrive-folder">Folder ID (optional):</label>
+                                <input type="text" id="gdrive-folder" placeholder="Leave empty to sync entire drive">
+                            </div>
+                            <div class="config-actions">
+                                <button class="settings-button primary save-config-btn" data-connector="gdrive">
+                                    Save Configuration
+                                </button>
+                                <button class="settings-button secondary cancel-config-btn" data-connector="gdrive">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notion Connector -->
+                    <div class="setting-item connector-item" data-connector="notion">
+                        <div class="connector-header">
+                            <label class="setting-label">
+                                <span class="connector-icon">📝</span>
+                                Notion Workspace
+                            </label>
+                            <span class="connector-status" id="notion-status">Disconnected</span>
+                        </div>
+                        <div class="setting-description">
+                            Sync pages and databases from your Notion workspace.
+                        </div>
+                        <div class="connector-controls">
+                            <button class="settings-button primary connect-btn" data-connector="notion">
+                                Connect
+                            </button>
+                            <button class="settings-button secondary sync-btn" data-connector="notion" style="display: none;">
+                                Sync Now
+                            </button>
+                            <button class="settings-button secondary config-btn" data-connector="notion" style="display: none;">
+                                Configure
+                            </button>
+                            <button class="settings-button danger disconnect-btn" data-connector="notion" style="display: none;">
+                                Disconnect
+                            </button>
+                        </div>
+                        <div class="connector-config" id="notion-config" style="display: none;">
+                            <div class="config-item">
+                                <label for="notion-token">Integration Token:</label>
+                                <input type="password" id="notion-token" placeholder="secret_xxxxxxxxxxxxxxxxxxxx">
+                            </div>
+                            <div class="config-item">
+                                <label for="notion-database">Database ID (optional):</label>
+                                <input type="text" id="notion-database" placeholder="Leave empty to sync all accessible pages">
+                            </div>
+                            <div class="config-actions">
+                                <button class="settings-button primary save-config-btn" data-connector="notion">
+                                    Save Configuration
+                                </button>
+                                <button class="settings-button secondary cancel-config-btn" data-connector="notion">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Global Connector Actions -->
+                <div class="setting-item">
+                    <label class="setting-label">Global Actions</label>
+                    <div class="setting-description">Manage all connected data sources.</div>
+                    <div class="connector-controls">
+                        <button id="sync-all-connectors" class="settings-button primary">
+                            Sync All Connected Sources
+                        </button>
+                        <button id="refresh-connector-status" class="settings-button secondary">
+                            Refresh Status
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="chat-sessions-modal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Saved Chat Sessions</h3>
+                        <span class="close-modal">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <div id="chat-sessions-list" class="chat-sessions-list">
+                            <p>Loading sessions...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="workspace-modal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Change AI Workspace Directory</h3>
+                        <span class="close-modal">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <div class="setting-item">
+                            <label for="new-workspace-path">New Workspace Path:</label>
+                            <input type="text" id="new-workspace-path" class="workspace-path-input" placeholder="e.g., C:\Users\YourName\VybeWorkspace">
+                            <div class="setting-description">
+                                <strong>Warning:</strong> Choose a safe directory that you want the AI to have access to. 
+                                The AI will be able to read, write, and delete files within this directory.
+                            </div>
+                        </div>
+                        <div class="modal-actions">
+                            <button id="save-workspace" class="settings-button primary">Save Workspace</button>
+                            <button class="settings-button secondary close-modal">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Management Section -->
+            <div class="settings-section">
+                <h2>👤 Account Management</h2>
+                <div class="setting-item">
+                    <label class="setting-label">User Profile</label>
+                    <div class="setting-description">Manage your account information</div>
+                    <div class="user-profile-info" id="user-profile-info">
+                        <p><strong>Username:</strong> <span id="profile-username">Loading...</span></p>
+                        <p><strong>Email:</strong> <span id="profile-email">Loading...</span></p>
+                        <p><strong>Member since:</strong> <span id="profile-created">Loading...</span></p>
+                        <p><strong>Last login:</strong> <span id="profile-last-login">Loading...</span></p>
+                    </div>
+                    <div class="setting-controls">
+                        <button id="edit-profile-btn" class="settings-button secondary">Edit Profile</button>
+                        <button id="change-password-btn" class="settings-button secondary">Change Password</button>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <label class="setting-label">📱 API & Mobile Access</label>
+                    <div class="setting-description">Manage API keys for mobile app and external access</div>
+                    <div class="api-key-info" id="api-key-info">
+                        <p><strong>Status:</strong> <span id="api-key-status">Loading...</span></p>
+                        <div id="api-key-display" class="api-key-display" style="display: none;">
+                            <p><strong>Current API Key:</strong></p>
+                            <div class="api-key-value">
+                                <input type="text" id="api-key-value" readonly class="api-key-input">
+                                <button id="copy-api-key" class="settings-button small">Copy</button>
+                            </div>
+                            <div class="api-key-warning">
+                                ⚠️ This key provides full access to your account. Keep it secure!
+                            </div>
+                        </div>
+                    </div>
+                    <div class="setting-controls">
+                        <button id="generate-api-key-btn" class="settings-button primary">Generate New API Key</button>
+                        <button id="revoke-api-key-btn" class="settings-button danger" style="display: none;">Revoke API Key</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Application Configuration Section -->
+            <div class="settings-section">
+                <h2>🔧 Application Configuration</h2>
+                <div class="setting-item">
+                    <label class="setting-label">System Configuration</label>
+                    <div class="setting-description">Configure application settings and paths</div>
+                    <div class="setting-controls">
+                        <button id="view-config-btn" class="settings-button secondary">View Configuration</button>
+                        <button id="edit-config-btn" class="settings-button secondary">Edit Configuration</button>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <label class="setting-label">Application Version</label>
+                    <div class="setting-description">Current version information</div>
+                    <div class="version-info">
+                        <span class="version-number" id="app-version">Loading...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feedback Section -->
+            <div class="settings-section">
+                <h2>💬 Feedback & Support</h2>
+                <div class="setting-item">
+                    <label class="setting-label">Send Feedback</label>
+                    <div class="setting-description">Report issues or suggest improvements</div>
+                    <div class="setting-controls">
+                        <button id="feedback-btn" class="settings-button secondary">Send Feedback</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Logs Section -->
+            <div class="settings-section">
+                <h2>📋 System Logs</h2>
+                <div class="setting-item">
+                    <label class="setting-label">Application Logs</label>
+                    <div class="setting-description">View recent application logs for debugging</div>
+                    <div class="setting-controls">
+                        <button id="view-logs-btn" class="settings-button secondary">View Logs</button>
+                        <select id="log-lines-select" class="log-lines-select">
+                            <option value="50">Last 50 lines</option>
+                            <option value="100" selected>Last 100 lines</option>
+                            <option value="200">Last 200 lines</option>
+                            <option value="500">Last 500 lines</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h2>Navigation</h2>
+                <div class="setting-item">
+                    <a href="{{ url_for('views.models_manager') }}" class="settings-link">Model Manager</a>
+                    <div class="setting-description">Manage, download, and delete AI models</div>
+                </div>
+                <div class="setting-item">
+                    <a href="{{ url_for('views.rag_manager') }}" class="settings-link">RAG Knowledge Base</a>
+                    <div class="setting-description">Manage your knowledge base documents</div>
+                </div>
+                <div class="setting-item">
+                    <a href="{{ url_for('views.web_search_page') }}" class="settings-link">Web Search</a>
+                    <div class="setting-description">Perform manual web searches</div>
+                </div>
+            </div>
+        </main>
+
+        <!-- AI Help Composer Chat -->
+        <div class="composer-chat" id="composer-chat">
+            <div class="composer-header" onclick="toggleComposer()">
+                <div class="composer-title">
+                    <span class="composer-icon">🤖</span>
+                    <span id="composer-title-text">AI Settings Helper</span>
+                    <span class="composer-status" id="composer-status">Ready</span>
+                </div>
+                <div class="composer-controls">
+                    <select id="composer-model-select" class="composer-model-select" title="Select AI model">
+                        <option value="">Auto (Default)</option>
+                    </select>
+                    <button class="composer-btn" onclick="clearComposerChat()" title="Clear chat">
+                        <span>🗑️</span>
+                    </button>
+                    <button class="composer-btn" onclick="toggleComposer()" id="composer-toggle">
+                        <span>▲</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="composer-body" id="composer-body">
+                <div class="composer-messages" id="composer-messages">
+                    <div class="composer-message assistant">
+                        <div class="message-content">
+                            <strong>👋 Welcome to the AI Settings Helper!</strong><br><br>
+                            I can help you with:
+                            <ul>
+                                <li>🛠️ <strong>Configuration questions</strong> - Ask about any setting or feature</li>
+                                <li>🔧 <strong>Troubleshooting</strong> - Get help with issues you're experiencing</li>
+                                <li>📝 <strong>Code editing</strong> - Say "edit code" to modify backend functionality</li>
+                                <li>💡 <strong>Best practices</strong> - Learn how to optimize your setup</li>
+                            </ul>
+                            <em>Try asking: "How do I configure themes?" or "Edit code to add new feature"</em>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="composer-input-container">
+                    <div class="composer-input-group">
+                        <textarea 
+                            id="composer-input" 
+                            placeholder="Ask me about settings, request help, or say 'edit code' for backend modifications..."
+                            rows="2"
+                        ></textarea>
+                        <button class="composer-send-btn" onclick="sendComposerMessage()" id="composer-send">
+                            <span>📤</span>
+                        </button>
+                    </div>
+                    <div class="composer-actions">
+                        <button class="composer-action-btn" onclick="insertTemplate('help')" title="Get general help">
+                            ❓ Help
+                        </button>
+                        <button class="composer-action-btn" onclick="insertTemplate('config')" title="Configuration question">
+                            ⚙️ Config
+                        </button>
+                        <button class="composer-action-btn" onclick="insertTemplate('debug')" title="Debug an issue">
+                            🐛 Debug
+                        </button>
+                        <button class="composer-action-btn" onclick="insertTemplate('code')" title="Edit backend code">
+                            💻 Edit Code
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <style>
+        /* Composer Chat Styles */
+        .composer-chat {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 400px;
+            max-width: calc(100vw - 40px);
+            background: var(--bg-color-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            max-height: 80vh;
+            overflow: hidden;
+        }
+        
+        .composer-chat.collapsed .composer-body {
+            display: none;
+        }
+        
+        .composer-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 12px 16px;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 12px 12px 0 0;
+        }
+        
+        .composer-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+        
+        .composer-icon {
+            font-size: 16px;
+        }
+        
+        .composer-status {
+            font-size: 12px;
+            opacity: 0.8;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: 8px;
+        }
+        
+        .composer-controls {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .composer-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        
+        .composer-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .composer-body {
+            background: var(--bg-color-secondary);
+            display: flex;
+            flex-direction: column;
+            height: 400px;
+        }
+        
+        .composer-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            max-height: 300px;
+        }
+        
+        .composer-message {
+            margin-bottom: 16px;
+            animation: fadeInUp 0.3s ease;
+        }
+        
+        .composer-message.user .message-content {
+            background: var(--primary-color);
+            color: white;
+            margin-left: 40px;
+        }
+        
+        .composer-message.assistant .message-content {
+            background: var(--bg-color-primary);
+            border: 1px solid var(--border-color);
+            margin-right: 40px;
+        }
+        
+        .composer-message.system .message-content {
+            background: var(--accent-color);
+            color: white;
+            text-align: center;
+            font-style: italic;
+        }
+        
+        .message-content {
+            padding: 12px;
+            border-radius: 12px;
+            word-wrap: break-word;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .composer-input-container {
+            border-top: 1px solid var(--border-color);
+            padding: 12px;
+        }
+        
+        .composer-input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        
+        #composer-input {
+            flex: 1;
+            background: var(--bg-color-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: var(--text-color-primary);
+            font-size: 14px;
+            resize: none;
+            min-height: 40px;
+            max-height: 100px;
+        }
+        
+        #composer-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.2);
+        }
+        
+        .composer-send-btn {
+            background: var(--primary-color);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .composer-send-btn:hover:not(:disabled) {
+            background: var(--primary-color-hover);
+        }
+        
+        .composer-send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .composer-actions {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        
+        .composer-action-btn {
+            background: var(--bg-color-primary);
+            border: 1px solid var(--border-color);
+            color: var(--text-color-secondary);
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        
+        .composer-action-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .composer-chat {
+                bottom: 10px;
+                right: 10px;
+                left: 10px;
+                width: auto;
+                max-width: none;
+            }
+            
+            .composer-body {
+                height: 300px;
+            }
+            
+            .composer-messages {
+                max-height: 200px;
+            }
+        }
+        </style>
+
+        <script>
+        // Composer Chat Functionality
+        let composerExpanded = true;
+        let composerMessages = [];
+        
+        function toggleComposer() {
+            const composer = document.getElementById('composer-chat');
+            const toggle = document.getElementById('composer-toggle');
+            
+            composerExpanded = !composerExpanded;
+            
+            if (composerExpanded) {
+                composer.classList.remove('collapsed');
+                toggle.innerHTML = '<span>▲</span>';
+            } else {
+                composer.classList.add('collapsed');
+                toggle.innerHTML = '<span>▼</span>';
+            }
+        }
+        
+        function clearComposerChat() {
+            if (confirm('Clear all chat messages?')) {
+                composerMessages = [];
+                updateComposerMessages();
+                addComposerMessage('assistant', 'Chat cleared. How can I help you?');
+            }
+        }
+        
+        function insertTemplate(type) {
+            const input = document.getElementById('composer-input');
+            let template = '';
+            
+            switch(type) {
+                case 'help':
+                    template = 'I need help with ';
+                    break;
+                case 'config':
+                    template = 'How do I configure ';
+                    break;
+                case 'debug':
+                    template = 'I\'m having an issue with ';
+                    break;
+                case 'code':
+                    template = 'Edit code to ';
+                    break;
+            }
+            
+            input.value = template;
+            input.focus();
+            input.setSelectionRange(template.length, template.length);
+        }
+        
+        function addComposerMessage(role, content) {
+            composerMessages.push({ role, content, timestamp: new Date() });
+            updateComposerMessages();
+            
+            const messagesContainer = document.getElementById('composer-messages');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        function updateComposerMessages() {
+            const messagesContainer = document.getElementById('composer-messages');
+            const welcomeMessage = messagesContainer.querySelector('.composer-message.assistant');
+            
+            // Keep welcome message, clear others
+            const userMessages = composerMessages.map(msg => {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `composer-message ${msg.role}`;
+                messageDiv.innerHTML = `<div class="message-content">${formatMessage(msg.content)}</div>`;
+                return messageDiv;
+            });
+            
+            // Clear and rebuild
+            messagesContainer.innerHTML = '';
+            if (composerMessages.length === 0) {
+                messagesContainer.appendChild(welcomeMessage);
+            } else {
+                userMessages.forEach(msg => messagesContainer.appendChild(msg));
+            }
+        }
+        
+        function formatMessage(content) {
+            // Basic markdown-like formatting
+            return content
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/`(.*?)`/g, '<code>$1</code>')
+                .replace(/\n/g, '<br>');
+        }
+        
+        async function sendComposerMessage() {
+            const input = document.getElementById('composer-input');
+            const sendBtn = document.getElementById('composer-send');
+            const statusSpan = document.getElementById('composer-status');
+            
+            const message = input.value.trim();
+            if (!message) return;
+            
+            // Add user message
+            addComposerMessage('user', message);
+            input.value = '';
+            
+            // Update UI
+            sendBtn.disabled = true;
+            statusSpan.textContent = 'Thinking...';
+            
+            try {
+                let response;
+                
+                // Check if this is a code editing request
+                if (message.toLowerCase().includes('edit code') || message.toLowerCase().includes('modify code')) {
+                    response = await handleCodeEditRequest(message);
+                } else {
+                    response = await handleHelpRequest(message);
+                }
+                
+                addComposerMessage('assistant', response);
+                statusSpan.textContent = 'Ready';
+                
+            } catch (error) {
+                addComposerMessage('system', 'Sorry, I encountered an error. Please try again.');
+                statusSpan.textContent = 'Error';
+            } finally {
+                sendBtn.disabled = false;
+            }
+        }
+        
+        async function handleHelpRequest(message) {
+            // This would integrate with your backend AI for help responses
+            const helpResponse = await fetch('/api/chat/help', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: message,
+                    context: 'settings_help',
+                    system_prompt: `You are a helpful AI assistant specializing in Vybe AI Assistant settings and configuration. 
+                    Provide concise, accurate help about settings, features, and troubleshooting. 
+                    If the user asks about code editing, tell them to use specific "edit code" commands.
+                    Keep responses brief and actionable.`
+                })
+            });
+            
+            if (helpResponse.ok) {
+                const data = await helpResponse.json();
+                return data.response || 'I can help you with settings and configuration. What would you like to know?';
+            } else {
+                return 'I can help with:\n• Theme and appearance settings\n• Model configuration\n• Workspace management\n• Feature toggles\n• Troubleshooting common issues\n\nWhat specific area would you like help with?';
+            }
+        }
+        
+        async function handleCodeEditRequest(message) {
+            // This would be your code composer functionality
+            return `🔧 **Code Editor Mode**\n\nI understand you want to modify backend functionality. Here's what I can help with:\n\n• **API endpoints** - Add new routes or modify existing ones\n• **Settings options** - Add new configuration options\n• **Features** - Implement new capabilities\n• **Bug fixes** - Resolve issues in the codebase\n\nPlease specify:\n1. What file/module to modify\n2. What functionality to add/change\n3. Any specific requirements\n\n*Example: "Edit the settings API to add a new theme option"*`;
+        }
+        
+        // Initialize composer
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load available models for composer
+            loadComposerModels();
+            
+            // Handle Enter key in input
+            document.getElementById('composer-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendComposerMessage();
+                }
+            });
+            
+            // Auto-resize textarea
+            document.getElementById('composer-input').addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+            });
+        });
+
+        // Load available models for the composer
+        async function loadComposerModels() {
+            try {
+                const response = await fetch('/api/models/available');
+                if (response.ok) {
+                    const models = await response.json();
+                    const select = document.getElementById('composer-model-select');
+                    
+                    // Clear existing options except first
+                    while (select.children.length > 1) {
+                        select.removeChild(select.lastChild);
+                    }
+                    
+                    // Add model options
+                    models.forEach(model => {
+                        const option = document.createElement('option');
+                        option.value = model.name || model;
+                        option.textContent = model.name || model;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.warn('Could not load models for composer:', error);
+            }
+        }
+        </script>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="edit-profile-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Profile</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="edit-profile-form">
+                    <div class="form-group">
+                        <label for="profile-email-input">Email (Optional)</label>
+                        <input type="email" id="profile-email-input" class="form-input">
+                    </div>
+                    <div class="modal-actions">
+                        <button type="submit" class="settings-button primary">Update Profile</button>
+                        <button type="button" class="settings-button secondary close-modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div id="change-password-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Change Password</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="change-password-form">
+                    <div class="form-group">
+                        <label for="current-password">Current Password</label>
+                        <input type="password" id="current-password" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-password">New Password</label>
+                        <input type="password" id="new-password" class="form-input" required>
+                        <small>Minimum 6 characters</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm-new-password">Confirm New Password</label>
+                        <input type="password" id="confirm-new-password" class="form-input" required>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="submit" class="settings-button primary">Change Password</button>
+                        <button type="button" class="settings-button secondary close-modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Configuration Modal -->
+    <div id="configuration-modal" class="modal" style="display: none;">
+        <div class="modal-content large-modal">
+            <div class="modal-header">
+                <h3>Application Configuration</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="config-tabs">
+                    <button class="config-tab active" data-tab="static">Static Config</button>
+                    <button class="config-tab" data-tab="dynamic">Dynamic Config</button>
+                </div>
+                <div class="config-content">
+                    <div id="static-config" class="config-panel active">
+                        <div id="static-config-content">Loading...</div>
+                    </div>
+                    <div id="dynamic-config" class="config-panel">
+                        <div id="dynamic-config-content">Loading...</div>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button id="save-config-btn" class="settings-button primary">Save Changes</button>
+                    <button type="button" class="settings-button secondary close-modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div id="feedback-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Send Feedback</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="feedback-form">
+                    <div class="form-group">
+                        <label for="feedback-type">Type</label>
+                        <select id="feedback-type" class="form-input">
+                            <option value="general">General Feedback</option>
+                            <option value="bug_report">Bug Report</option>
+                            <option value="feature_request">Feature Request</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="feedback-subject">Subject</label>
+                        <input type="text" id="feedback-subject" class="form-input" required maxlength="200">
+                    </div>
+                    <div class="form-group">
+                        <label for="feedback-message">Message</label>
+                        <textarea id="feedback-message" class="form-input" rows="6" required maxlength="5000" placeholder="Please describe your feedback, issue, or suggestion in detail..."></textarea>
+                        <small>Maximum 5000 characters</small>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="submit" class="settings-button primary">Send Feedback</button>
+                        <button type="button" class="settings-button secondary close-modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logs Modal -->
+    <div id="logs-modal" class="modal" style="display: none;">
+        <div class="modal-content large-modal">
+            <div class="modal-header">
+                <h3>Application Logs</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="logs-info">
+                    <p><strong>Log File:</strong> <span id="log-file-path">Loading...</span></p>
+                    <button id="refresh-logs-btn" class="settings-button secondary">Refresh</button>
+                </div>
+                <div class="logs-container">
+                    <pre id="logs-content">Loading logs...</pre>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="settings-button secondary close-modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include '_scripts.html' %}
+    <!-- Page-specific scripts -->
+    <script type="module" src="{{ url_for('static', filename='js/utils/api-utils.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/modules/theme-manager.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/modules/system-prompts-manager.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/modules/tools-manager.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/modules/workspace-manager.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/modules/user-profile-manager.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/modules/app-config-manager.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/modules/ha-backend-config.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/modules/connectors-manager.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/modules/debug-settings-manager.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/settings-main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/settings.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+# Vybe Error Handling Task Specification
+
+## **🎯 Primary Task: Error Detection & Recovery**
+
+### **Core Responsibility**
+The model must excel at detecting, understanding, and recovering from errors gracefully while maintaining user trust and system stability.
+
+### **Key Capabilities Required**
+
+#### **1. Error Detection & Classification**
+- **Input**: Error messages, system logs, user feedback
+- **Output**: Categorized error with severity and root cause
+- **Examples**:
+  - "CUDA out of memory" → ERROR_TYPE: resource_exhaustion, SEVERITY: high, CAUSE: insufficient_gpu_memory
+  - "File not found: data.csv" → ERROR_TYPE: file_error, SEVERITY: medium, CAUSE: missing_file
+  - "Invalid parameter: width=0" → ERROR_TYPE: validation_error, SEVERITY: low, CAUSE: invalid_input
+
+#### **2. Recovery Strategy Generation**
+- **Input**: Error classification and context
+- **Output**: Prioritized list of recovery actions
+- **Examples**:
+  - Resource exhaustion → [reduce_batch_size, use_cpu_mode, suggest_alternative_model]
+  - File not found → [check_file_path, download_missing_file, create_sample_data]
+  - Network timeout → [retry_with_backoff, use_cached_data, suggest_offline_mode]
+
+#### **3. User Communication & Guidance**
+- **Input**: Error context and recovery plan
+- **Output**: Clear, helpful user messages
+- **Examples**:
+  - "I'll try generating a smaller image to fit in memory. This should work better."
+  - "The file seems to be missing. Would you like me to download it or create sample data?"
+  - "Network is slow. I'll retry in a moment, or we can work offline."
+
+#### **4. System State Recovery**
+- **Input**: Failed operation and current state
+- **Output**: Clean state restoration and alternative approach
+- **Examples**:
+  - Rollback partial changes
+  - Restore previous working configuration
+  - Switch to fallback resources
+
+### **Error Categories & Handling**
+
+#### **1. Resource Errors**
+- **GPU Memory Exhaustion**
+  - Detection: CUDA out of memory errors
+  - Recovery: Reduce batch size, use CPU, suggest smaller model
+  - Prevention: Monitor memory usage, pre-allocate resources
+
+- **CPU/System Memory**
+  - Detection: Memory allocation failures
+  - Recovery: Free unused resources, optimize data structures
+  - Prevention: Implement memory pooling, garbage collection
+
+- **Disk Space**
+  - Detection: Write failures, disk full errors
+  - Recovery: Clean temporary files, suggest external storage
+  - Prevention: Monitor disk usage, implement cleanup routines
+
+#### **2. Network & Connectivity Errors**
+- **Timeout Errors**
+  - Detection: Request timeouts, connection failures
+  - Recovery: Retry with exponential backoff, use cached data
+  - Prevention: Implement connection pooling, timeout configuration
+
+- **API Rate Limits**
+  - Detection: 429 status codes, rate limit headers
+  - Recovery: Implement rate limiting, queue requests
+  - Prevention: Monitor API usage, implement backoff strategies
+
+#### **3. Data & File Errors**
+- **Missing Files**
+  - Detection: FileNotFound exceptions
+  - Recovery: Check alternative paths, download missing files
+  - Prevention: Validate file existence, implement fallback paths
+
+- **Corrupted Data**
+  - Detection: Parsing errors, checksum mismatches
+  - Recovery: Use backup data, regenerate corrupted files
+  - Prevention: Implement data validation, checksums
+
+#### **4. Tool & Execution Errors**
+- **Tool Failures**
+  - Detection: Non-zero exit codes, exception handling
+  - Recovery: Try alternative tools, implement workarounds
+  - Prevention: Validate tool prerequisites, implement health checks
+
+- **Parameter Validation**
+  - Detection: Invalid parameter errors
+  - Recovery: Suggest valid parameters, use defaults
+  - Prevention: Implement parameter validation, provide examples
+
+### **Specialized Methods & Techniques**
+
+#### **1. Predictive Error Prevention**
+- Monitor system health proactively
+- Predict potential failures before they occur
+- Implement preventive measures automatically
+
+#### **2. Graceful Degradation**
+- Maintain core functionality when non-essential features fail
+- Provide alternative approaches when primary methods fail
+- Ensure system remains usable even with errors
+
+#### **3. Error Learning & Adaptation**
+- Learn from error patterns to prevent future occurrences
+- Adapt recovery strategies based on success rates
+- Improve error handling over time
+
+#### **4. User Experience Optimization**
+- Minimize user frustration during errors
+- Provide clear, actionable error messages
+- Maintain user trust through transparent communication
+
+### **Training Data Requirements**
+- 3,000+ error detection examples
+- 2,500+ recovery strategy scenarios
+- 2,000+ user communication examples
+- 1,500+ system state recovery cases
+- 1,000+ error prevention scenarios
+
+### **Success Metrics**
+- Error detection accuracy: >95%
+- Recovery success rate: >85%
+- User satisfaction during errors: >4.0/5
+- System stability improvement: >90%
+- Error prevention effectiveness: >80%

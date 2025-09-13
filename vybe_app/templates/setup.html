@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include '_head.html' %}
+    <title>First-Time Setup - Vybe</title>
+    <!-- Page-specific CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/setup.css') }}">
+    <script>
+        // Initialize theme early to prevent flash
+        const savedTheme = localStorage.getItem('vybe_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
+</head>
+<body>
+    {% include '_header_new.html' %}
+    
+    <div class="container">
+        <div class="setup-header">
+            <h1>🚀 First-Time Setup Checklist</h1>
+            <p>Welcome to Vybe! Please follow the steps below to set up all required dependencies for full functionality.</p>
+        </div>
+
+        <div class="setup-content">
+            <div class="setup-section">
+                <h2>📋 System Requirements</h2>
+                <div class="checklist">
+                    <div class="check-item" id="python-check">
+                        <div class="check-status">
+                            <span class="status-icon">⏳</span>
+                            <span class="status-text">Checking...</span>
+                        </div>
+                        <div class="check-details">
+                            <h3>Python 3.8+</h3>
+                            <p>Required for running Vybe and all AI components.</p>
+                            <div class="commands hidden" id="python-commands">
+                                <p><strong>Install Python:</strong></p>
+                                <code>Download from https://python.org/downloads/ and install with "Add to PATH" checked</code>
+                                <button class="copy-btn" data-copy="Download from https://python.org/downloads/">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="check-item" id="git-check">
+                        <div class="check-status">
+                            <span class="status-icon">⏳</span>
+                            <span class="status-text">Checking...</span>
+                        </div>
+                        <div class="check-details">
+                            <h3>Git</h3>
+                            <p>Required for cloning AI model repositories.</p>
+                            <div class="commands hidden" id="git-commands">
+                                <p><strong>Install Git:</strong></p>
+                                <code>Download from https://git-scm.com/downloads and install</code>
+                                <button class="copy-btn" data-copy="Download from https://git-scm.com/downloads">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="check-item" id="venv-check">
+                        <div class="check-status">
+                            <span class="status-icon">⏳</span>
+                            <span class="status-text">Checking...</span>
+                        </div>
+                        <div class="check-details">
+                            <h3>Virtual Environment</h3>
+                            <p>Vybe virtual environment for isolated dependencies.</p>
+                            <div class="commands hidden" id="venv-commands">
+                                <p><strong>Create virtual environment:</strong></p>
+                                <code>python -m venv vybe-env</code>
+                                <button class="copy-btn" data-copy="python -m venv vybe-env">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="setup-section">
+                <h2>🤖 AI Components</h2>
+                <div class="checklist">
+                    <div class="check-item" id="llm-backend-check">
+                        <div class="check-status">
+                            <span class="status-icon">⏳</span>
+                            <span class="status-text">Checking...</span>
+                        </div>
+                        <div class="check-details">
+                            <h3>LLM Backend (llama-cpp-python)</h3>
+                            <p>Local LLM inference server for chat functionality.</p>
+                            <div class="commands hidden" id="llm-backend-commands">
+                                <p><strong>Install llama-cpp-python:</strong></p>
+                                <code>pip install llama-cpp-python[server]</code>
+                                <button class="copy-btn" data-copy="pip install llama-cpp-python[server]">Copy</button>
+                                <p><strong>Download default model:</strong></p>
+                                <code>python download_default_model.py</code>
+                                <button class="copy-btn" data-copy="python download_default_model.py">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="check-item" id="sd-check">
+                        <div class="check-status">
+                            <span class="status-icon">⏳</span>
+                            <span class="status-text">Checking...</span>
+                        </div>
+                        <div class="check-details">
+                            <h3>AUTOMATIC1111 Stable Diffusion</h3>
+                            <p>AI image generation using Stable Diffusion models.</p>
+                            <div class="commands hidden" id="sd-commands">
+                                <p><strong>Clone repository:</strong></p>
+                                <code>vybe-env\Scripts\activate && git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git vybe_app/vendor/stable-diffusion-webui</code>
+                                <button class="copy-btn" data-copy="vybe-env\Scripts\activate && git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git vybe_app/vendor/stable-diffusion-webui">Copy</button>
+                                <p><strong>Install dependencies:</strong></p>
+                                <code>vybe-env\Scripts\activate && cd vybe_app/vendor/stable-diffusion-webui && python -m pip install -r requirements.txt</code>
+                                <button class="copy-btn" data-copy="vybe-env\Scripts\activate && cd vybe_app/vendor/stable-diffusion-webui && python -m pip install -r requirements.txt">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="check-item" id="tts-check">
+                        <div class="check-status">
+                            <span class="status-icon">⏳</span>
+                            <span class="status-text">Checking...</span>
+                        </div>
+                        <div class="check-details">
+                            <h3>Coqui TTS</h3>
+                            <p>Text-to-speech functionality for voice output.</p>
+                            <div class="commands hidden" id="tts-commands">
+                                <p><strong>Clone repository:</strong></p>
+                                <code>vybe-env\Scripts\activate && git clone https://github.com/coqui-ai/TTS.git vybe_app/vendor/TTS</code>
+                                <button class="copy-btn" data-copy="vybe-env\Scripts\activate && git clone https://github.com/coqui-ai/TTS.git vybe_app/vendor/TTS">Copy</button>
+                                <p><strong>Install TTS:</strong></p>
+                                <code>vybe-env\Scripts\activate && cd vybe_app/vendor/TTS && pip install -e .</code>
+                                <button class="copy-btn" data-copy="vybe-env\Scripts\activate && cd vybe_app/vendor/TTS && pip install -e .">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="check-item" id="whisper-check">
+                        <div class="check-status">
+                            <span class="status-icon">⏳</span>
+                            <span class="status-text">Checking...</span>
+                        </div>
+                        <div class="check-details">
+                            <h3>Whisper.cpp</h3>
+                            <p>Speech-to-text transcription functionality.</p>
+                            <div class="commands hidden" id="whisper-commands">
+                                <p><strong>Clone repository:</strong></p>
+                                <code>vybe-env\Scripts\activate && git clone https://github.com/ggerganov/whisper.cpp.git vybe_app/vendor/whisper.cpp</code>
+                                <button class="copy-btn" data-copy="vybe-env\Scripts\activate && git clone https://github.com/ggerganov/whisper.cpp.git vybe_app/vendor/whisper.cpp">Copy</button>
+                                <p><strong>Build whisper.cpp:</strong></p>
+                                <code>vybe-env\Scripts\activate && cd vybe_app/vendor/whisper.cpp && make</code>
+                                <button class="copy-btn" data-copy="vybe-env\Scripts\activate && cd vybe_app/vendor/whisper.cpp && make">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="setup-section">
+                <h2>📁 Default Models</h2>
+                <div class="checklist">
+                    <div class="check-item" id="models-check">
+                        <div class="check-status">
+                            <span class="status-icon">⏳</span>
+                            <span class="status-text">Checking...</span>
+                        </div>
+                        <div class="check-details">
+                            <h3>Default AI Models</h3>
+                            <p>Pre-trained models for immediate functionality.</p>
+                            <div class="commands hidden" id="models-commands">
+                                <p><strong>Download Stable Diffusion model:</strong></p>
+                                <code>vybe-env\Scripts\activate && cd vybe_app/vendor/stable-diffusion-webui && wget -O models/Stable-diffusion/v1-5-pruned-emaonly.safetensors https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned-emaonly.safetensors</code>
+                                <button class="copy-btn" data-copy="vybe-env\Scripts\activate && cd vybe_app/vendor/stable-diffusion-webui && wget -O models/Stable-diffusion/v1-5-pruned-emaonly.safetensors https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned-emaonly.safetensors">Copy</button>
+                                <p><strong>Download Whisper model:</strong></p>
+                                <code>vybe-env\Scripts\activate && cd vybe_app/vendor/whisper.cpp && wget -O models/ggml-base.en.bin https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin</code>
+                                <button class="copy-btn" data-copy="vybe-env\Scripts\activate && cd vybe_app/vendor/whisper.cpp && wget -O models/ggml-base.en.bin https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="setup-actions">
+                <button id="recheck-btn" class="btn btn-primary">🔄 Re-check Status</button>
+                <button id="help-btn" class="btn btn-secondary">❓ Need Help?</button>
+            </div>
+
+            <div class="setup-notes">
+                <h3>📝 Important Notes:</h3>
+                <ul>
+                    <li>Always activate the virtual environment (<code>vybe-env\Scripts\activate</code>) before running commands</li>
+                    <li>Some downloads may take time depending on your internet connection</li>
+                    <li>GPU drivers may be required for optimal performance</li>
+                    <li>Windows users may need to install Visual Studio Build Tools for some components</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    {% include '_scripts.html' %}
+    <!-- Page-specific scripts -->
+    <script src="{{ url_for('static', filename='js/setup.js') }}"></script>
+</body>
+</html>

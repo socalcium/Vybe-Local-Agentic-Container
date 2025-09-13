@@ -1,0 +1,148 @@
+Vybe AI Assistant
+Copyright 2025 socalcium
+
+This product includes software developed by socalcium.
+
+This software contains the following third-party components:
+
+================================================================================
+
+Flask (BSD-3-Clause)
+Copyright 2010 Pallets
+https://github.com/pallets/flask
+
+Flask-SocketIO (MIT)
+Copyright 2014 Miguel Grinberg
+https://github.com/miguelgrinberg/Flask-SocketIO
+
+Flask-SQLAlchemy (BSD-3-Clause)
+Copyright 2010 Pallets
+https://github.com/pallets/flask-sqlalchemy
+
+Flask-Login (MIT)
+Copyright 2011 Matthew Frazier
+https://github.com/maxcountryman/flask-login
+
+Flask-CORS (MIT)
+Copyright 2014 Cory Dolphin
+https://github.com/corydolphin/flask-cors
+
+APScheduler (MIT)
+Copyright 2009 Alex Grönholm
+https://github.com/agronholm/apscheduler
+
+Tauri (Apache-2.0 OR MIT)
+Copyright 2019-2023 Tauri Contributors
+https://github.com/tauri-apps/tauri
+
+llama-cpp-python (MIT)
+Copyright 2023 Andrei Betlen
+https://github.com/abetlen/llama-cpp-python
+
+chromadb (Apache-2.0)
+Copyright 2022 Chroma
+https://github.com/chroma-core/chroma
+
+requests (Apache-2.0)
+Copyright 2019 Kenneth Reitz
+https://github.com/psf/requests
+
+pandas (BSD-3-Clause)
+Copyright 2008-2011, AQR Capital Management, LLC, Lambda Foundry, Inc. and PyData Development Team
+https://github.com/pandas-dev/pandas
+
+numpy (BSD-3-Clause)
+Copyright 2005-2023, NumPy Developers
+https://github.com/numpy/numpy
+
+matplotlib (BSD-style)
+Copyright 2012-2023 The Matplotlib development team
+https://github.com/matplotlib/matplotlib
+
+Pillow (PIL Software License)
+Copyright 1997-2011 by Secret Labs AB
+Copyright 1995-2011 by Fredrik Lundh
+https://github.com/python-pillow/Pillow
+
+scikit-learn (BSD-3-Clause)
+Copyright 2007-2023 The scikit-learn developers
+https://github.com/scikit-learn/scikit-learn
+
+huggingface-hub (Apache-2.0)
+Copyright 2021 The HuggingFace Team
+https://github.com/huggingface/huggingface_hub
+
+openai (MIT)
+Copyright 2020 OpenAI
+https://github.com/openai/openai-python
+
+edge-tts (GPL-3.0)
+Copyright 2021 rany2
+https://github.com/rany2/edge-tts
+
+SpeechRecognition (BSD-3-Clause)
+Copyright 2014-2017 Anthony Zhang (Uberi)
+https://github.com/Uberi/speech_recognition
+
+playwright (Apache-2.0)
+Copyright Microsoft Corporation
+https://github.com/microsoft/playwright-python
+
+trafilatura (GPL-3.0)
+Copyright 2019-2023 Adrien Barbaresi
+https://github.com/adbar/trafilatura
+
+pydantic (MIT)
+Copyright 2017 Samuel Colvin
+https://github.com/pydantic/pydantic
+
+fastapi (MIT)
+Copyright 2018 Sebastián Ramírez
+https://github.com/tiangolo/fastapi
+
+uvicorn (BSD-3-Clause)
+Copyright 2017-present Tom Christie
+https://github.com/encode/uvicorn
+
+OpenTelemetry (Apache-2.0)
+Copyright The OpenTelemetry Authors
+https://github.com/open-telemetry/opentelemetry-python
+
+Home Assistant API (MIT)
+Copyright 2020 GrandadEvans
+https://github.com/GrandadEvans/homeassistant-api
+
+cryptography (Apache-2.0 OR BSD-3-Clause)
+Copyright 2013-2023 The cryptography developers
+https://github.com/pyca/cryptography
+
+bcrypt (Apache-2.0)
+Copyright 2013 Donald Stufft
+https://github.com/pyca/bcrypt
+
+PyYAML (MIT)
+Copyright 2017-2021 Ingy döt Net
+Copyright 2006-2016 Kirill Simonov
+https://github.com/yaml/pyyaml
+
+python-socketio (MIT)
+Copyright 2015 Miguel Grinberg
+https://github.com/miguelgrinberg/python-socketio
+
+aiohttp (Apache-2.0)
+Copyright 2013-2023 aiohttp contributors
+https://github.com/aio-libs/aiohttp
+
+dateparser (BSD-3-Clause)
+Copyright 2014 Scrapinghub
+https://github.com/scrapinghub/dateparser
+
+================================================================================
+
+This software may also include additional third-party dependencies and libraries.
+For a complete and up-to-date list of all dependencies and their licenses,
+please refer to the requirements.txt file and package.json files in this project.
+
+The above copyright notices and license information do not apply to any
+third-party software components that may be included or referenced in this
+software. Such components are governed by their respective licenses.

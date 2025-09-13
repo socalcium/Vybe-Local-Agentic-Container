@@ -1,0 +1,322 @@
+/* Vybe Loading Screen Styles */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    background-size: 400% 400%;
+    animation: gradientShift 8s ease infinite;
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    position: relative;
+    z-index: 10;
+}
+
+.loading-content {
+    text-align: center;
+    animation: fadeInUp 1.5s ease-out;
+}
+
+/* Logo Styles */
+.logo-container {
+    margin-bottom: 40px;
+}
+
+.logo-icon {
+    margin-bottom: 20px;
+    animation: logoFloat 3s ease-in-out infinite;
+}
+
+.logo-icon svg {
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.2));
+}
+
+.app-title {
+    font-size: 48px;
+    font-weight: 300;
+    margin-bottom: 8px;
+    letter-spacing: 2px;
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.app-subtitle {
+    font-size: 18px;
+    font-weight: 400;
+    opacity: 0.9;
+    letter-spacing: 1px;
+}
+
+/* Status Styles */
+.status-container {
+    margin-bottom: 60px;
+}
+
+.status-message {
+    font-size: 16px;
+    margin-bottom: 30px;
+    opacity: 0.8;
+    min-height: 24px;
+    transition: all 0.3s ease;
+}
+
+/* Loading Animation */
+.loading-animation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.loading-bar {
+    width: 200px;
+    height: 4px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+}
+
+.loading-progress {
+    height: 100%;
+    background: linear-gradient(90deg, #f093fb, #f5576c, #4facfe, #00f2fe);
+    background-size: 200% 100%;
+    border-radius: 2px;
+    animation: loadingProgress 2s ease-in-out infinite, gradientMove 3s linear infinite;
+    width: 0%;
+}
+
+.loading-dots {
+    display: flex;
+    gap: 8px;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    background-color: white;
+    border-radius: 50%;
+    opacity: 0.4;
+    animation: dotPulse 1.5s ease-in-out infinite;
+}
+
+.dot:nth-child(1) { animation-delay: 0s; }
+.dot:nth-child(2) { animation-delay: 0.2s; }
+.dot:nth-child(3) { animation-delay: 0.4s; }
+
+/* Version Info */
+.version-info {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    opacity: 0.6;
+}
+
+/* Background Animation */
+.background-animation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.floating-particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    animation: floatParticle 15s linear infinite;
+}
+
+.floating-particle:nth-child(1) {
+    left: 10%;
+    animation-delay: 0s;
+    animation-duration: 12s;
+}
+
+.floating-particle:nth-child(2) {
+    left: 20%;
+    animation-delay: 2s;
+    animation-duration: 18s;
+}
+
+.floating-particle:nth-child(3) {
+    left: 60%;
+    animation-delay: 4s;
+    animation-duration: 14s;
+}
+
+.floating-particle:nth-child(4) {
+    left: 80%;
+    animation-delay: 6s;
+    animation-duration: 16s;
+}
+
+.floating-particle:nth-child(5) {
+    left: 40%;
+    animation-delay: 8s;
+    animation-duration: 20s;
+}
+
+/* Animations */
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes logoFloat {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes loadingProgress {
+    0% { width: 0%; }
+    50% { width: 70%; }
+    100% { width: 100%; }
+}
+
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+
+@keyframes dotPulse {
+    0%, 100% { 
+        opacity: 0.4;
+        transform: scale(1);
+    }
+    50% { 
+        opacity: 1;
+        transform: scale(1.2);
+    }
+}
+
+@keyframes floatParticle {
+    0% {
+        transform: translateY(100vh) translateX(0px);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.3;
+    }
+    90% {
+        opacity: 0.3;
+    }
+    100% {
+        transform: translateY(-10vh) translateX(50px);
+        opacity: 0;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .app-title {
+        font-size: 36px;
+    }
+    
+    .app-subtitle {
+        font-size: 16px;
+    }
+    
+    .loading-bar {
+        width: 150px;
+    }
+}
+
+/* First Launch Specific Styles */
+.progress-percentage {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.8);
+    margin-top: 10px;
+    font-weight: 500;
+}
+
+.first-launch-info {
+    margin-top: 30px;
+    animation: fadeInUp 0.8s ease-out;
+}
+
+.info-box {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 25px;
+    max-width: 400px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    text-align: left;
+}
+
+.info-box h3 {
+    margin-bottom: 15px;
+    font-size: 20px;
+    color: white;
+    text-align: center;
+}
+
+.info-box p {
+    margin-bottom: 15px;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.5;
+    font-size: 14px;
+}
+
+.info-box ul {
+    list-style: none;
+    margin-bottom: 15px;
+}
+
+.info-box li {
+    padding: 8px 0;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+}
+
+.info-box li.active {
+    opacity: 1;
+    color: white;
+    font-weight: 500;
+}
+
+.info-box .note {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+    font-style: italic;
+    margin-bottom: 0;
+    text-align: center;
+}

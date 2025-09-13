@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include '_head.html' %}
+    <title>Vybe - Search Results</title>
+    <!-- Page-specific CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/search.css') }}">
+</head>
+<body>
+    <div class="container">
+        {% include '_header_new.html' %}
+        
+        <div class="page-title">
+            <h1>🔍 Search Results</h1>
+        </div>
+        
+        <main class="search-results-container">
+            <h2>Results for: "{{ query|e }}"</h2>
+        {% if results %}
+            <div class="search-results-list">
+                <ul>
+                    {% for result in results %}
+                        <li class="search-result">
+                            <h3><a href="{{ result.link|e }}" target="_blank" rel="noopener noreferrer">{{ result.title|e }}</a></h3>
+                            <p class="search-result-link">{{ result.link|e }}</p>
+                            <p class="search-result-snippet">{{ result.snippet|e }}</p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% else %}
+            <p>No results found for your query or an error occurred.</p>
+        {% endif %}
+        <a href="{{ url_for('views.index') }}" class="back-link">Back to Chat</a>
+        </main>
+    </div>
+    
+    <!-- Scripts -->
+    {% include '_scripts.html' %}
+</body>
+</html>

@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include '_head.html' %}
+    <title>RPG Adventure | Vybe</title>
+    <!-- Page-specific CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/rpg.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile-nav-override.css') }}">
+</head>
+<body class="app-body">
+    {% include '_header_new.html' %}
+    
+    <main class="main-content">
+        <!-- Mobile Tab Navigation -->
+        <div class="mobile-tab-bar">
+            <button class="mobile-tab-btn active" data-tab="adventure">
+                <span class="tab-icon">🎭</span>
+                <span class="tab-label">Adventure</span>
+            </button>
+            <button class="mobile-tab-btn" data-tab="party">
+                <span class="tab-icon">👥</span>
+                <span class="tab-label">Party</span>
+            </button>
+            <button class="mobile-tab-btn" data-tab="inventory">
+                <span class="tab-icon">🎒</span>
+                <span class="tab-label">Inventory</span>
+            </button>
+            <button class="mobile-tab-btn" data-tab="quests">
+                <span class="tab-icon">📜</span>
+                <span class="tab-label">Quests</span>
+            </button>
+        </div>
+
+        <div class="rpg-container">
+            <!-- Adventure Tab (Default) -->
+            <div class="tab-content active" id="adventure-tab">
+                <div class="adventure-panel">
+                    <!-- Campaign Header -->
+                    <div class="campaign-header">
+                        <div class="campaign-info">
+                            <h1 id="campaignName">Adventure Awaits</h1>
+                            <p id="campaignDescription">Create a new campaign or load an existing one to begin your adventure</p>
+                        </div>
+                        <div class="campaign-controls">
+                            <button id="newCampaignBtn" class="btn btn-primary">New Campaign</button>
+                            <button id="loadCampaignBtn" class="btn btn-secondary">Load Campaign</button>
+                            <button id="saveCampaignBtn" class="btn btn-success" style="display: none;">Save Campaign</button>
+                        </div>
+                    </div>
+
+                    <!-- Scene Display -->
+                    <div class="scene-container">
+                        <div class="scene-header">
+                            <h3>Current Scene</h3>
+                            <div class="scene-controls">
+                                <button id="rollDiceBtn" class="btn btn-outline-primary btn-sm">🎲 Roll Dice</button>
+                            </div>
+                        </div>
+                        <div id="currentScene" class="scene-content">
+                            <em>Start a campaign to begin your adventure...</em>
+                        </div>
+                    </div>
+
+                    <!-- Chat Interface -->
+                    <div class="chat-container">
+                        <div class="chat-header">
+                            <h3>Adventure Chat</h3>
+                            <div class="turn-counter">
+                                Turn <span id="turnCount">0</span>
+                            </div>
+                        </div>
+                        
+                        <div id="chatMessages" class="chat-messages">
+                            <!-- Chat messages will be populated here -->
+                        </div>
+                        
+                        <form id="chatForm" class="chat-input-form">
+                            <div class="input-group">
+                                <input type="text" id="actionInput" placeholder="Describe your action..." disabled>
+                                <button type="submit" id="sendActionBtn" class="btn btn-primary" disabled>
+                                    ⚔️ Act
+                                </button>
+                            </div>
+                            <div class="quick-actions">
+                                <button type="button" class="quick-action-btn" data-action="look around">👁️ Look</button>
+                                <button type="button" class="quick-action-btn" data-action="search the area">🔍 Search</button>
+                                <button type="button" class="quick-action-btn" data-action="talk to NPCs">💬 Talk</button>
+                                <button type="button" class="quick-action-btn" data-action="check inventory">🎒 Inventory</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Party Tab -->
+            <div class="tab-content" id="party-tab">
+                <div class="game-state-panel">
+                    <!-- Party Statistics -->
+                    <div class="stats-card">
+                        <h3>Party Status</h3>
+                        <div id="partyStats" class="party-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Members:</span>
+                                <span id="partySize">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Avg Level:</span>
+                                <span id="partyLevel">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Health:</span>
+                                <span id="partyHealth">0/0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Character Cards -->
+                    <div class="stats-card">
+                        <h3>Characters</h3>
+                        <div id="charactersList" class="characters-list">
+                            <!-- Character cards will be populated here -->
+                        </div>
+                        <button id="addCharacterBtn" class="btn btn-outline-primary btn-sm full-width">+ Add Character</button>
+                    </div>
+
+                    <!-- NPCs -->
+                    <div class="stats-card">
+                        <h3>NPCs Present</h3>
+                        <div id="npcsList" class="npcs-list">
+                            <em>No NPCs in the current scene</em>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventory Tab -->
+            <div class="tab-content" id="inventory-tab">
+                <div class="game-state-panel">
+                    <!-- Inventory -->
+                    <div class="stats-card">
+                        <h3>Party Inventory</h3>
+                        <div id="inventoryList" class="inventory-list">
+                            <em>No items in inventory</em>
+                        </div>
+                        <button id="addItemBtn" class="btn btn-outline-primary btn-sm full-width">+ Add Item</button>
+                    </div>
+
+                    <!-- Equipment Quick View -->
+                    <div class="stats-card">
+                        <h3>Equipment</h3>
+                        <div id="equipmentList" class="equipment-list">
+                            <em>No equipment equipped</em>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quests Tab -->
+            <div class="tab-content" id="quests-tab">
+                <div class="game-state-panel">
+                    <!-- Quest Log -->
+                    <div class="stats-card">
+                        <h3>Active Quests</h3>
+                        <div id="questLog" class="quest-log">
+                            <em>No active quests</em>
+                        </div>
+                        <button id="addQuestBtn" class="btn btn-outline-primary btn-sm full-width">+ Add Quest</button>
+                    </div>
+
+                    <!-- Event Log -->
+                    <div class="stats-card">
+                        <h3>Recent Events</h3>
+                        <div id="eventLog" class="event-log">
+                            <!-- Events will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="stats-card">
+                        <h3>Campaign Notes</h3>
+                        <div class="notes-container">
+                            <textarea id="campaignNotes" placeholder="Add your campaign notes here..." rows="4"></textarea>
+                            <button id="saveNotesBtn" class="btn btn-outline-primary btn-sm">💾 Save Notes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Desktop Layout (Original) -->
+            <div class="desktop-rpg-layout">
+                <!-- Left Column: Chat and Narration -->
+                <div class="adventure-panel">
+                    <!-- Campaign Header -->
+                    <div class="campaign-header">
+                        <div class="campaign-info">
+                            <h1 id="campaignName-desktop">Adventure Awaits</h1>
+                            <p id="campaignDescription-desktop">Create a new campaign or load an existing one to begin your adventure</p>
+                        </div>
+                        <div class="campaign-controls">
+                            <button class="new-campaign-btn btn btn-primary">New Campaign</button>
+                            <button class="load-campaign-btn btn btn-secondary">Load Campaign</button>
+                            <button class="save-campaign-btn btn btn-success" style="display: none;">Save Campaign</button>
+                        </div>
+                    </div>
+
+                    <!-- Scene Display -->
+                    <div class="scene-container">
+                        <div class="scene-header">
+                            <h3>Current Scene</h3>
+                            <div class="scene-controls">
+                                <button class="roll-dice-btn btn btn-outline-primary btn-sm">🎲 Roll Dice</button>
+                            </div>
+                        </div>
+                        <div id="currentScene-desktop" class="scene-content">
+                            <em>Start a campaign to begin your adventure...</em>
+                        </div>
+                    </div>
+
+                    <!-- Chat Interface -->
+                    <div class="chat-container">
+                        <div class="chat-header">
+                            <h3>Adventure Chat</h3>
+                            <div class="turn-counter">
+                                Turn <span id="turnCount-desktop">0</span>
+                            </div>
+                        </div>
+                        
+                        <div id="chatMessages-desktop" class="chat-messages">
+                            <!-- Chat messages will be populated here -->
+                        </div>
+                        
+                        <form class="chat-form chat-input-form">
+                            <div class="input-group">
+                                <input type="text" class="action-input" placeholder="Describe your action..." disabled>
+                                <button type="submit" class="send-action-btn btn btn-primary" disabled>
+                                    ⚔️ Act
+                                </button>
+                            </div>
+                            <div class="quick-actions">
+                                <button type="button" class="quick-action-btn" data-action="look around">👁️ Look</button>
+                                <button type="button" class="quick-action-btn" data-action="search the area">🔍 Search</button>
+                                <button type="button" class="quick-action-btn" data-action="talk to NPCs">💬 Talk</button>
+                                <button type="button" class="quick-action-btn" data-action="check inventory">🎒 Inventory</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Right Column: Game State and Stats -->
+                <div class="game-state-panel">
+                    <!-- Party Statistics -->
+                    <div class="stats-card">
+                        <h3>Party Status</h3>
+                        <div class="party-stats-desktop party-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Members:</span>
+                                <span class="party-size">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Avg Level:</span>
+                                <span class="party-level">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Health:</span>
+                                <span class="party-health">0/0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Character Cards -->
+                    <div class="stats-card">
+                        <h3>Characters</h3>
+                        <div class="characters-list-desktop characters-list">
+                            <!-- Character cards will be populated here -->
+                        </div>
+                        <button class="add-character-btn btn btn-outline-primary btn-sm full-width">+ Add Character</button>
+                    </div>
+
+                    <!-- NPCs -->
+                    <div class="stats-card">
+                        <h3>NPCs Present</h3>
+                        <div class="npcs-list-desktop npcs-list">
+                            <em>No NPCs in the current scene</em>
+                        </div>
+                    </div>
+
+                    <!-- Inventory -->
+                    <div class="stats-card">
+                        <h3>Party Inventory</h3>
+                        <div class="inventory-list-desktop inventory-list">
+                            <em>No items in inventory</em>
+                        </div>
+                        <button class="add-item-btn btn btn-outline-primary btn-sm full-width">+ Add Item</button>
+                    </div>
+
+                    <!-- Quest Log -->
+                    <div class="stats-card">
+                        <h3>Quests</h3>
+                        <div class="quest-log-desktop quest-log">
+                            <em>No active quests</em>
+                        </div>
+                        <button class="add-quest-btn btn btn-outline-primary btn-sm full-width">+ Add Quest</button>
+                    </div>
+
+                    <!-- Event Log -->
+                    <div class="stats-card">
+                        <h3>Recent Events</h3>
+                        <div class="event-log-desktop event-log">
+                            <!-- Events will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modals -->
+    
+    <!-- New Campaign Modal -->
+    <div id="newCampaignModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Campaign</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="newCampaignForm">
+                    <div class="form-group">
+                        <label for="newCampaignName">Campaign Name</label>
+                        <input type="text" id="newCampaignName" required placeholder="Epic Fantasy Adventure">
+                    </div>
+                    <div class="form-group">
+                        <label for="newWorldDescription">World Description</label>
+                        <textarea id="newWorldDescription" rows="4" required 
+                                placeholder="A mystical realm filled with ancient magic and forgotten secrets..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="newCharacterName">Main Character Name</label>
+                        <input type="text" id="newCharacterName" required placeholder="Hero">
+                    </div>
+                    <div class="form-group">
+                        <label for="newCharacterBackstory">Character Backstory</label>
+                        <textarea id="newCharacterBackstory" rows="3" 
+                                placeholder="A brave adventurer seeking glory and treasure..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('newCampaignModal')">Cancel</button>
+                <button type="submit" form="newCampaignForm" class="btn btn-primary">Create Campaign</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dice Roll Modal -->
+    <div id="diceRollModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Roll Dice</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="diceRollForm">
+                    <div class="form-group">
+                        <label for="diceNotation">Dice Notation</label>
+                        <input type="text" id="diceNotation" placeholder="2d6+3, 1d20, 3d8-1" required>
+                        <small class="help-text">Examples: 1d20, 2d6+3, 3d8-1</small>
+                    </div>
+                    <div class="quick-dice">
+                        <button type="button" class="dice-btn" data-dice="1d4">d4</button>
+                        <button type="button" class="dice-btn" data-dice="1d6">d6</button>
+                        <button type="button" class="dice-btn" data-dice="1d8">d8</button>
+                        <button type="button" class="dice-btn" data-dice="1d10">d10</button>
+                        <button type="button" class="dice-btn" data-dice="1d12">d12</button>
+                        <button type="button" class="dice-btn" data-dice="1d20">d20</button>
+                        <button type="button" class="dice-btn" data-dice="1d100">d100</button>
+                    </div>
+                    <div id="diceResult" class="dice-result" style="display: none;">
+                        <!-- Dice result will be displayed here -->
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('diceRollModal')">Close</button>
+                <button type="submit" form="diceRollForm" class="btn btn-primary">🎲 Roll</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Character Modal -->
+    <div id="addCharacterModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Character</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="addCharacterForm">
+                    <div class="form-group">
+                        <label for="characterName">Character Name</label>
+                        <input type="text" id="characterName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="characterLevel">Level</label>
+                        <input type="number" id="characterLevel" min="1" max="20" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="characterHealth">Health Points</label>
+                        <input type="number" id="characterHealth" min="1" value="100">
+                    </div>
+                    <div class="form-group">
+                        <label for="characterBackstory">Backstory</label>
+                        <textarea id="characterBackstory" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('addCharacterModal')">Cancel</button>
+                <button type="submit" form="addCharacterForm" class="btn btn-primary">Add Character</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Input Modal -->
+    <div id="quickInputModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="quickInputTitle">Add Item</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="quickInputForm">
+                    <div class="form-group">
+                        <label for="quickInputText" id="quickInputLabel">Item Name</label>
+                        <input type="text" id="quickInputText" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('quickInputModal')">Cancel</button>
+                <button type="submit" form="quickInputForm" class="btn btn-primary">Add</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error/Success Modal -->
+    <div id="messageModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="messageTitle">Message</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p id="messageText">Message content</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeModal('messageModal')">OK</button>
+            </div>
+        </div>
+    </div>
+
+    
+    <!-- Scripts -->
+    {% include '_scripts.html' %}
+    <!-- Page-specific scripts -->
+    <script src="{{ url_for('static', filename='js/rpg_manager.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/rpg-mobile.js') }}"></script>
+</body>
+</html>

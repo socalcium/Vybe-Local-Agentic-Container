@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include '_head.html' %}
+    <title>Vybe - {{ 'Register' if show_register else 'Login' }}</title>
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <div class="login-header">
+            <h1>🤖 Vybe AI Assistant</h1>
+            <p class="version">Version {{ config.VERSION if config else '1.2.0' }}</p>
+        </div>
+
+        <div class="auth-forms">
+            <!-- Login Form -->
+            <div class="auth-form" id="login-form" {% if show_register %}style="display: none;"{% endif %}>
+                <h2>Welcome Back</h2>
+                <p class="auth-subtitle">Sign in to your account</p>
+                
+                <!-- Default credentials info -->
+                <div class="default-creds-info">
+                    <p><strong>Default Login:</strong></p>
+                    <p>Username: <code>admin</code></p>
+                    <p>Password: <code>{{ config.get('VYBE_DEFAULT_ADMIN_PASSWORD', 'admin123') if config.get('VYBE_TEST_MODE', False) else 'Set via VYBE_DEFAULT_ADMIN_PASSWORD env var' }}</code></p>
+                    <small>Change these after first login for security</small>
+                </div>
+                
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                  {% if messages and not show_register %}
+                    <div class="flash-messages">
+                    {% for category, message in messages %}
+                      <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                    </div>
+                  {% endif %}
+                {% endwith %}
+                
+                <form method="post" action="{{ url_for('auth.login') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" required autocomplete="username" 
+                               maxlength="64" pattern="[a-zA-Z0-9._-]+" 
+                               title="Username can only contain letters, numbers, dots, hyphens, and underscores">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required autocomplete="current-password"
+                               minlength="6" maxlength="128">
+                    </div>
+                    
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="remember" name="remember" value="1">
+                        <label for="remember">Stay signed in</label>
+                    </div>
+                    
+                    <button type="submit" class="auth-btn" id="login-submit-btn">Sign In</button>
+                </form>
+                
+                <div class="auth-switch">
+                    <p>Don't have an account? <a href="#" onclick="showRegister()">Sign up</a></p>
+                </div>
+            </div>
+
+            <!-- Registration Form -->
+            <div class="auth-form" id="register-form" {% if not show_register %}style="display: none;"{% endif %}>
+                <h2>Create Account</h2>
+                <p class="auth-subtitle">Join Vybe AI Assistant</p>
+                
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                  {% if messages and show_register %}
+                    <div class="flash-messages">
+                    {% for category, message in messages %}
+                      <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                    </div>
+                  {% endif %}
+                {% endwith %}
+                
+                <form method="post" action="{{ url_for('auth.register') }}">
+                    <div class="form-group">
+                        <label for="reg-username">Username</label>
+                        <input type="text" id="reg-username" name="username" required autocomplete="username">
+                        <small>3-64 characters, letters, numbers, dots, hyphens, and underscores only</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="reg-email">Email (Optional)</label>
+                        <input type="email" id="reg-email" name="email" autocomplete="email">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="reg-password">Password</label>
+                        <input type="password" id="reg-password" name="password" required autocomplete="new-password">
+                        <small>Minimum 6 characters</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="reg-confirm-password">Confirm Password</label>
+                        <input type="password" id="reg-confirm-password" name="confirm_password" required autocomplete="new-password">
+                    </div>
+                    
+                    <button type="submit" class="auth-btn">Create Account</button>
+                </form>
+                
+                <div class="auth-switch">
+                    <p>Already have an account? <a href="#" onclick="showLogin()">Sign in</a></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="login-footer">
+            <p>&copy; 2025 Vybe AI Assistant. A modern AI-powered workspace.</p>
+        </div>
+    </div>
+
+    <script>
+        function showLogin() {
+            document.getElementById('login-form').style.display = 'block';
+            document.getElementById('register-form').style.display = 'none';
+            // Update URL without reload
+            history.pushState(null, '', '{{ url_for("auth.login") }}');
+        }
+
+        function showRegister() {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('register-form').style.display = 'block';
+            // Update URL without reload
+            history.pushState(null, '', '{{ url_for("auth.register") }}');
+        }
+
+        // Auto-focus first input
+        document.addEventListener('DOMContentLoaded', function() {
+            const visibleForm = document.querySelector('.auth-form:not([style*="display: none"])');
+            if (visibleForm) {
+                const firstInput = visibleForm.querySelector('input[type="text"], input[type="email"]');
+                if (firstInput) {
+                    firstInput.focus();
+                }
+            }
+        });
+    </script>
+    
+    <!-- Scripts -->
+    {% include '_scripts.html' %}
+</body>
+</html>

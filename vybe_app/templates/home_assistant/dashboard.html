@@ -1,0 +1,720 @@
+{% extends "base.html" %}
+
+{% block title %}Home Assistant - Vybe AI{% endblock %}
+
+{% block extra_css %}
+<style>
+.ha-header {
+    background: linear-gradient(135deg, #41B883 0%, #35495E 100%);
+    color: white;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+}
+
+.connection-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.status-connected {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.status-disconnected {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.status-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.indicator-connected {
+    background: #28a745;
+    box-shadow: 0 0 8px rgba(40, 167, 69, 0.5);
+}
+
+.indicator-disconnected {
+    background: #dc3545;
+    box-shadow: 0 0 8px rgba(220, 53, 69, 0.5);
+}
+
+.settings-card {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+    margin-bottom: 2rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #41B883;
+    box-shadow: 0 0 0 3px rgba(65, 184, 131, 0.1);
+}
+
+.btn-connect {
+    background: #41B883;
+    color: white;
+    padding: 0.75rem 2rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-connect:hover {
+    background: #369870;
+}
+
+.btn-disconnect {
+    background: #dc3545;
+    color: white;
+    padding: 0.75rem 2rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-disconnect:hover {
+    background: #c82333;
+}
+
+.devices-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.device-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+    border: 1px solid #e1e5e9;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.device-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.device-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.device-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+.device-domain {
+    background: #f8f9fa;
+    color: #6c757d;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.device-state {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.state-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.state-on {
+    background: #28a745;
+}
+
+.state-off {
+    background: #6c757d;
+}
+
+.state-unknown {
+    background: #ffc107;
+}
+
+.device-controls {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.btn-device {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-primary {
+    background: #007bff;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #0056b3;
+}
+
+.btn-success {
+    background: #28a745;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #1e7e34;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #545b62;
+}
+
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.error-message {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 1rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+    border: 1px solid #f5c6cb;
+}
+
+.success-message {
+    background: #d4edda;
+    color: #155724;
+    padding: 1rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+    border: 1px solid #c3e6cb;
+}
+
+.brightness-control {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.brightness-slider {
+    flex: 1;
+    height: 6px;
+    border-radius: 3px;
+    background: #ddd;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.brightness-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #41B883;
+    cursor: pointer;
+}
+
+.brightness-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #41B883;
+    cursor: pointer;
+    border: none;
+}
+
+.dashboard-hidden {
+    display: none;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ha-header">
+    <div class="container">
+        <h1>🏠 Home Assistant Integration</h1>
+        <p>Control your smart home devices directly from Vybe AI</p>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Connection Status -->
+    <div class="connection-status {{ 'status-connected' if connection_status.connected else 'status-disconnected' }}">
+        <div class="status-indicator {{ 'indicator-connected' if connection_status.connected else 'indicator-disconnected' }}"></div>
+        <span id="connectionStatusText">
+            {% if connection_status.connected %}
+                Connected to {{ connection_status.url }}
+            {% else %}
+                Not connected to Home Assistant
+            {% endif %}
+        </span>
+    </div>
+
+    <!-- Connection Settings -->
+    <div class="settings-card">
+        <h3>Connection Settings</h3>
+        <form id="connectionForm">
+            <div class="form-group">
+                <label class="form-label" for="haUrl">Home Assistant URL</label>
+                <input type="text" 
+                       id="haUrl" 
+                       class="form-input" 
+                       placeholder="http://homeassistant.local:8123 or http://192.168.1.100:8123"
+                       value="{{ connection_status.url or '' }}">
+                <small style="color: #6c757d;">Include the full URL with protocol (http:// or https://)</small>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="haToken">Long-Lived Access Token</label>
+                <input type="password" 
+                       id="haToken" 
+                       class="form-input" 
+                       placeholder="Your Home Assistant long-lived access token">
+                <small style="color: #6c757d;">Create in Home Assistant: Profile → Security → Long-lived access tokens</small>
+            </div>
+            
+            <div style="display: flex; gap: 1rem;">
+                {% if connection_status.connected %}
+                    <button type="button" class="btn-disconnect" onclick="disconnect()">Disconnect</button>
+                    <button type="button" class="btn-connect" onclick="refreshDevices()">Refresh Devices</button>
+                {% else %}
+                    <button type="submit" class="btn-connect">Connect</button>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Messages -->
+    <div id="messages"></div>
+
+    <!-- Device Dashboard -->
+    <div id="deviceDashboard" class="{% if not connection_status.connected %}dashboard-hidden{% endif %}">
+        <h3>Device Dashboard <span id="deviceCount">({{ connection_status.devices|length }} devices)</span></h3>
+        
+        <div class="devices-grid" id="devicesGrid">
+            <!-- Devices will be loaded here -->
+        </div>
+    </div>
+</div>
+
+<script>
+let isLoading = false;
+
+// Connection form handler
+document.getElementById('connectionForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    connect();
+});
+
+async function connect() {
+    if (isLoading) return;
+    
+    const url = document.getElementById('haUrl').value.trim();
+    const token = document.getElementById('haToken').value.trim();
+    
+    if (!url || !token) {
+        showMessage('Please enter both URL and token', 'error');
+        return;
+    }
+    
+    setLoading(true);
+    
+    try {
+        const response = await fetch('/api/ha/connect', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ url, token })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showMessage(`Connected successfully! Found ${result.device_count} devices.`, 'success');
+            updateConnectionStatus(true, url);
+            loadDevices();
+        } else {
+            showMessage(`Connection failed: ${result.message}`, 'error');
+        }
+    } catch (error) {
+        showMessage(`Connection error: ${error.message}`, 'error');
+    } finally {
+        setLoading(false);
+    }
+}
+
+async function disconnect() {
+    if (isLoading) return;
+    
+    setLoading(true);
+    
+    try {
+        const response = await fetch('/api/ha/disconnect', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showMessage('Disconnected from Home Assistant', 'success');
+            updateConnectionStatus(false, '');
+            document.getElementById('deviceDashboard').classList.add('dashboard-hidden');
+            document.getElementById('haToken').value = '';
+        } else {
+            showMessage(`Disconnect failed: ${result.message}`, 'error');
+        }
+    } catch (error) {
+        showMessage(`Disconnect error: ${error.message}`, 'error');
+    } finally {
+        setLoading(false);
+    }
+}
+
+async function refreshDevices() {
+    loadDevices();
+}
+
+async function loadDevices() {
+    if (isLoading) return;
+    
+    setLoading(true);
+    
+    try {
+        const response = await fetch('/api/ha/devices');
+        const result = await response.json();
+        
+        if (result.success) {
+            renderDevices(result.devices);
+            document.getElementById('deviceCount').textContent = `(${result.devices.length} devices)`;
+            document.getElementById('deviceDashboard').classList.remove('dashboard-hidden');
+        } else {
+            showMessage(`Failed to load devices: ${result.message}`, 'error');
+        }
+    } catch (error) {
+        showMessage(`Error loading devices: ${error.message}`, 'error');
+    } finally {
+        setLoading(false);
+    }
+}
+
+function renderDevices(devices) {
+    const grid = document.getElementById('devicesGrid');
+    grid.innerHTML = '';
+    
+    devices.forEach(device => {
+        const card = createDeviceCard(device);
+        grid.appendChild(card);
+    });
+}
+
+function createDeviceCard(device) {
+    const card = document.createElement('div');
+    card.className = 'device-card';
+    card.innerHTML = `
+        <div class="device-header">
+            <h4 class="device-name">${device.name}</h4>
+            <span class="device-domain">${device.domain}</span>
+        </div>
+        
+        <div class="device-state">
+            <div class="state-indicator ${getStateClass(device.state)}"></div>
+            <span>State: ${device.state}</span>
+        </div>
+        
+        <div class="device-controls" id="controls-${device.entity_id.replace('.', '-')}">
+            ${createDeviceControls(device)}
+        </div>
+    `;
+    
+    return card;
+}
+
+function createDeviceControls(device) {
+    const entityId = device.entity_id;
+    const domain = device.domain;
+    
+    let controls = '';
+    
+    // Basic controls for all domains
+    if (['light', 'switch', 'fan'].includes(domain)) {
+        controls += `
+            <button class="btn-device btn-success" onclick="callService('${domain}', 'turn_on', '${entityId}')">
+                Turn On
+            </button>
+            <button class="btn-device btn-secondary" onclick="callService('${domain}', 'turn_off', '${entityId}')">
+                Turn Off
+            </button>
+            <button class="btn-device btn-primary" onclick="toggleDevice('${entityId}')">
+                Toggle
+            </button>
+        `;
+        
+        // Brightness control for lights
+        if (domain === 'light' && device.supports && device.supports.brightness) {
+            const currentBrightness = device.attributes.brightness || 0;
+            controls += `
+                <div class="brightness-control">
+                    <span>💡</span>
+                    <input type="range" 
+                           class="brightness-slider" 
+                           min="0" 
+                           max="255" 
+                           value="${currentBrightness}"
+                           onchange="setBrightness('${entityId}', this.value)">
+                    <span id="brightness-${entityId.replace('.', '-')}">${Math.round(currentBrightness/255*100)}%</span>
+                </div>
+            `;
+        }
+    } else if (domain === 'cover') {
+        controls += `
+            <button class="btn-device btn-success" onclick="callService('${domain}', 'open_cover', '${entityId}')">
+                Open
+            </button>
+            <button class="btn-device btn-secondary" onclick="callService('${domain}', 'close_cover', '${entityId}')">
+                Close
+            </button>
+            <button class="btn-device btn-primary" onclick="callService('${domain}', 'stop_cover', '${entityId}')">
+                Stop
+            </button>
+        `;
+    } else if (domain === 'lock') {
+        controls += `
+            <button class="btn-device btn-success" onclick="callService('${domain}', 'unlock', '${entityId}')">
+                Unlock
+            </button>
+            <button class="btn-device btn-secondary" onclick="callService('${domain}', 'lock', '${entityId}')">
+                Lock
+            </button>
+        `;
+    } else {
+        // Generic toggle for other domains
+        controls += `
+            <button class="btn-device btn-primary" onclick="toggleDevice('${entityId}')">
+                Toggle
+            </button>
+        `;
+    }
+    
+    return controls;
+}
+
+function getStateClass(state) {
+    if (state === 'on' || state === 'open' || state === 'unlocked') {
+        return 'state-on';
+    } else if (state === 'off' || state === 'closed' || state === 'locked') {
+        return 'state-off';
+    } else {
+        return 'state-unknown';
+    }
+}
+
+async function callService(domain, service, entityId, serviceData = {}) {
+    if (isLoading) return;
+    
+    setLoading(true);
+    
+    try {
+        const response = await fetch('/api/ha/call_service', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                domain,
+                service,
+                entity_id: entityId,
+                service_data: serviceData
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showMessage(`${service} called successfully on ${entityId}`, 'success');
+            // Refresh devices to update states
+            setTimeout(loadDevices, 1000);
+        } else {
+            showMessage(`Service call failed: ${result.message}`, 'error');
+        }
+    } catch (error) {
+        showMessage(`Service call error: ${error.message}`, 'error');
+    } finally {
+        setLoading(false);
+    }
+}
+
+async function toggleDevice(entityId) {
+    if (isLoading) return;
+    
+    setLoading(true);
+    
+    try {
+        const response = await fetch(`/api/ha/devices/${entityId}/toggle`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showMessage(`${entityId} toggled successfully`, 'success');
+            // Refresh devices to update states
+            setTimeout(loadDevices, 1000);
+        } else {
+            showMessage(`Toggle failed: ${result.message}`, 'error');
+        }
+    } catch (error) {
+        showMessage(`Toggle error: ${error.message}`, 'error');
+    } finally {
+        setLoading(false);
+    }
+}
+
+async function setBrightness(entityId, brightness) {
+    const percentage = Math.round(brightness/255*100);
+    document.getElementById(`brightness-${entityId.replace('.', '-')}`).textContent = `${percentage}%`;
+    
+    await callService('light', 'turn_on', entityId, { brightness: parseInt(brightness) });
+}
+
+function updateConnectionStatus(connected, url) {
+    const statusDiv = document.querySelector('.connection-status');
+    const statusText = document.getElementById('connectionStatusText');
+    const indicator = document.querySelector('.status-indicator');
+    
+    if (connected) {
+        statusDiv.className = 'connection-status status-connected';
+        indicator.className = 'status-indicator indicator-connected';
+        statusText.textContent = `Connected to ${url}`;
+        
+        // Update form
+        document.querySelector('.btn-connect').style.display = 'none';
+        const disconnectBtn = document.createElement('button');
+        disconnectBtn.type = 'button';
+        disconnectBtn.className = 'btn-disconnect';
+        disconnectBtn.textContent = 'Disconnect';
+        disconnectBtn.onclick = disconnect;
+        
+        const refreshBtn = document.createElement('button');
+        refreshBtn.type = 'button';
+        refreshBtn.className = 'btn-connect';
+        refreshBtn.textContent = 'Refresh Devices';
+        refreshBtn.onclick = refreshDevices;
+        
+        const buttonContainer = document.querySelector('#connectionForm > div:last-child');
+        buttonContainer.innerHTML = '';
+        buttonContainer.appendChild(disconnectBtn);
+        buttonContainer.appendChild(refreshBtn);
+    } else {
+        statusDiv.className = 'connection-status status-disconnected';
+        indicator.className = 'status-indicator indicator-disconnected';
+        statusText.textContent = 'Not connected to Home Assistant';
+        
+        // Reset form
+        const buttonContainer = document.querySelector('#connectionForm > div:last-child');
+        buttonContainer.innerHTML = '<button type="submit" class="btn-connect">Connect</button>';
+    }
+}
+
+function setLoading(loading) {
+    isLoading = loading;
+    const form = document.getElementById('connectionForm');
+    if (loading) {
+        form.classList.add('loading');
+    } else {
+        form.classList.remove('loading');
+    }
+}
+
+function showMessage(message, type) {
+    const messagesDiv = document.getElementById('messages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = type === 'error' ? 'error-message' : 'success-message';
+    messageDiv.textContent = message;
+    
+    messagesDiv.innerHTML = '';
+    messagesDiv.appendChild(messageDiv);
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+        messageDiv.remove();
+    }, 5000);
+}
+
+// Load devices on page load if connected
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're connected based on the dashboard CSS class
+    const dashboard = document.getElementById('deviceDashboard');
+    if (dashboard && !dashboard.classList.contains('dashboard-hidden')) {
+        loadDevices();
+    }
+});
+</script>
+{% endblock %}

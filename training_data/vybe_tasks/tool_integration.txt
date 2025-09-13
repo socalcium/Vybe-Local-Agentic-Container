@@ -1,0 +1,96 @@
+# Vybe Tool Integration Task Specification
+
+## **🎯 Primary Task: Tool Integration & Execution**
+
+### **Core Responsibility**
+The model must deeply understand Vybe's available tools, their capabilities, parameters, and how to execute them effectively.
+
+### **Key Capabilities Required**
+
+#### **1. Tool Knowledge & Understanding**
+- **Input**: Tool name or description
+- **Output**: Complete understanding of tool capabilities and limitations
+- **Examples**:
+  - `ai_execute_python` → "Executes Python code with full system access, supports data analysis, file operations, web scraping"
+  - `ai_generate_image` → "Creates images using Stable Diffusion, supports various styles, sizes, and prompts"
+  - `ai_analyze_text` → "Performs text analysis including summarization, sentiment analysis, keyword extraction"
+
+#### **2. Parameter Extraction & Validation**
+- **Input**: Natural language tool requests
+- **Output**: Validated parameters in correct format
+- **Examples**:
+  - "Create a 1024x1024 image of a cat" → {"prompt": "cat", "width": 1024, "height": 1024, "style": "realistic"}
+  - "Sort this list in descending order" → {"code": "sorted(data, reverse=True)", "language": "python"}
+
+#### **3. Tool Chaining & Coordination**
+- **Input**: Multi-tool workflows
+- **Output**: Coordinated execution plan with data flow
+- **Examples**:
+  - "Download data, analyze it, and create a visualization" → 
+    [ai_download_file → ai_analyze_data → ai_execute_python(visualization)]
+
+#### **4. Error Handling & Recovery**
+- **Input**: Tool execution errors
+- **Output**: Recovery strategies and alternative approaches
+- **Examples**:
+  - "CUDA out of memory" → "Reduce image resolution or use CPU mode"
+  - "File not found" → "Check file path or download missing file"
+
+### **Available Vybe Tools**
+
+#### **AI & Machine Learning Tools**
+- `ai_execute_python` - Python code execution
+- `ai_generate_image` - Image generation
+- `ai_analyze_text` - Text analysis
+- `ai_transcribe_audio` - Speech-to-text
+- `ai_generate_audio` - Text-to-speech
+- `ai_train_model` - Model fine-tuning
+
+#### **Data & File Tools**
+- `ai_download_file` - File downloading
+- `ai_upload_file` - File uploading
+- `ai_convert_format` - Format conversion
+- `ai_extract_data` - Data extraction
+- `ai_compress_file` - File compression
+
+#### **System & Network Tools**
+- `ai_web_search` - Web search
+- `ai_send_email` - Email sending
+- `ai_schedule_task` - Task scheduling
+- `ai_monitor_system` - System monitoring
+
+### **Specialized Methods & Techniques**
+
+#### **1. Tool Parameter Optimization**
+- Automatically adjust parameters based on available resources
+- Suggest optimal settings for best results
+- Handle parameter conflicts and dependencies
+
+#### **2. Execution Context Management**
+- Maintain state across tool executions
+- Pass data between tools efficiently
+- Handle tool dependencies and prerequisites
+
+#### **3. Resource-Aware Execution**
+- Monitor system resources during execution
+- Scale tool parameters based on available memory/CPU
+- Implement graceful degradation for resource constraints
+
+#### **4. Security & Safety**
+- Validate tool inputs for security
+- Prevent dangerous operations
+- Implement sandboxing where appropriate
+
+### **Training Data Requirements**
+- 4,000+ tool usage examples
+- 3,000+ parameter extraction scenarios
+- 2,000+ tool chaining workflows
+- 1,500+ error handling cases
+- 1,000+ resource optimization examples
+
+### **Success Metrics**
+- Tool selection accuracy: >92%
+- Parameter extraction accuracy: >88%
+- Tool execution success rate: >85%
+- Error recovery effectiveness: >80%
+- User satisfaction with tool results: >4.3/5

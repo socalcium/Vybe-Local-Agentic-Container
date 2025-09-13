@@ -1,0 +1,32 @@
+<!-- CRITICAL: Dark mode fix FIRST to prevent flashbang -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode-fix.css') }}">
+
+<!-- Common CSS files loaded on every page -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/mobile-nav-override.css') }}">
+
+<!-- Professional Enhancement CSS -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/notifications.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/onboarding.css') }}">
+<!-- Performance dashboard CSS removed -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/prompt-assistant.css') }}">
+
+<!-- Responsive Scaling for High DPI and Multiple Window Sizes -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/responsive-scaling.css') }}">
+
+<!-- Root causes fixed - no overrides needed -->
+
+<!-- Favicon and meta tags -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=0.5, maximum-scale=2.0, user-scalable=yes">
+<meta name="format-detection" content="telephone=no">
+<meta name="theme-color" content="#4f8cff">
+<link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
+<!-- CRITICAL: Early theme detection to prevent flashbang (must be synchronous) -->
+<script src="{{ url_for('static', filename='js/early-theme-detect.js') }}"></script>
+
+<!-- Add DOMPurify library for XSS protection -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>

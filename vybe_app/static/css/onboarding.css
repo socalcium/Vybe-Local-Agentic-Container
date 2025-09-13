@@ -1,0 +1,324 @@
+/* ========================================
+   Professional Onboarding Styles
+   ======================================== */
+
+/* Welcome Modal */
+.onboarding-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.onboarding-modal.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.onboarding-modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+.onboarding-modal-content {
+    position: relative;
+    background: var(--surface-color);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-xl);
+    max-width: 800px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideInUp 0.3s ease;
+}
+
+@keyframes slideInUp {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.onboarding-modal-header {
+    padding: 2rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.onboarding-modal-header h2 {
+    margin: 0 0 0.5rem 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-color-primary);
+}
+
+.onboarding-modal-header p {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--text-color-secondary);
+}
+
+.onboarding-modal-body {
+    padding: 2rem;
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.feature-card {
+    background: var(--bg-color-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-color);
+}
+
+.feature-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.feature-card h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-color-primary);
+}
+
+.feature-card p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-color-secondary);
+    line-height: 1.4;
+}
+
+.onboarding-modal-footer {
+    padding: 1.5rem 2rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+/* Tour Overlay */
+.onboarding-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 9998;
+    pointer-events: none;
+}
+
+/* Highlight Effect */
+.onboarding-highlight {
+    position: relative;
+    z-index: 9999 !important;
+    box-shadow: 0 0 0 4px var(--primary-color), 
+                0 0 0 8px rgba(var(--primary-color-rgb), 0.3) !important;
+    border-radius: var(--border-radius) !important;
+    transition: all 0.3s ease !important;
+}
+
+/* Tour Tooltip */
+.onboarding-tooltip {
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-xl);
+    max-width: 350px;
+    z-index: 10001;
+    animation: fadeInScale 0.3s ease;
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.onboarding-tooltip-content {
+    padding: 1.5rem;
+}
+
+.onboarding-tooltip h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-color-primary);
+}
+
+.onboarding-tooltip p {
+    margin: 0 0 1rem 0;
+    font-size: 0.95rem;
+    color: var(--text-color-secondary);
+    line-height: 1.5;
+}
+
+.onboarding-tooltip-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.step-counter {
+    font-size: 0.85rem;
+    color: var(--text-color-muted);
+    font-weight: 500;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.tooltip-close {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-color-muted);
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.tooltip-close:hover {
+    background: var(--bg-color-secondary);
+    color: var(--text-color-primary);
+}
+
+/* Help Tour Button */
+.help-tour-btn {
+    transition: all 0.3s ease !important;
+}
+
+.help-tour-btn:hover {
+    box-shadow: 0 4px 15px rgba(var(--primary-color-rgb), 0.4) !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .onboarding-modal-content {
+        width: 95%;
+        margin: 1rem;
+    }
+    
+    .onboarding-modal-header,
+    .onboarding-modal-body,
+    .onboarding-modal-footer {
+        padding: 1.5rem;
+    }
+    
+    .feature-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .onboarding-tooltip {
+        max-width: 300px;
+    }
+    
+    .onboarding-tooltip-content {
+        padding: 1rem;
+    }
+    
+    .onboarding-tooltip-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: stretch;
+    }
+    
+    .action-buttons {
+        justify-content: center;
+    }
+    
+    .step-counter {
+        text-align: center;
+    }
+}
+
+/* Dark Theme Adjustments */
+[data-theme="dark"] .onboarding-modal-backdrop,
+.theme-dark .onboarding-modal-backdrop {
+    background: rgba(0, 0, 0, 0.7);
+}
+
+[data-theme="dark"] .onboarding-highlight,
+.theme-dark .onboarding-highlight {
+    box-shadow: 0 0 0 4px #4f8cff, 
+                0 0 0 8px rgba(79, 140, 255, 0.3) !important;
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .onboarding-highlight {
+        box-shadow: 0 0 0 4px #000, 
+                    0 0 0 8px rgba(0, 0, 0, 0.5) !important;
+    }
+    
+    .feature-card:hover {
+        border-color: #000;
+    }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    .onboarding-modal,
+    .onboarding-tooltip,
+    .feature-card,
+    .onboarding-highlight {
+        animation: none !important;
+        transition: none !important;
+    }
+    
+    .help-tour-btn:hover {
+        transform: none !important;
+    }
+}

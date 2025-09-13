@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include '_head.html' %}
+    <title>Vybe - Model Manager</title>
+    <!-- Page-specific CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/models.css') }}">
+    <script>
+        // Initialize theme early to prevent flash
+        (function() {
+            function setTheme(theme) {
+                const html = document.documentElement;
+                html.classList.remove('theme-light', 'theme-dark', 'theme-system');
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (theme === 'system') {
+                    const body = document.body;
+                    html.classList.add('theme-system');
+                    html.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+                    body.classList.toggle('dark-mode', prefersDark);
+                } else {
+                    html.classList.add(`theme-${theme}`);
+                    html.setAttribute('data-theme', theme);
+                    document.body.classList.toggle('dark-mode', theme === 'dark');
+                }
+            }
+            
+            // Load theme from API or localStorage
+            fetch('/api/settings/theme_mode')
+                .then(response => response.ok ? response.json() : Promise.reject())
+                .then(data => {
+                    if (data && data.theme_mode) {
+                        setTheme(data.theme_mode || 'system');
+                    } else {
+                        setTheme('system');
+                    }
+                })
+                .catch(() => setTheme('system'));
+        })();
+    </script>
+</head>
+<body>
+    <div class="container">
+		{% include '_header_new.html' %}
+
+        <div class="page-title">
+            <h1>🤖 Model Manager</h1>
+            <div class="help-section">
+                <div class="help-toggle" onclick="toggleHelp()">
+                    <span id="help-icon">❓</span>
+                    <span>Help</span>
+                </div>
+                <div id="help-content" class="help-content" style="display: none;">
+                    <p><strong>Model Manager</strong> - Manage your AI models across different categories</p>
+                    <ul>
+                        <li><strong>LLM Models:</strong> Language models for chat, coding, and text generation</li>
+                        <li><strong>Image Models:</strong> Stable Diffusion models for image generation</li>
+                        <li><strong>Install Models:</strong> Pull new models from registries</li>
+                        <li><strong>Optimize:</strong> Create hardware-optimized versions of models</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <main>
+            <!-- LLM Models Section -->
+            <details id="llm-models" class="model-section" open>
+                <summary class="model-section-header">
+                    <span class="section-icon">🤖</span>
+                    <span class="section-title">LLM Models</span>
+                    <span class="section-count" id="llm-count" style="display: none;">(0)</span>
+                    <span class="chevron">▶</span>
+                </summary>
+                <div class="section-content">
+                    <h2>LLM Models</h2>
+                    
+                    <!-- Backend Model Selection -->
+                    <div class="settings-section">
+                        <h3>🔧 Backend Configuration</h3>
+                        <div class="section-content">
+                            <div class="backend-status">
+                                <div class="backend-info">
+                                    <h4>Current Backend Model</h4>
+                                    <div id="current-backend-model" class="backend-model-display">
+                                        <span class="model-name">System Default</span>
+                                        <span class="model-status">Status: Ready</span>
+                                    </div>
+                                </div>
+                                <div class="backend-controls">
+                                    <label for="backend-model-select">Select Backend Model:</label>
+                                    <select id="backend-model-select" class="form-select">
+                                        <option value="">Select a model...</option>
+                                    </select>
+                                    <button id="apply-backend-model" class="btn btn-primary" disabled aria-label="Apply selected model to backend">Apply Model</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Installed LLM Models -->
+                    <div class="settings-section">
+                        <h3>Installed Models</h3>
+                        <div class="section-content">
+                            <ul id="models-list">
+                                {# Models will be loaded dynamically by JS, but for Jinja2 fallback: #}
+                                {% if models %}
+                                    {% for model_name in models %}
+                                        <li>
+                                            {{ model_name }}
+                                            <button class="delete-model-button" data-model-name="{{ model_name }}" aria-label="Delete model {{ model_name }}">Delete</button>
+                                            <button class="optimize-model-button" data-model-name="{{ model_name }}" aria-label="Optimize model {{ model_name }}">Optimize</button>
+                                        </li>
+                                    {% endfor %}
+                                {% else %}
+                                    <li>Loading models...</li>
+                                {% endif %}
+                            </ul>
+                            <div id="model-details-template" style="display:none;">
+                                <div class="model-details">
+                                    <span class="model-size"></span>
+                                    <span class="model-parameters"></span>
+                                    <span class="model-quantization"></span>
+                                    <span class="model-nctx"></span>
+                                </div>
+                            </div>
+                            <div id="delete-status-output" class="status-output"></div>
+                        </div>
+                    </div>
+
+                    <!-- Backend Status -->
+                    <div class="settings-section">
+                        <h3>Backend Status</h3>
+                        <div class="section-content">
+                            <div id="backend-status" class="status-output">Loading backend status...</div>
+                            <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                                <button id="download-recommended-model-llm" class="btn btn-primary">
+                                    <span class="btn-icon">⬇️</span>
+                                    Download Recommended 32k Model
+                                </button>
+                                <small class="help-text">Required for orchestrator backend. Single click.</small>
+                                <div id="dl32k-progress" style="display:none;min-width:240px;">
+                                    <div class="progress" style="height:10px;">
+                                        <div id="dl32k-progress-bar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <small id="dl32k-progress-text" class="text-muted"></small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Backend Configuration (Threads / Context) -->
+                    <div class="settings-section">
+                        <h3>Backend Configuration</h3>
+                        <div class="section-content">
+                            <div class="form-group">
+                                <label class="form-label" for="llm-threads-input">CPU Threads</label>
+                                <input type="range" id="llm-threads-input" min="1" max="64" step="1" value="4">
+                                <span id="llm-threads-value">4</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="llm-ctx-input">Context Window (tokens)</label>
+                                <input type="range" id="llm-ctx-input" min="2048" max="131072" step="1024" value="16384">
+                                <span id="llm-ctx-value">16384</span>
+                            </div>
+                            <div class="form-group">
+                                <button id="llm-config-save" class="btn btn-primary">Save Backend Settings</button>
+                            </div>
+                            <p id="llm-why-tip" class="help-text"></p>
+                        </div>
+                    </div>
+
+                    <!-- Discover More LLM Models -->
+                    <div class="settings-section">
+                        <h3>Discover More Models</h3>
+                        <div class="section-content">
+                            <div class="discovery-controls">
+                                <input type="text" id="search-recommended" placeholder="Search models..." class="form-control" />
+                                <select id="category-filter" class="form-control">
+                                    <option value="">All Categories</option>
+                                    <option value="Chat">Chat</option>
+                                    <option value="Coding">Coding</option>
+                                    <option value="Creative">Creative</option>
+                                    <option value="Reasoning">Reasoning</option>
+                                    <option value="Multilingual">Multilingual</option>
+                                    <option value="Assistant">Assistant</option>
+                                    <option value="Programming">Programming</option>
+                                    <option value="Summarization">Summarization</option>
+                                    <option value="Refinement">Refinement</option>
+                                    <option value="General">General</option>
+                                    <option value="Uncensored">Uncensored</option>
+                                    <option value="Basic">Basic</option>
+                                </select>
+                                <select id="load-filter" class="form-control">
+                                    <option value="">All Load Levels</option>
+                                    <option value="Very Low">Very Low</option>
+                                    <option value="Low">Low</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="High">High</option>
+                                </select>
+                                <button id="refresh-discovery-btn" class="btn btn-secondary" title="Refresh model discovery from local sources">
+                                    <span class="btn-icon">🔄</span>
+                                    Refresh Discovery
+                                </button>
+                            </div>
+                            <div class="discovery-sort-controls">
+                                <button id="sort-name-btn" class="btn btn-secondary btn-sm">Sort by Name</button>
+                                <button id="sort-load-btn" class="btn btn-secondary btn-sm">Sort by Load</button>
+                            </div>
+                            <div class="comparison-controls">
+                                <button id="compare-selected-btn" class="btn btn-primary" disabled>Compare Selected Models (0)</button>
+                                <button id="clear-selection-btn" class="btn btn-secondary">Clear Selection</button>
+                            </div>
+                            <div id="recommended-models-container">
+                                <div id="recommended-models-list">
+                                    Loading recommended models...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pull New LLM Model -->
+                    <div class="settings-section">
+                        <h3>Pull New Model</h3>
+                        <div class="section-content">
+                            <div class="form-group">
+                                <label class="form-label" for="model-name-input">Model Name</label>
+                                <input type="text" id="model-name-input" class="form-control" placeholder="Enter model name (e.g., llama2, mistral)">
+                            </div>
+                            <div class="form-group">
+                                <button id="pull-model-btn" class="btn btn-primary">
+                                    <span class="btn-icon">⬇️</span>
+                                    Pull Model
+                                </button>
+                            </div>
+                            <div id="pull-status-output" class="status-output"></div>
+                        </div>
+                    </div>
+                </div>
+            </details>
+
+            <!-- Image Generation Models Section -->
+            <details id="image-models" class="model-section">
+                <summary class="model-section-header">
+                    <span class="section-icon">🎨</span>
+                    <span class="section-title">Image Generation Models</span>
+                    <span class="section-count" id="image-count" style="display: none;">(0)</span>
+                    <span class="chevron">▶</span>
+                </summary>
+                <div class="section-content">
+                    <h2>Image Generation Models</h2>
+                    
+                    <!-- Stable Diffusion Status -->
+                    <div class="settings-section">
+                        <h3>Service Status</h3>
+                        <div class="section-content">
+                            <div class="sd-status-display">
+                                <div class="status-info">
+                                    <p id="sd-status">Checking Stable Diffusion status...</p>
+                                    <div id="sd-details" class="status-details" style="display: none;">
+                                        <div class="detail-item">
+                                            <span class="detail-label">Installation:</span>
+                                            <span class="detail-value" id="sd-install-status">-</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Service:</span>
+                                            <span class="detail-value" id="sd-service-status">-</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Models Found:</span>
+                                            <span class="detail-value" id="sd-models-count">-</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button id="refresh-sd-status" class="btn btn-secondary">
+                                    <span class="btn-icon">🔄</span>
+                                    Refresh Status
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Available Image Models for Download -->
+                    <div class="settings-section">
+                        <h3>Available Models for Download</h3>
+                        <div class="section-content">
+                            <div class="section-header">
+                                <p class="section-description">Popular Stable Diffusion models you can download with sample images</p>
+                                <button id="refresh-available-models" class="btn btn-secondary btn-sm">
+                                    <span class="btn-icon">🔄</span>
+                                    Refresh Available
+                                </button>
+                            </div>
+                            <div id="available-models-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px;">
+                                <!-- Stable Diffusion v1.5 -->
+                                <div class="available-model-card" style="background: var(--bg-color-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px;">
+                                    <div class="model-header" style="margin-bottom: 12px;">
+                                        <h4 class="model-name" style="margin: 0; font-size: 18px; font-weight: 600;">Stable Diffusion v1.5</h4>
+                                        <span class="model-type" style="background: var(--primary-color); color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">General Purpose</span>
+                                    </div>
+                                    <div class="model-samples" style="margin-bottom: 12px;">
+                                        <img src="https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/blog/sd_benchmarking/sd_1_5.png" 
+                                             alt="SD 1.5 Sample" 
+                                             style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px;">
+                                    </div>
+                                    <div class="model-description" style="color: var(--text-color-secondary); font-size: 14px; margin-bottom: 8px;">The classic Stable Diffusion v1.5 model. Great for general image generation.</div>
+                                    <div class="model-info" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                        <span class="model-size" style="color: var(--text-color-tertiary); font-size: 12px;">📦 4.2 GB</span>
+                                        <span class="model-license" style="color: var(--text-color-tertiary); font-size: 12px;">📄 CreativeML Open RAIL-M</span>
+                                    </div>
+                                    <button class="btn btn-primary" style="width: 100%;">
+                                        <span class="btn-icon">⬇️</span> Download
+                                    </button>
+                                </div>
+
+                                <!-- DreamShaper v8 -->
+                                <div class="available-model-card" style="background: var(--bg-color-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px;">
+                                    <div class="model-header" style="margin-bottom: 12px;">
+                                        <h4 class="model-name" style="margin: 0; font-size: 18px; font-weight: 600;">DreamShaper v8</h4>
+                                        <span class="model-type" style="background: #9333ea; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">Artistic</span>
+                                    </div>
+                                    <div class="model-samples" style="margin-bottom: 12px;">
+                                        <img src="https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/diffusers/astronaut_rides_horse.png" 
+                                             alt="DreamShaper Sample" 
+                                             style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px;">
+                                    </div>
+                                    <div class="model-description" style="color: var(--text-color-secondary); font-size: 14px; margin-bottom: 8px;">Popular community model known for vibrant colors and artistic style.</div>
+                                    <div class="model-info" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                        <span class="model-size" style="color: var(--text-color-tertiary); font-size: 12px;">📦 2.1 GB</span>
+                                        <span class="model-license" style="color: var(--text-color-tertiary); font-size: 12px;">📄 CreativeML Open RAIL-M</span>
+                                    </div>
+                                    <button class="btn btn-primary" style="width: 100%;">
+                                        <span class="btn-icon">⬇️</span> Download
+                                    </button>
+                                </div>
+
+                                <!-- Realistic Vision v6.0 -->
+                                <div class="available-model-card" style="background: var(--bg-color-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px;">
+                                    <div class="model-header" style="margin-bottom: 12px;">
+                                        <h4 class="model-name" style="margin: 0; font-size: 18px; font-weight: 600;">Realistic Vision v6.0</h4>
+                                        <span class="model-type" style="background: #0ea5e9; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">Photorealistic</span>
+                                    </div>
+                                    <div class="model-samples" style="margin-bottom: 12px;">
+                                        <img src="https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/blog/stable_diffusion_jax/image_2.png" 
+                                             alt="Realistic Vision Sample" 
+                                             style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px;">
+                                    </div>
+                                    <div class="model-description" style="color: var(--text-color-secondary); font-size: 14px; margin-bottom: 8px;">Excellent for photorealistic images with high detail and natural lighting.</div>
+                                    <div class="model-info" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                        <span class="model-size" style="color: var(--text-color-tertiary); font-size: 12px;">📦 2.1 GB</span>
+                                        <span class="model-license" style="color: var(--text-color-tertiary); font-size: 12px;">📄 CreativeML Open RAIL-M</span>
+                                    </div>
+                                    <button class="btn btn-primary" style="width: 100%;">
+                                        <span class="btn-icon">⬇️</span> Download
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Installed Image Models -->
+                    <div class="settings-section">
+                        <h3>Installed Models</h3>
+                        <div class="section-content">
+                            <div class="section-header">
+                                <p class="section-description">Stable Diffusion checkpoint files (.safetensors, .ckpt) in your models directory</p>
+                                <button id="refresh-image-models" class="btn btn-secondary btn-sm">
+                                    <span class="btn-icon">🔄</span>
+                                    Refresh List
+                                </button>
+                            </div>
+                            <div id="image-models-list">
+                                <div class="loading-state">
+                                    <div class="spinner"></div>
+                                    <p>Loading image models...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Image Model Actions -->
+                    <div class="settings-section">
+                        <h3>Quick Actions</h3>
+                        <div class="section-content">
+                            <div class="action-buttons">
+                                <button id="manage-sd-models" class="btn btn-primary">
+                                    <span class="btn-icon">🎨</span>
+                                    Open Image Studio
+                                </button>
+                                <button id="open-sd-folder" class="btn btn-secondary">
+                                    <span class="btn-icon">📁</span>
+                                    Open Models Folder
+                                </button>
+                                <button id="open-sd-web" class="btn btn-secondary" style="display: none;">
+                                    <span class="btn-icon">🌐</span>
+                                    Open SD Web UI
+                                </button>
+                            </div>
+                            <div class="action-description">
+                                <p><strong>Image Studio:</strong> Generate images using the integrated interface</p>
+                                <p><strong>Models Folder:</strong> Add .safetensors files to the Stable Diffusion models directory</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </details>
+
+            <!-- Audio Models Section -->
+            <details id="audio-models" class="model-section" open>
+                <summary class="model-section-header">
+                    <span class="section-icon">🎙️</span>
+                    <span class="section-title">Audio Models</span>
+                    <span class="section-count" id="audio-count" style="display: none;">(0)</span>
+                    <span class="chevron">▶</span>
+                </summary>
+                <div class="section-content">
+                    <h2>Audio Models</h2>
+                    
+                    <!-- Whisper Models -->
+                    <div class="settings-section">
+                        <h3>Speech Recognition (Whisper)</h3>
+                        <div class="section-content">
+                            <div class="section-description">
+                                <p>Whisper models for speech-to-text processing. Larger models provide better accuracy but require more resources.</p>
+                            </div>
+                            <div id="whisper-models-list" class="models-list">
+                                <!-- Whisper Models -->
+                                <div class="model-item" style="display: flex; justify-content: space-between; align-items: center; padding: 16px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 12px; background: var(--bg-color-secondary);">
+                                    <div class="model-info" style="flex: 1;">
+                                        <h4 class="model-title" style="margin: 0; font-size: 16px; font-weight: 600; color: var(--text-color-primary);">whisper-tiny.en</h4>
+                                        <p class="model-description" style="margin: 4px 0; font-size: 14px; color: var(--text-color-secondary);">Fastest model for English-only transcription</p>
+                                        <span class="model-size" style="font-size: 12px; color: var(--text-color-tertiary);">📦 39 MB</span>
+                                    </div>
+                                    <div class="model-actions" style="display: flex; gap: 8px;">
+                                        <button class="btn btn-primary btn-sm">
+                                            <span class="btn-icon">⬇️</span> Download
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="model-item" style="display: flex; justify-content: space-between; align-items: center; padding: 16px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 12px; background: var(--bg-color-secondary);">
+                                    <div class="model-info" style="flex: 1;">
+                                        <h4 class="model-title" style="margin: 0; font-size: 16px; font-weight: 600; color: var(--text-color-primary);">whisper-base</h4>
+                                        <p class="model-description" style="margin: 4px 0; font-size: 14px; color: var(--text-color-secondary);">Good balance of speed and accuracy</p>
+                                        <span class="model-size" style="font-size: 12px; color: var(--text-color-tertiary);">📦 74 MB</span>
+                                    </div>
+                                    <div class="model-actions" style="display: flex; gap: 8px;">
+                                        <button class="btn btn-primary btn-sm">
+                                            <span class="btn-icon">⬇️</span> Download
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="model-item" style="display: flex; justify-content: space-between; align-items: center; padding: 16px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 12px; background: var(--bg-color-secondary);">
+                                    <div class="model-info" style="flex: 1;">
+                                        <h4 class="model-title" style="margin: 0; font-size: 16px; font-weight: 600; color: var(--text-color-primary);">whisper-small</h4>
+                                        <p class="model-description" style="margin: 4px 0; font-size: 14px; color: var(--text-color-secondary);">Higher accuracy with reasonable speed</p>
+                                        <span class="model-size" style="font-size: 12px; color: var(--text-color-tertiary);">📦 244 MB</span>
+                                    </div>
+                                    <div class="model-actions" style="display: flex; gap: 8px;">
+                                        <button class="btn btn-primary btn-sm">
+                                            <span class="btn-icon">⬇️</span> Download
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="model-item" style="display: flex; justify-content: space-between; align-items: center; padding: 16px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 12px; background: var(--bg-color-secondary);">
+                                    <div class="model-info" style="flex: 1;">
+                                        <h4 class="model-title" style="margin: 0; font-size: 16px; font-weight: 600; color: var(--text-color-primary);">whisper-medium</h4>
+                                        <p class="model-description" style="margin: 4px 0; font-size: 14px; color: var(--text-color-secondary);">Professional quality transcription</p>
+                                        <span class="model-size" style="font-size: 12px; color: var(--text-color-tertiary);">📦 769 MB</span>
+                                    </div>
+                                    <div class="model-actions" style="display: flex; gap: 8px;">
+                                        <button class="btn btn-primary btn-sm">
+                                            <span class="btn-icon">⬇️</span> Download
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TTS Models -->
+                    <div class="settings-section">
+                        <h3>Text-to-Speech Models</h3>
+                        <div class="section-content">
+                            <div class="section-description">
+                                <p>Text-to-speech models for voice generation and voice cloning capabilities.</p>
+                            </div>
+                            <div id="tts-models-list" class="models-list">
+                                <!-- TTS Models -->
+                                <div class="model-item" style="display: flex; justify-content: space-between; align-items: center; padding: 16px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 12px; background: var(--bg-color-secondary);">
+                                    <div class="model-info" style="flex: 1;">
+                                        <h4 class="model-title" style="margin: 0; font-size: 16px; font-weight: 600; color: var(--text-color-primary);">System TTS (pyttsx3)</h4>
+                                        <p class="model-description" style="margin: 4px 0; font-size: 14px; color: var(--text-color-secondary);">Built-in system text-to-speech - no download required</p>
+                                        <span class="model-size" style="font-size: 12px; color: var(--text-color-tertiary);">✅ Installed</span>
+                                    </div>
+                                    <div class="model-actions" style="display: flex; gap: 8px;">
+                                        <button class="btn btn-secondary btn-sm" disabled>
+                                            <span class="btn-icon">✓</span> Available
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="model-item" style="display: flex; justify-content: space-between; align-items: center; padding: 16px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 12px; background: var(--bg-color-secondary);">
+                                    <div class="model-info" style="flex: 1;">
+                                        <h4 class="model-title" style="margin: 0; font-size: 16px; font-weight: 600; color: var(--text-color-primary);">Edge TTS</h4>
+                                        <p class="model-description" style="margin: 4px 0; font-size: 14px; color: var(--text-color-secondary);">Microsoft Edge's high-quality voices (requires internet)</p>
+                                        <span class="model-size" style="font-size: 12px; color: var(--text-color-tertiary);">☁️ Cloud-based</span>
+                                    </div>
+                                    <div class="model-actions" style="display: flex; gap: 8px;">
+                                        <button class="btn btn-secondary btn-sm" disabled>
+                                            <span class="btn-icon">✓</span> Available
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="model-item" style="display: flex; justify-content: space-between; align-items: center; padding: 16px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 12px; background: var(--bg-color-secondary);">
+                                    <div class="model-info" style="flex: 1;">
+                                        <h4 class="model-title" style="margin: 0; font-size: 16px; font-weight: 600; color: var(--text-color-primary);">XTTS-v2</h4>
+                                        <p class="model-description" style="margin: 4px 0; font-size: 14px; color: var(--text-color-secondary);">Advanced voice cloning and multi-language TTS</p>
+                                        <span class="model-size" style="font-size: 12px; color: var(--text-color-tertiary);">📦 1.8 GB</span>
+                                    </div>
+                                    <div class="model-actions" style="display: flex; gap: 8px;">
+                                        <button class="btn btn-primary btn-sm">
+                                            <span class="btn-icon">⬇️</span> Download
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="model-item" style="display: flex; justify-content: space-between; align-items: center; padding: 16px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 12px; background: var(--bg-color-secondary);">
+                                    <div class="model-info" style="flex: 1;">
+                                        <h4 class="model-title" style="margin: 0; font-size: 16px; font-weight: 600; color: var(--text-color-primary);">Bark</h4>
+                                        <p class="model-description" style="margin: 4px 0; font-size: 14px; color: var(--text-color-secondary);">Realistic speech synthesis with emotions and sound effects</p>
+                                        <span class="model-size" style="font-size: 12px; color: var(--text-color-tertiary);">📦 5.0 GB</span>
+                                    </div>
+                                    <div class="model-actions" style="display: flex; gap: 8px;">
+                                        <button class="btn btn-primary btn-sm">
+                                            <span class="btn-icon">⬇️</span> Download
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Audio Model Actions -->
+                    <div class="settings-section">
+                        <h3>Quick Actions</h3>
+                        <div class="section-content">
+                            <div class="action-buttons">
+                                <button id="open-audio-studio" class="btn btn-primary">
+                                    <span class="btn-icon">🎙️</span>
+                                    Open Audio Studio
+                                </button>
+                                <button id="test-audio-models" class="btn btn-secondary">
+                                    <span class="btn-icon">🔊</span>
+                                    Test Models
+                                </button>
+                            </div>
+                            <div class="action-description">
+                                <p><strong>Audio Studio:</strong> Process audio files and generate speech</p>
+                                <p><strong>Test Models:</strong> Verify model functionality and performance</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </details>
+        </main>
+
+        <!-- Optimization Modal -->
+        <div id="optimization-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Optimize Model</h3>
+                    <span class="close-modal">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <p>Base Model: <span id="base-model-name"></span></p>
+                    <p>New Model Name: <span id="new-model-name-preview"></span></p>
+                    
+                    <div class="optimization-controls">
+                        <label for="gpu-layers-input">GPU Layers to Offload:</label>
+                        <input type="range" id="gpu-layers-input" min="0" max="32" value="0" step="1">
+                        <span id="gpu-layers-value">0</span>
+                        
+                        <label for="cpu-threads-input">CPU Threads:</label>
+                        <input type="range" id="cpu-threads-input" min="1" max="16" value="4" step="1">
+                        <span id="cpu-threads-value">4</span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="create-optimized-btn" class="primary-btn">Create Optimized Model</button>
+                    <button id="cancel-optimization-btn" class="secondary-btn">Cancel</button>
+                </div>
+                <div id="optimization-status" class="status-output"></div>
+            </div>
+        </div>
+
+        <!-- Model Details Modal -->
+        <div id="model-details-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Model Details</h3>
+                    <span class="close-modal">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div id="model-details-content">
+                        <!-- Content will be populated by JavaScript -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="close-details-btn" class="secondary-btn">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Model Comparison Modal -->
+        <div id="model-compare-modal" class="modal" style="display: none;">
+            <div class="modal-content modal-wide">
+                <div class="modal-header">
+                    <h3>Model Comparison</h3>
+                    <span class="close-modal">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div id="model-compare-content">
+                        <!-- Content will be populated by JavaScript -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="close-compare-btn" class="secondary-btn">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/models_manager.js') }}?v={{ range(10000, 99999) | random }}"></script>
+    <script>
+        function toggleHelp() {
+            const helpContent = document.getElementById('help-content');
+            const helpIcon = document.getElementById('help-icon');
+            
+            if (helpContent.style.display === 'none') {
+                helpContent.style.display = 'block';
+                helpIcon.textContent = '❌';
+            } else {
+                helpContent.style.display = 'none';
+                helpIcon.textContent = '❓';
+            }
+        }
+    </script>
+    
+    <!-- Scripts -->
+    {% include '_scripts.html' %}
+    <!-- Page-specific scripts -->
+    <!-- models.js removed - functionality integrated into models_manager.js -->
+</body>
+</html>

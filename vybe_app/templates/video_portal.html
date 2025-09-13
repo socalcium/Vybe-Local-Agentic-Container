@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include '_head.html' %}
+    <title>Video Portal - Vybe</title>
+    <!-- Page-specific CSS -->
+    <!-- Bootstrap removed - using custom components for cleaner nav -->
+    <link href="{{ url_for('static', filename='css/video.css') }}" rel="stylesheet">
+</head>
+<body>
+    {% include '_header_new.html' %}
+    
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="page-header">
+                    <h2><i class="bi bi-camera-video"></i> Video Portal</h2>
+                    <p class="text-muted">Generate stunning videos from text prompts using AI</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Service Status Card -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card service-status-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="card-title">
+                                    <i class="bi bi-play-circle"></i> ComfyUI Video Generator
+                                </h5>
+                                <span id="video-status" class="badge bg-secondary">Checking...</span>
+                                <span id="models-status" class="badge bg-info ms-2">Models: Loading...</span>
+                            </div>
+                            <div>
+                                <button id="video-service-toggle" class="btn btn-outline-primary btn-sm me-2" disabled>
+                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                    Loading...
+                                </button>
+                                <button id="install-service" class="btn btn-outline-warning btn-sm" style="display: none;">
+                                    <i class="bi bi-download"></i> Install
+                                </button>
+                            </div>
+                        </div>
+                        <div id="setup-info" class="mt-3" style="display: none;">
+                            <div class="alert alert-info">
+                                <h6><i class="bi bi-info-circle"></i> Setup Required</h6>
+                                <p class="mb-2">ComfyUI needs to be installed for video generation. This includes:</p>
+                                <ul class="mb-0">
+                                    <li>Downloading ComfyUI from GitHub</li>
+                                    <li>Installing Python dependencies</li>
+                                    <li>Downloading video generation models (2-4GB)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Tabs -->
+        <div class="row">
+            <div class="col-12">
+                <div class="custom-tabs" id="videoTabs">
+                    <button class="custom-tab-btn active" id="generate-tab" data-target="#generate-panel">
+                        🎬 Generate Video
+                    </button>
+                    <button class="custom-tab-btn" id="gallery-tab" data-target="#gallery-panel">
+                        📺 Video Gallery
+                    </button>
+                    <button class="custom-tab-btn" id="queue-tab" data-target="#queue-panel">
+                        📋 Job Queue
+                    </button>
+                </div>
+
+                <div class="tab-content" id="videoTabContent">
+                    <!-- Video Generation Panel -->
+                    <div class="tab-pane fade show active" id="generate-panel" role="tabpanel">
+                        <div class="card mt-3">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="bi bi-magic"></i> Text-to-Video Generation</h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="video-generation-form">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <div class="mb-3">
+                                                <label for="video-prompt" class="form-label">Video Prompt</label>
+                                                <textarea class="form-control" id="video-prompt" rows="4" 
+                                                    placeholder="Describe the video you want to generate...&#10;&#10;Example: A serene sunset over a mountain lake with gentle ripples on the water"></textarea>
+                                                <div class="form-text">
+                                                    Be descriptive! Include details about objects, movements, lighting, and style.
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label for="video-width" class="form-label">Width</label>
+                                                <select class="form-select" id="video-width">
+                                                    <option value="512" selected>512px</option>
+                                                    <option value="768">768px</option>
+                                                    <option value="1024">1024px</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="video-height" class="form-label">Height</label>
+                                                <select class="form-select" id="video-height">
+                                                    <option value="512" selected>512px</option>
+                                                    <option value="768">768px</option>
+                                                    <option value="1024">1024px</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="video-frames" class="form-label">Frame Count</label>
+                                                <select class="form-select" id="video-frames">
+                                                    <option value="8">8 frames</option>
+                                                    <option value="16" selected>16 frames</option>
+                                                    <option value="24">24 frames</option>
+                                                    <option value="32">32 frames</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="video-fps" class="form-label">FPS</label>
+                                                <select class="form-select" id="video-fps">
+                                                    <option value="6">6 FPS</option>
+                                                    <option value="8" selected>8 FPS</option>
+                                                    <option value="12">12 FPS</option>
+                                                    <option value="15">15 FPS</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <button type="submit" class="btn btn-primary" id="generate-btn">
+                                                <i class="bi bi-play-fill"></i> Generate Video
+                                            </button>
+                                            <button type="button" class="btn btn-outline-secondary ms-2" id="example-prompts-btn">
+                                                <i class="bi bi-lightbulb"></i> Example Prompts
+                                            </button>
+                                        </div>
+                                        <div class="text-muted small">
+                                            Estimated time: 2-5 minutes
+                                        </div>
+                                    </div>
+                                </form>
+                                
+                                <!-- Example Prompts Modal Trigger Content -->
+                                <div id="example-prompts" class="mt-3" style="display: none;">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h6>Example Prompts:</h6>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <button class="btn btn-sm btn-outline-primary mb-2 example-prompt" data-prompt="A majestic eagle soaring through dramatic clouds at sunset">
+                                                        Eagle in Clouds
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-primary mb-2 example-prompt" data-prompt="Gentle waves lapping on a tropical beach with palm trees swaying">
+                                                        Tropical Beach
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-primary mb-2 example-prompt" data-prompt="A bustling city street at night with neon lights reflecting on wet pavement">
+                                                        City Night Scene
+                                                    </button>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <button class="btn btn-sm btn-outline-primary mb-2 example-prompt" data-prompt="A field of sunflowers swaying in the wind under a blue sky">
+                                                        Sunflower Field
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-primary mb-2 example-prompt" data-prompt="Steam rising from a hot cup of coffee on a wooden table">
+                                                        Coffee Steam
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-primary mb-2 example-prompt" data-prompt="Northern lights dancing across a starry sky over a snowy landscape">
+                                                        Aurora Borealis
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Video Gallery Panel -->
+                    <div class="tab-pane fade" id="gallery-panel" role="tabpanel">
+                        <div class="card mt-3">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0"><i class="bi bi-collection-play"></i> Generated Videos</h5>
+                                <button class="btn btn-outline-secondary btn-sm" id="refresh-gallery">
+                                    <i class="bi bi-arrow-clockwise"></i> Refresh
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div id="video-gallery" class="row">
+                                    <div class="col-12 text-center py-4">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        <p class="mt-2">Loading videos...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Job Queue Panel -->
+                    <div class="tab-pane fade" id="queue-panel" role="tabpanel">
+                        <div class="card mt-3">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="bi bi-list-task"></i> Video Generation Jobs</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="job-queue">
+                                    <div class="text-center py-4 text-muted">
+                                        <i class="bi bi-inbox display-4"></i>
+                                        <p class="mt-2">No active video generation jobs</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generation Status Toast -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="generation-toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <i class="bi bi-camera-video text-primary me-2"></i>
+                <strong class="me-auto">Video Generation</strong>
+                <small class="text-muted">now</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" id="toast-message">
+                <!-- Toast message will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS removed -->
+    
+    <!-- Scripts -->
+    {% include '_scripts.html' %}
+    <!-- Page-specific scripts -->
+    <script src="{{ url_for('static', filename='js/video.js') }}"></script>
+</body>
+</html>

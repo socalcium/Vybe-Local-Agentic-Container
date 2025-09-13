@@ -1,0 +1,188 @@
+<!-- Critical JavaScript files loaded immediately -->
+<script src="{{ url_for('static', filename='js/error-manager.js') }}"></script>
+<script src="{{ url_for('static', filename='js/global.js') }}" defer></script>
+
+<!-- Accessibility support - load early for better UX -->
+<script src="{{ url_for('static', filename='js/accessibility.js') }}" defer></script>
+
+<!-- Performance and memory management utilities -->
+<script src="{{ url_for('static', filename='js/utils/event-manager.js') }}"></script>
+<script src="{{ url_for('static', filename='js/utils/timer-manager.js') }}"></script>
+<script src="{{ url_for('static', filename='js/utils/api-manager.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/utils/error-boundary.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/utils/dom-optimizer.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/utils/loading-manager.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/utils/performance-monitor.js') }}"></script>
+
+<!-- Core functionality loaded with defer -->
+<script src="{{ url_for('static', filename='js/responsive-nav.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/in-app-terminal.js') }}" defer></script>
+
+<!-- Lazy-loaded modules for better performance -->
+<script>
+// Lazy loading system for non-critical modules
+(function() {
+    'use strict';
+    
+    // Module loading configuration
+    const moduleConfig = {
+        'notification-manager': {
+            url: '{{ url_for("static", filename="js/modules/notification-manager.js") }}',
+            loadOn: 'idle', // Load when browser is idle
+            priority: 'low'
+        },
+        'onboarding-manager': {
+            url: '{{ url_for("static", filename="js/modules/onboarding-manager.js") }}',
+            loadOn: 'visible', // Load when element becomes visible
+            priority: 'medium'
+        },
+        'auto-installer-manager': {
+            url: '{{ url_for("static", filename="js/modules/auto-installer-manager.js") }}',
+            loadOn: 'visible',
+            priority: 'medium'
+        },
+        'prompt-assistant': {
+            url: '{{ url_for("static", filename="js/modules/prompt-assistant.js") }}',
+            loadOn: 'visible',
+            priority: 'medium'
+        },
+        'smart-suggestions': {
+            url: '{{ url_for("static", filename="js/modules/smart-suggestions.js") }}',
+            loadOn: 'idle',
+            priority: 'low'
+        }
+    };
+    
+    // Lazy loading implementation
+    class LazyModuleLoader {
+        constructor() {
+            this.loadedModules = new Set();
+            this.loadingModules = new Set();
+            this.observer = null;
+            this.init();
+        }
+        
+        init() {
+            // Load idle modules when browser is idle
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(() => this.loadIdleModules());
+            } else {
+                // Fallback for browsers without requestIdleCallback
+                setTimeout(() => this.loadIdleModules(), 2000);
+            }
+            
+            // Set up intersection observer for visible modules
+            this.setupIntersectionObserver();
+        }
+        
+        setupIntersectionObserver() {
+            if ('IntersectionObserver' in window) {
+                this.observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const moduleName = this.getModuleNameFromElement(entry.target);
+                            if (moduleName && moduleConfig[moduleName]) {
+                                this.loadModule(moduleName);
+                            }
+                        }
+                    });
+                }, { threshold: 0.1 });
+                
+                // Observe elements that should trigger module loading
+                this.observeModuleElements();
+            }
+        }
+        
+        observeModuleElements() {
+            // Observe specific elements that indicate module usage
+            const selectors = {
+                'prompt-assistant': '.prompt-assistant, [data-module="prompt-assistant"]',
+                'onboarding-manager': '.onboarding, [data-module="onboarding"]',
+                'auto-installer-manager': '.auto-installer, [data-module="auto-installer"]'
+            };
+            
+            Object.entries(selectors).forEach(([moduleName, selector]) => {
+                const elements = document.querySelectorAll(selector);
+                elements.forEach(el => this.observer.observe(el));
+            });
+        }
+        
+        getModuleNameFromElement(element) {
+            // Extract module name from element attributes or classes
+            return element.dataset.module || 
+                   Array.from(element.classList).find(cls => moduleConfig[cls]);
+        }
+        
+        loadIdleModules() {
+            Object.entries(moduleConfig).forEach(([moduleName, config]) => {
+                if (config.loadOn === 'idle' && !this.loadedModules.has(moduleName)) {
+                    this.loadModule(moduleName);
+                }
+            });
+        }
+        
+        async loadModule(moduleName) {
+            if (this.loadedModules.has(moduleName) || this.loadingModules.has(moduleName)) {
+                return;
+            }
+            
+            const config = moduleConfig[moduleName];
+            if (!config) return;
+            
+            this.loadingModules.add(moduleName);
+            
+            try {
+                const script = document.createElement('script');
+                script.type = 'module';
+                script.src = config.url;
+                script.async = true;
+                
+                // Add loading indicator
+                script.onload = () => {
+                    this.loadedModules.add(moduleName);
+                    this.loadingModules.delete(moduleName);
+                    console.log(`Module ${moduleName} loaded successfully`);
+                };
+                
+                script.onerror = () => {
+                    this.loadingModules.delete(moduleName);
+                    console.warn(`Failed to load module ${moduleName}`);
+                };
+                
+                document.head.appendChild(script);
+                
+            } catch (error) {
+                this.loadingModules.delete(moduleName);
+                console.error(`Error loading module ${moduleName}:`, error);
+            }
+        }
+        
+        // Public method to force load a module
+        forceLoad(moduleName) {
+            this.loadModule(moduleName);
+        }
+        
+        // Get loading status
+        getStatus() {
+            return {
+                loaded: Array.from(this.loadedModules),
+                loading: Array.from(this.loadingModules),
+                total: Object.keys(moduleConfig).length
+            };
+        }
+    }
+    
+    // Initialize lazy loader when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            window.lazyModuleLoader = new LazyModuleLoader();
+        });
+    } else {
+        window.lazyModuleLoader = new LazyModuleLoader();
+    }
+})();
+</script>
+
+<!-- Performance optimization: Preload critical resources -->
+<link rel="preload" href="{{ url_for('static', filename='js/global.js') }}" as="script">
+<link rel="preload" href="{{ url_for('static', filename='js/responsive-nav.js') }}" as="script">

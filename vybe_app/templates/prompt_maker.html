@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include '_head.html' %}
+    <title>Prompt Maker | Vybe</title>
+    <!-- Page-specific CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/prompt_maker.css') }}">
+</head>
+<body class="app-body">
+    {% include '_header_new.html' %}
+    
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <h1>✨ Prompt Maker</h1>
+                <p>Create powerful system prompts with our interactive wizard</p>
+            </div>
+
+            <div class="prompt-maker-container">
+                <!-- Left Panel - Wizard Form -->
+                <div class="wizard-panel">
+                    <div class="wizard-header">
+                        <h2>Prompt Builder</h2>
+                        <div class="wizard-steps">
+                            <div class="step active" data-step="1">
+                                <span class="step-number">1</span>
+                                <span class="step-label">Basic Info</span>
+                            </div>
+                            <div class="step" data-step="2">
+                                <span class="step-number">2</span>
+                                <span class="step-label">Components</span>
+                            </div>
+                            <div class="step" data-step="3">
+                                <span class="step-number">3</span>
+                                <span class="step-label">Preview</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form id="promptMakerForm" class="wizard-form">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <!-- Step 1: Basic Information -->
+                        <div class="form-step active" data-step="1">
+                            <h3>Basic Information</h3>
+                            
+                            <div class="form-group">
+                                <label for="promptName">Prompt Name *</label>
+                                <input type="text" id="promptName" name="promptName" required
+                                       placeholder="e.g., Code Review Assistant">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="promptDescription">Description</label>
+                                <textarea id="promptDescription" name="promptDescription" rows="3"
+                                         placeholder="Brief description of what this prompt does..."></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="promptCategory">Category</label>
+                                <select id="promptCategory" name="promptCategory">
+                                    <option value="General">General</option>
+                                    <option value="Coding">Coding</option>
+                                    <option value="Writing">Writing</option>
+                                    <option value="Analysis">Analysis</option>
+                                    <option value="Creative">Creative</option>
+                                    <option value="Business">Business</option>
+                                    <option value="Education">Education</option>
+                                    <option value="Research">Research</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Prompt Components -->
+                        <div class="form-step" data-step="2">
+                            <h3>Prompt Components</h3>
+                            
+                            <div class="form-group">
+                                <label for="persona">Persona/Role</label>
+                                <textarea id="persona" name="persona" rows="3"
+                                         placeholder="You are an expert software engineer with 10+ years of experience..."></textarea>
+                                <small class="help-text">Define who the AI should act as (optional)</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="task">Primary Task *</label>
+                                <textarea id="task" name="task" rows="4" required
+                                         placeholder="Your main task is to review code and provide constructive feedback..."></textarea>
+                                <small class="help-text">What should the AI do?</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="context">Context/Background</label>
+                                <textarea id="context" name="context" rows="3"
+                                         placeholder="When reviewing code, consider best practices, security, performance..."></textarea>
+                                <small class="help-text">Additional context or constraints (optional)</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="tone">Tone & Style</label>
+                                <select id="tone" name="tone">
+                                    <option value="">Choose a tone...</option>
+                                    <option value="professional">Professional</option>
+                                    <option value="friendly">Friendly</option>
+                                    <option value="casual">Casual</option>
+                                    <option value="formal">Formal</option>
+                                    <option value="concise">Concise</option>
+                                    <option value="detailed">Detailed</option>
+                                    <option value="encouraging">Encouraging</option>
+                                    <option value="direct">Direct</option>
+                                </select>
+                                <small class="help-text">How should the AI communicate?</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="format">Output Format</label>
+                                <textarea id="format" name="format" rows="3"
+                                         placeholder="Provide your response in bullet points with clear headings..."></textarea>
+                                <small class="help-text">How should the response be structured? (optional)</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="constraints">Constraints/Rules</label>
+                                <textarea id="constraints" name="constraints" rows="3"
+                                         placeholder="Always ask clarifying questions if requirements are unclear..."></textarea>
+                                <small class="help-text">Any specific rules or limitations (optional)</small>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Preview -->
+                        <div class="form-step" data-step="3">
+                            <h3>Review & Save</h3>
+                            <p>Review your prompt and make any final adjustments:</p>
+                            
+                            <div class="form-group">
+                                <label for="finalPrompt">Final Prompt</label>
+                                <textarea id="finalPrompt" name="finalPrompt" rows="12" readonly></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Navigation Buttons -->
+                        <div class="form-navigation">
+                            <button type="button" id="prevBtn" class="btn btn-secondary" style="display: none;">Previous</button>
+                            <button type="button" id="nextBtn" class="btn btn-primary">Next</button>
+                            <button type="submit" id="saveBtn" class="btn btn-success" style="display: none;">Save Prompt</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Right Panel - Live Preview -->
+                <div class="preview-panel">
+                    <div class="preview-header">
+                        <h3>Live Preview</h3>
+                        <div class="preview-actions">
+                            <button id="copyBtn" class="btn btn-outline-primary btn-sm">
+                                📋 Copy
+                            </button>
+                            <button id="useInChatBtn" class="btn btn-outline-success btn-sm">
+                                💬 Use in Chat
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="preview-content">
+                        <div id="promptPreview" class="prompt-preview">
+                            <em>Your prompt will appear here as you fill out the form...</em>
+                        </div>
+                    </div>
+                    
+                    <div class="preview-stats">
+                        <div class="stat">
+                            <span class="stat-label">Characters:</span>
+                            <span id="charCount">0</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Words:</span>
+                            <span id="wordCount">0</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Est. Tokens:</span>
+                            <span id="tokenCount">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Templates Section -->
+            <div class="templates-section">
+                <h2>Saved Templates</h2>
+                <div id="templatesGrid" class="templates-grid">
+                    <!-- Templates will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modals -->
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Success!</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p id="successMessage">Prompt saved successfully!</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeModal('successModal')">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="errorModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Error</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p id="errorMessage">An error occurred.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeModal('errorModal')">OK</button>
+            </div>
+        </div>
+    </div>
+
+    
+    <!-- Scripts -->
+    {% include '_scripts.html' %}
+    <!-- Page-specific scripts -->
+    <script src="{{ url_for('static', filename='js/prompt_maker.js') }}"></script>
+</body>
+</html>

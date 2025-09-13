@@ -1,0 +1,108 @@
+# Vybe System Knowledge Task Specification
+
+## **🎯 Primary Task: Vybe Architecture & System Knowledge**
+
+### **Core Responsibility**
+The model must have deep knowledge of Vybe's architecture, components, capabilities, and best practices to provide accurate guidance and optimal system utilization.
+
+### **Key Capabilities Required**
+
+#### **1. System Architecture Understanding**
+- **Input**: Questions about Vybe's structure and components
+- **Output**: Clear explanations of system architecture and relationships
+- **Examples**:
+  - "How does Vybe handle model management?" → Detailed explanation of BackendLLMController, ModelSourcesManager, HardwareManager
+  - "What's the difference between agents and tools?" → Explanation of agent orchestration vs. direct tool execution
+  - "How does Vybe optimize for different hardware?" → Hardware tier detection and model recommendation system
+
+#### **2. Component Knowledge & Integration**
+- **Input**: Component-specific questions or issues
+- **Output**: Detailed component information and integration guidance
+- **Examples**:
+  - "How do I add a new tool?" → Step-by-step tool integration process
+  - "What models does Vybe support?" → Complete model compatibility and recommendation guide
+  - "How does the agent system work?" → Agent creation, management, and execution flow
+
+#### **3. Best Practices & Optimization**
+- **Input**: Performance or usage questions
+- **Output**: Optimization strategies and best practices
+- **Examples**:
+  - "How can I make Vybe faster?" → Hardware optimization, model selection, configuration tuning
+  - "What's the best way to organize my workflow?" → Workflow design patterns and efficiency tips
+  - "How do I troubleshoot common issues?" → Diagnostic procedures and solutions
+
+#### **4. Feature Guidance & Usage**
+- **Input**: Feature-specific questions
+- **Output**: Feature explanations and usage guidance
+- **Examples**:
+  - "How do I use the fine-tuning feature?" → Step-by-step fine-tuning guide
+  - "What are the different agent types?" → Agent type explanations and use cases
+  - "How do I set up cloud sync?" → Cloud synchronization setup and configuration
+
+### **Vybe System Components**
+
+#### **1. Core Architecture**
+- **BackendLLMController**: Manages llama-cpp-python inference server
+- **ModelSourcesManager**: Handles model discovery, downloads, and curation
+- **HardwareManager**: Detects system capabilities and recommends optimizations
+- **AgentManager**: Orchestrates autonomous agent workflows
+- **ToolRegistry**: Manages available tools and their capabilities
+
+#### **2. Model Management**
+- **Supported Models**: Llama, Mistral, Gemma, Phi, Qwen, and others
+- **Model Sources**: Hugging Face, Ollama, curated lists, local files
+- **Optimization**: Hardware tier-based model recommendations
+- **Fine-tuning**: Unsloth, Axolotl, LoRA support
+
+#### **3. Agent System**
+- **Agent Types**: Task agents, workflow agents, monitoring agents
+- **Agent Creation**: Template-based and custom agent development
+- **Agent Management**: Lifecycle, monitoring, and optimization
+- **Agent Communication**: Inter-agent messaging and coordination
+
+#### **4. Tool Ecosystem**
+- **AI Tools**: Code execution, image generation, text analysis
+- **Data Tools**: File operations, data processing, format conversion
+- **System Tools**: Monitoring, scheduling, network operations
+- **Custom Tools**: User-defined tool development and integration
+
+### **Specialized Knowledge Areas**
+
+#### **1. Performance Optimization**
+- **Hardware Utilization**: GPU/CPU optimization strategies
+- **Memory Management**: Efficient resource allocation and cleanup
+- **Network Optimization**: Bandwidth usage and caching strategies
+- **Model Selection**: Choosing optimal models for specific tasks
+
+#### **2. Security & Safety**
+- **Tool Security**: Safe tool execution and sandboxing
+- **Data Privacy**: Local processing and data protection
+- **Access Control**: User permissions and authorization
+- **Error Handling**: Secure error recovery and logging
+
+#### **3. Integration & Extensibility**
+- **API Integration**: REST API usage and customization
+- **Plugin System**: Plugin development and management
+- **Custom Tools**: Tool development guidelines and examples
+- **Workflow Automation**: Complex workflow design and execution
+
+#### **4. Troubleshooting & Support**
+- **Common Issues**: Frequently encountered problems and solutions
+- **Diagnostic Tools**: System health monitoring and diagnostics
+- **Log Analysis**: Understanding and interpreting system logs
+- **Performance Tuning**: System optimization and fine-tuning
+
+### **Training Data Requirements**
+- 4,000+ architecture explanation examples
+- 3,000+ component usage scenarios
+- 2,500+ best practice recommendations
+- 2,000+ troubleshooting guides
+- 1,500+ optimization strategies
+- 1,000+ integration examples
+
+### **Success Metrics**
+- Architecture knowledge accuracy: >95%
+- Component guidance effectiveness: >90%
+- Best practice recommendation quality: >88%
+- Troubleshooting success rate: >85%
+- User satisfaction with guidance: >4.5/5

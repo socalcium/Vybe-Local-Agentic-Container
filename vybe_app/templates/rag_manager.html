@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include '_head.html' %}
+    <title>Vybe - Knowledge Base</title>
+    <!-- Page-specific CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/rag.css') }}">
+    <script>
+        // Initialize theme early to prevent flash
+        (function() {
+            function setTheme(theme) {
+                const html = document.documentElement;
+                html.classList.remove('theme-light', 'theme-dark', 'theme-system');
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (theme === 'system') {
+                    const body = document.body;
+                    html.classList.add('theme-system');
+                    html.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+                    body.classList.toggle('dark-mode', prefersDark);
+                } else {
+                    html.classList.add(`theme-${theme}`);
+                    html.setAttribute('data-theme', theme);
+                    document.body.classList.toggle('dark-mode', theme === 'dark');
+                }
+            }
+            
+            // Load theme from API or localStorage
+            fetch('/api/settings/theme_mode')
+                .then(response => response.ok ? response.json() : Promise.reject())
+                .then(data => {
+                    if (data && data.theme_mode) {
+                        setTheme(data.theme_mode || 'system');
+                    } else {
+                        setTheme('system');
+                    }
+                })
+                .catch(() => setTheme('system'));
+        })();
+    </script>
+</head>
+<body>
+    <div class="container">
+       {% include '_header_new.html' %}
+
+        <div class="page-title">
+            <h1>📚 Knowledge Base</h1>
+            <div class="help-section">
+                <div class="help-toggle" onclick="toggleHelp()">
+                    <span id="help-icon">❓</span>
+                    <span>What is this?</span>
+                </div>
+                <div id="help-content" class="help-content" style="display: none;">
+                    <p><strong>Your Personal Knowledge Base</strong></p>
+                    <p>This is like a digital filing cabinet for your AI assistant. Add documents, web pages, and notes here, and the AI will use this information to give you better, more accurate answers.</p>
+                    <ul>
+                        <li><strong>📁 Folders:</strong> Organize your knowledge into themed folders (like "Work Documents", "Research Papers", "Personal Notes")</li>
+                        <li><strong>📄 Files:</strong> Add text files, PDFs, or create notes directly in the app</li>
+                        <li><strong>🌐 Web Pages:</strong> Save content from websites for the AI to reference</li>
+                        <li><strong>🔄 Auto-Updates:</strong> Keep web content fresh with automatic updates</li>
+                    </ul>
+                    <p><strong>Think of it like:</strong> Teaching your AI assistant by giving it a library of information to learn from!</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="knowledge-base-container">
+            <!-- File Explorer Style Layout -->
+            <div class="file-explorer">
+                <!-- Left Sidebar - Folder Tree -->
+                <div class="sidebar">
+                    <div class="sidebar-header">
+                        <h3>📁 Folders</h3>
+                        <button id="new-folder-btn" class="new-folder-btn" title="Create New Folder">
+                            <span>+</span>
+                        </button>
+                    </div>
+                    
+                    <div class="folder-tree" id="folder-tree">
+                        <!-- Folders will be populated here -->
+                        <div class="loading-folder">Loading folders...</div>
+                    </div>
+                    
+                    <div class="sidebar-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Total Files:</span>
+                            <span class="stat-value" id="total-files">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Total Size:</span>
+                            <span class="stat-value" id="total-size">0 KB</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Content Area -->
+                <div class="main-content">
+                    <!-- Toolbar -->
+                    <div class="toolbar">
+                        <div class="toolbar-left">
+                            <h2 id="current-folder-name">📁 Select a Folder</h2>
+                            <span class="folder-info" id="folder-info"></span>
+                        </div>
+                        
+                        <div class="toolbar-right">
+                            <button id="upload-files-btn" class="toolbar-btn" disabled>
+                                <span>📤</span> Upload Files
+                            </button>
+                            <button id="add-webpage-btn" class="toolbar-btn" disabled>
+                                <span>🌐</span> Add Web Page
+                            </button>
+                            <button id="create-note-btn" class="toolbar-btn" disabled>
+                                <span>📝</span> Create Note
+                            </button>
+                            <button id="refresh-btn" class="toolbar-btn">
+                                <span>🔄</span> Refresh
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- File List -->
+                    <div class="file-list-container">
+                        <div class="file-list-header">
+                            <div class="file-header-name">Name</div>
+                            <div class="file-header-type">Type</div>
+                            <div class="file-header-size">Size</div>
+                            <div class="file-header-date">Modified</div>
+                            <div class="file-header-actions">Actions</div>
+                        </div>
+                        
+                        <div class="file-list" id="file-list">
+                            <div class="empty-state" id="empty-state">
+                                <div class="empty-icon">📁</div>
+                                <h3>No files in this folder</h3>
+                                <p>Upload files, add web pages, or create notes to get started!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hidden file input -->
+        <input type="file" id="file-input" multiple accept=".txt,.md,.pdf,.doc,.docx" style="display: none;">
+
+        <!-- Create Folder Modal -->
+        <div id="create-folder-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>📁 Create New Folder</h3>
+                    <span class="close-modal">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <form id="create-folder-form" class="modal-form">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="form-group">
+                            <label for="new-folder-name">Folder Name:</label>
+                            <input type="text" id="new-folder-name" class="form-input" placeholder="e.g., Work Documents, Research Papers" required>
+                            <small>Use a descriptive name to help organize your knowledge</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="new-folder-description">Description (optional):</label>
+                            <textarea id="new-folder-description" class="form-input" rows="3" placeholder="What kind of information will you store in this folder?"></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="create-btn">Create Folder</button>
+                            <button type="button" class="cancel-btn">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Web Page Modal -->
+        <div id="add-webpage-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>🌐 Add Web Page</h3>
+                    <span class="close-modal">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <form id="add-webpage-form" class="modal-form">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="form-group">
+                            <label for="webpage-url">Web Page URL:</label>
+                            <input type="url" id="webpage-url" class="form-input" placeholder="https://example.com/article" required>
+                            <small>Enter the full URL of the web page you want to save</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="webpage-title">Custom Title (optional):</label>
+                            <input type="text" id="webpage-title" class="form-input" placeholder="Leave blank to use the page's title">
+                        </div>
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="auto-update-webpage">
+                                <span>🔄 Keep this page updated automatically</span>
+                            </label>
+                            <small>Check this to automatically refresh the content periodically</small>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="create-btn">Add Web Page</button>
+                            <button type="button" class="cancel-btn">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create Note Modal -->
+        <div id="create-note-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>📝 Create Note</h3>
+                    <span class="close-modal">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <form id="create-note-form" class="modal-form">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="form-group">
+                            <label for="note-title">Note Title:</label>
+                            <input type="text" id="note-title" class="form-input" placeholder="My Important Note" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="note-content">Content:</label>
+                            <textarea id="note-content" class="form-textarea" rows="15" placeholder="Write your note here..."></textarea>
+                            <small>You can use Markdown formatting for rich text</small>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="create-btn">Create Note</button>
+                            <button type="button" class="cancel-btn">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- File Preview Modal -->
+        <div id="file-preview-modal" class="modal" style="display: none;">
+            <div class="modal-content large-modal">
+                <div class="modal-header">
+                    <h3 id="preview-title">File Preview</h3>
+                    <span class="close-modal">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="file-preview-tabs">
+                        <button class="tab-btn active" data-tab="preview">👁️ Preview</button>
+                        <button class="tab-btn" data-tab="edit">✏️ Edit</button>
+                        <button class="tab-btn" data-tab="info">ℹ️ Info</button>
+                    </div>
+                    
+                    <div class="tab-content active" id="preview-tab">
+                        <div class="file-preview-content" id="file-preview-content">
+                            <!-- File content will be displayed here -->
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="edit-tab">
+                        <div class="file-edit-content">
+                            <textarea id="file-edit-textarea" class="form-textarea" rows="20"></textarea>
+                            <div class="edit-actions">
+                                <button id="save-file-btn" class="save-btn">💾 Save Changes</button>
+                                <button id="cancel-edit-btn" class="cancel-btn">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="info-tab">
+                        <div class="file-info" id="file-info">
+                            <!-- File metadata will be displayed here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/rag_manager.js') }}"></script>
+    <script>
+        // Help section toggle functionality
+        function toggleHelp() {
+            const helpContent = document.getElementById('help-content');
+            const helpIcon = document.getElementById('help-icon');
+            
+            if (helpContent.style.display === 'none' || helpContent.style.display === '') {
+                helpContent.style.display = 'block';
+                helpIcon.textContent = '❌';
+            } else {
+                helpContent.style.display = 'none';
+                helpIcon.textContent = '❓';
+            }
+        }
+
+        // Close help when clicking outside
+        document.addEventListener('click', function(event) {
+            const helpSection = document.querySelector('.help-section');
+            const helpContent = document.getElementById('help-content');
+            
+            if (!helpSection.contains(event.target) && helpContent.style.display === 'block') {
+                helpContent.style.display = 'none';
+                document.getElementById('help-icon').textContent = '❓';
+            }
+        });
+    </script>
+    
+    <!-- Scripts -->
+    {% include '_scripts.html' %}
+    <!-- Page-specific scripts -->
+    <script src="{{ url_for('static', filename='js/rag.js') }}"></script>
+</body>
+</html>

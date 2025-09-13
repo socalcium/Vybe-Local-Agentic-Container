@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include '_head.html' %}
+    <title>Autonomous Agents - Vybe</title>
+    <!-- Page-specific CSS -->
+    <!-- Bootstrap removed - using custom components for cleaner nav -->
+    <link href="{{ url_for('static', filename='css/agents.css') }}" rel="stylesheet">
+</head>
+<body>
+    {% include '_header_new.html' %}
+    
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="page-header">
+                    <h2><i class="bi bi-robot"></i> Autonomous Agent Workspace</h2>
+                    <p class="text-muted">Create, configure, and deploy AI agents with advanced planning, code execution, and memory capabilities</p>
+                    
+                    <!-- Feature Highlight Badges -->
+                    <div class="feature-badges mt-3">
+                        <span class="badge bg-primary me-2"><i class="bi bi-diagram-3"></i> LLM-Based Planning</span>
+                        <span class="badge bg-success me-2"><i class="bi bi-code-slash"></i> Secure Code Execution</span>
+                        <span class="badge bg-info me-2"><i class="bi bi-memory"></i> Long-Term Memory</span>
+                        <span class="badge bg-warning"><i class="bi bi-arrow-repeat"></i> Self-Verification</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content - Fixed Layout -->
+        <div class="agents-main-layout">
+            <!-- Agent Creation Panel -->
+            <div class="agents-sidebar">
+                <div class="card agent-creation-card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-plus-circle"></i> Create New Agent</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="agent-creation-form">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <!-- Objective -->
+                            <div class="mb-3">
+                                <label for="agent-objective" class="form-label">Agent Objective</label>
+                                <textarea class="form-control" id="agent-objective" rows="3" 
+                                    placeholder="Describe what you want the agent to accomplish..."></textarea>
+                                <div class="form-text">
+                                    Be specific about the goal, output format, and any constraints.
+                                </div>
+                            </div>
+
+                            <!-- Dropdowns moved to main content area to prevent clipping -->
+                            <div class="mb-3">
+                                <div class="alert alert-info">
+                                    <small><i class="bi bi-info-circle"></i> Configure agent persona and tools in the main panel →</small>
+                                </div>
+                            </div>
+
+                            <!-- Create Button -->
+                            <button type="submit" class="btn btn-primary w-100" id="create-agent-btn">
+                                <i class="bi bi-robot"></i> Create Agent
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Active Agents List -->
+                <div class="card mt-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6><i class="bi bi-list-ul"></i> Active Agents</h6>
+                        <button class="btn btn-outline-primary btn-sm" id="refresh-agents-btn">
+                            <i class="bi bi-arrow-clockwise"></i> Refresh
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="agents-list">
+                            <div class="text-center py-3">
+                                <div class="spinner-border spinner-border-sm" role="status"></div>
+                                <span class="ms-2">Loading agents...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Monitoring Panel -->
+            <div class="agents-content">
+                <!-- Agent Configuration Panel - NO CLIPPING HERE -->
+                <div class="card configuration-card mb-4">
+                    <div class="card-header">
+                        <h5><i class="bi bi-gear"></i> Agent Configuration</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <!-- System Prompt Selection -->
+                                <div class="mb-3">
+                                    <label for="system-prompt-select" class="form-label">Agent Persona</label>
+                                    <select class="form-select" id="system-prompt-select">
+                                        <option value="">Loading system prompts...</option>
+                                    </select>
+                                    <div class="form-text">
+                                        Choose the agent's personality and behavior style.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <!-- Authorized Tools -->
+                                <div class="mb-3">
+                                    <label class="form-label">Authorized Tools</label>
+                                    <div class="tools-checklist" id="tools-checklist">
+                                        <div class="text-center py-3">
+                                            <div class="spinner-border spinner-border-sm" role="status"></div>
+                                            <span class="ms-2">Loading tools...</span>
+                                        </div>
+                                    </div>
+                                    <div class="form-text">
+                                        Select which AI tools the agent can use.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card monitoring-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5><i class="bi bi-activity"></i> Live Agent Monitor</h5>
+                        <div class="monitor-controls">
+                            <button class="btn btn-outline-secondary btn-sm" id="clear-logs-btn">
+                                <i class="bi bi-trash"></i> Clear
+                            </button>
+                            <button class="btn btn-outline-primary btn-sm" id="auto-scroll-toggle">
+                                <i class="bi bi-arrow-down"></i> Auto-scroll
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Agent Status Summary -->
+                        <div id="agent-status-summary" class="agent-status-row mb-3" style="display: none;">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="agent-info">
+                                        <h6 id="current-agent-name">No agent selected</h6>
+                                        <p id="current-agent-objective" class="text-muted mb-1">Select an agent to view details</p>
+                                        <div class="agent-controls">
+                                            <button class="btn btn-success btn-sm" id="start-agent-btn" disabled>
+                                                <i class="bi bi-play"></i> Start
+                                            </button>
+                                            <button class="btn btn-warning btn-sm" id="pause-agent-btn" disabled>
+                                                <i class="bi bi-pause"></i> Pause
+                                            </button>
+                                            <button class="btn btn-info btn-sm" id="resume-agent-btn" disabled>
+                                                <i class="bi bi-play-circle"></i> Resume
+                                            </button>
+                                            <button class="btn btn-danger btn-sm" id="stop-agent-btn" disabled>
+                                                <i class="bi bi-stop"></i> Stop
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="agent-stats">
+                                        <div class="stat-item">
+                                            <span class="stat-label">Status:</span>
+                                            <span id="agent-status-badge" class="badge bg-secondary">Unknown</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="stat-label">Progress:</span>
+                                            <span id="agent-progress">0/0 steps</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="stat-label">Actions:</span>
+                                            <span id="agent-actions-count">0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Live Log Panel -->
+                        <div class="live-log-panel">
+                            <div class="log-header">
+                                <h6><i class="bi bi-terminal"></i> Live Thought Process</h6>
+                                <small class="text-muted">Real-time agent activity and decision-making</small>
+                            </div>
+                            <div class="log-container" id="live-log-container">
+                                <div class="log-entry system-message">
+                                    <div class="log-timestamp">Ready</div>
+                                    <div class="log-content">
+                                        <i class="bi bi-info-circle"></i>
+                                        Welcome to the Autonomous Agent Workspace. Create an agent and start monitoring its progress here.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agent Detail Modal -->
+    <div class="modal fade" id="agentDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-robot"></i> Agent Details
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="agent-detail-content">
+                        <div class="text-center py-4">
+                            <div class="spinner-border" role="status"></div>
+                            <p class="mt-2">Loading agent details...</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="agents-toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <i class="bi bi-robot me-2"></i>
+                <strong class="me-auto">Agent Workspace</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    {% include '_scripts.html' %}
+    <!-- Page-specific scripts -->
+    <!-- Bootstrap JS removed -->
+    <script src="{{ url_for('static', filename='js/agents.js') }}"></script>
+</body>
+</html>

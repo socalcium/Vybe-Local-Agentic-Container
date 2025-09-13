@@ -1,0 +1,228 @@
+<!-- Fixed Responsive Header with Proper Navigation Management -->
+<header class="app-header">
+    <!-- Mobile Header (768px and below) -->
+    <div class="mobile-header">
+        <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle navigation">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+        </button>
+        
+        <div class="mobile-logo">
+            <h1>🤖 Vybe AI</h1>
+        </div>
+        
+        <button class="mobile-user-btn" id="mobile-user-btn" aria-label="User menu">
+            <span class="user-avatar">👤</span>
+        </button>
+    </div>
+    
+    <!-- Desktop Header (769px and above) -->
+    <div class="desktop-header">
+        <div class="header-left">
+            <h1>🤖 Vybe AI</h1>
+        </div>
+        
+        <div class="header-center">
+            <!-- Core Navigation Items (always visible) -->
+            <div class="nav-group core-nav">
+                <a href="{{ url_for('views.chat') }}" class="nav-button core" data-page="chat" title="Chat">
+                    <span class="nav-icon">💬</span>
+                    <span class="nav-label">Chat</span>
+                </a>
+                
+                <a href="{{ url_for('views.search') }}" class="nav-button core" data-page="search" title="Search">
+                    <span class="nav-icon">🔍</span>
+                    <span class="nav-label">Search</span>
+                </a>
+                
+                <a href="{{ url_for('views.image_studio') }}" class="nav-button core" data-page="image-studio" title="Images">
+                    <span class="nav-icon">🎨</span>
+                    <span class="nav-label">Images</span>
+                </a>
+            </div>
+            
+            <!-- Extended Navigation Items (hidden at smaller sizes) -->
+            <div class="nav-group extended-nav">
+                <a href="{{ url_for('views.rpg') }}" class="nav-button extended" data-page="rpg" title="RPG">
+                    <span class="nav-icon">🎲</span>
+                    <span class="nav-label">RPG</span>
+                </a>
+                
+                <a href="{{ url_for('views.audio_lab') }}" class="nav-button extended" data-page="audio-lab" title="Audio">
+                    <span class="nav-icon">🎵</span>
+                    <span class="nav-label">Audio</span>
+                </a>
+                
+                <a href="{{ url_for('views.video_portal') }}" class="nav-button extended" data-page="video-portal" title="Video">
+                    <span class="nav-icon">🎬</span>
+                    <span class="nav-label">Video</span>
+                </a>
+                
+                <a href="{{ url_for('views.models_manager') }}" class="nav-button extended" data-page="models-manager" title="Models">
+                    <span class="nav-icon">🧠</span>
+                    <span class="nav-label">Models</span>
+                </a>
+                
+                <a href="{{ url_for('views.agents') }}" class="nav-button extended" data-page="agents" title="Agents">
+                    <span class="nav-icon">🤖</span>
+                    <span class="nav-label">Agents</span>
+                </a>
+                
+                <a href="{{ url_for('views.collaboration') }}" class="nav-button extended" data-page="collaboration" title="Collaboration">
+                    <span class="nav-icon">👥</span>
+                    <span class="nav-label">Collaboration</span>
+                </a>
+                
+                <a href="{{ url_for('views.smart_home') }}" class="nav-button extended" data-page="smart-home" title="Smart Home">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-label">Smart Home</span>
+                </a>
+            </div>
+            
+            <!-- More Menu for Overflow Items -->
+            <div class="nav-group more-nav" id="more-nav" style="display: none;">
+                <div class="nav-dropdown">
+                    <button class="nav-button more" aria-expanded="false" title="More options">
+                        <span class="nav-icon">⋯</span>
+                        <span class="nav-label">More</span>
+                        <span class="dropdown-arrow">▼</span>
+                    </button>
+                    <div class="dropdown-menu" id="more-dropdown">
+                        <!-- Overflow items added dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="header-right">
+            <!-- Settings (always visible but may be icon-only) -->
+            <a href="{{ url_for('views.settings') }}" class="nav-button settings" title="Settings">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-label">Settings</span>
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- Mobile Navigation Overlay -->
+<div class="mobile-nav-overlay" id="mobile-nav-overlay">
+    <div class="mobile-nav-content">
+        <div class="mobile-nav-header">
+            <h2>Navigation</h2>
+            <button class="mobile-nav-close" id="mobile-nav-close" aria-label="Close navigation">✕</button>
+        </div>
+        
+        <div class="mobile-nav-menu">
+            <div class="mobile-nav-section">
+                <h3 class="mobile-nav-section-title">Main Features</h3>
+                
+                <a href="{{ url_for('views.chat') }}" class="mobile-nav-item" data-page="chat">
+                    <span class="mobile-nav-icon">💬</span>
+                    <span class="mobile-nav-label">Chat</span>
+                    <span class="mobile-nav-arrow">→</span>
+                </a>
+                
+                <a href="{{ url_for('views.rpg') }}" class="mobile-nav-item" data-page="rpg">
+                    <span class="mobile-nav-icon">🎲</span>
+                    <span class="mobile-nav-label">RPG Adventure</span>
+                    <span class="mobile-nav-arrow">→</span>
+                </a>
+                
+                <a href="{{ url_for('views.search') }}" class="mobile-nav-item" data-page="search">
+                    <span class="mobile-nav-icon">🔍</span>
+                    <span class="mobile-nav-label">Web Search</span>
+                    <span class="mobile-nav-arrow">→</span>
+                </a>
+                
+                <a href="{{ url_for('views.image_studio') }}" class="mobile-nav-item" data-page="image-studio">
+                    <span class="mobile-nav-icon">🎨</span>
+                    <span class="mobile-nav-label">Image Studio</span>
+                    <span class="mobile-nav-arrow">→</span>
+                </a>
+                
+                <a href="{{ url_for('views.audio_lab') }}" class="mobile-nav-item" data-page="audio-lab">
+                    <span class="mobile-nav-icon">🎵</span>
+                    <span class="mobile-nav-label">Audio Lab</span>
+                    <span class="mobile-nav-arrow">→</span>
+                </a>
+                
+                <a href="{{ url_for('views.video_portal') }}" class="mobile-nav-item" data-page="video-portal">
+                    <span class="mobile-nav-icon">🎬</span>
+                    <span class="mobile-nav-label">Video Portal</span>
+                    <span class="mobile-nav-arrow">→</span>
+                </a>
+                
+                <a href="{{ url_for('views.agents') }}" class="mobile-nav-item" data-page="agents">
+                    <span class="mobile-nav-icon">🤖</span>
+                    <span class="mobile-nav-label">AI Agents</span>
+                    <span class="mobile-nav-arrow">→</span>
+                </a>
+                
+                <a href="{{ url_for('views.collaboration') }}" class="mobile-nav-item" data-page="collaboration">
+                    <span class="mobile-nav-icon">👥</span>
+                    <span class="mobile-nav-label">Collaboration</span>
+                    <span class="mobile-nav-arrow">→</span>
+                </a>
+                
+                <a href="{{ url_for('views.smart_home') }}" class="mobile-nav-item" data-page="smart-home">
+                    <span class="mobile-nav-icon">🏠</span>
+                    <span class="mobile-nav-label">Smart Home</span>
+                    <span class="mobile-nav-arrow">→</span>
+                </a>
+            </div>
+            
+            <div class="mobile-nav-section">
+                <h3 class="mobile-nav-section-title">Management</h3>
+                
+                <a href="{{ url_for('views.models_manager') }}" class="mobile-nav-item">
+                    <span class="mobile-nav-icon">🧠</span>
+                    <span class="mobile-nav-label">Model Manager</span>
+                    <span class="mobile-nav-arrow">→</span>
+                </a>
+                
+                <a href="{{ url_for('views.setup') }}" class="mobile-nav-item">
+                    <span class="mobile-nav-icon">⚙️</span>
+                    <span class="mobile-nav-label">Setup</span>
+                    <span class="mobile-nav-arrow">→</span>
+                </a>
+                
+                <a href="{{ url_for('views.rag_manager') }}" class="mobile-nav-item">
+                    <span class="mobile-nav-icon">📚</span>
+                    <span class="mobile-nav-label">Knowledge Base</span>
+                    <span class="mobile-nav-arrow">→</span>
+                </a>
+                
+                <a href="{{ url_for('views.settings') }}" class="mobile-nav-item">
+                    <span class="mobile-nav-icon">🔧</span>
+                    <span class="mobile-nav-label">Settings</span>
+                    <span class="mobile-nav-arrow">→</span>
+                </a>
+                
+                <a href="{{ url_for('auth.logout') }}" class="mobile-nav-item logout">
+                    <span class="mobile-nav-icon">🚪</span>
+                    <span class="mobile-nav-label">Sign Out</span>
+                    <span class="mobile-nav-arrow">→</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Mobile User Menu -->
+<div class="mobile-user-menu" id="mobile-user-menu">
+    <div class="mobile-user-content">
+        <a href="{{ url_for('views.settings') }}" class="mobile-user-item">
+            <span class="mobile-nav-icon">🔧</span>
+            Settings
+        </a>
+        <a href="{{ url_for('auth.logout') }}" class="mobile-user-item logout">
+            <span class="mobile-nav-icon">🚪</span>
+            Sign Out
+        </a>
+    </div>
+</div>
+
+

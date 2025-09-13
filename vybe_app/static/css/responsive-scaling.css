@@ -1,0 +1,369 @@
+/* Responsive Scaling for Modern Displays */
+/* Optimized for 480p to 4K displays with proper Windows 10 snap layout support */
+
+/* High DPI Display Support */
+@media (-webkit-min-device-pixel-ratio: 1.5), (min-resolution: 144dpi) {
+    html {
+        /* Better font rendering on high DPI displays */
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+    }
+    
+    /* Slightly larger base font size for high DPI displays */
+    body {
+        font-size: 15px;
+    }
+}
+
+/* Ultra High DPI (4K+) Support */
+@media (-webkit-min-device-pixel-ratio: 3), (min-resolution: 288dpi) {
+    body {
+        font-size: 16px;
+    }
+    
+    /* Larger clickable areas for ultra high res */
+    button, .btn, .nav-button {
+        min-height: 44px;
+        padding: 12px 20px;
+    }
+}
+
+/* Responsive Breakpoints for Different Screen Sizes */
+
+/* Small screens - 480p and mobile */
+@media (max-width: 640px) {
+    .container {
+        padding: 8px;
+        max-width: 100%;
+    }
+    
+    .chat-container {
+        padding: 8px;
+        margin: 4px;
+    }
+    
+    /* Smaller font sizes for cramped displays */
+    body {
+        font-size: 13px;
+    }
+    
+    /* Enhanced Mobile Support */
+    /* Touch-friendly button sizes */
+    button, .btn, .nav-button, .clickable {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+    
+    /* Better input field handling */
+    input, textarea, select {
+        font-size: 16px; /* Prevents zoom on iOS */
+        padding: 12px;
+        border-radius: 8px;
+    }
+    
+    /* Mobile navigation improvements */
+    .nav-container {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .nav-button {
+        width: 100%;
+        margin: 2px 0;
+        text-align: left;
+    }
+    
+    /* Hide non-essential elements on mobile */
+    .desktop-only {
+        display: none !important;
+    }
+    
+    /* Mobile-friendly chat interface */
+    .chat-input {
+        font-size: 16px;
+        min-height: 44px;
+        padding: 12px;
+    }
+    
+    /* Better table handling */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    table {
+        font-size: 12px;
+    }
+    
+    /* Sticky mobile header */
+    .mobile-header {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background: var(--bg-primary, #1a1a1a);
+        padding: 8px;
+    }
+    
+    h1 { font-size: 1.4rem; }
+    h2 { font-size: 1.2rem; }
+    h3 { font-size: 1.1rem; }
+}
+
+/* Medium screens - 720p to 1080p */
+@media (min-width: 641px) and (max-width: 1366px) {
+    .container {
+        padding: 12px;
+        max-width: 1280px;
+        margin: 0 auto;
+    }
+    
+    .chat-container {
+        padding: 16px;
+        margin: 8px;
+    }
+    
+    body {
+        font-size: 14px;
+    }
+}
+
+/* Large screens - 1440p (2K) */
+@media (min-width: 1367px) and (max-width: 2560px) {
+    .container {
+        padding: 20px;
+        max-width: 1600px;
+        margin: 0 auto;
+    }
+    
+    .chat-container {
+        padding: 24px;
+        margin: 12px;
+    }
+    
+    body {
+        font-size: 15px;
+    }
+    
+    /* Larger interface elements for bigger screens */
+    .nav-button {
+        padding: 12px 16px;
+    }
+    
+    .chat-input {
+        font-size: 16px;
+        padding: 16px;
+    }
+}
+
+/* Ultra-wide and 4K+ displays */
+@media (min-width: 2561px) {
+    .container {
+        padding: 32px;
+        max-width: 2400px;
+        margin: 0 auto;
+    }
+    
+    .chat-container {
+        padding: 32px;
+        margin: 16px;
+    }
+    
+    body {
+        font-size: 16px;
+    }
+    
+    /* Even larger interface elements for 4K */
+    .nav-button {
+        padding: 16px 20px;
+        font-size: 16px;
+    }
+    
+    .chat-input {
+        font-size: 18px;
+        padding: 20px;
+    }
+    
+    h1 { font-size: 2.5rem; }
+    h2 { font-size: 2rem; }
+    h3 { font-size: 1.5rem; }
+}
+
+/* Windows 10 Snap Layout Support */
+
+/* Half screen (1/2) - Common snapped window size */
+@media (max-width: 960px) and (min-width: 640px) {
+    .desktop-header .header-center {
+        /* Compress navigation for half-screen */
+        gap: 8px;
+    }
+    
+    .nav-button .nav-label {
+        /* Hide labels on smaller snapped windows */
+        display: none;
+    }
+    
+    .nav-button {
+        min-width: 44px;
+        justify-content: center;
+    }
+    
+    .chat-container {
+        padding: 12px;
+    }
+}
+
+/* Quarter screen (1/4) - Narrow snapped window */
+@media (max-width: 640px) {
+    .desktop-header {
+        /* Switch to mobile-style header */
+        display: none;
+    }
+    
+    .mobile-header {
+        display: flex !important;
+    }
+    
+    /* Compact chat interface */
+    .chat-input-container {
+        padding: 8px;
+    }
+    
+    .chat-input {
+        font-size: 14px;
+        padding: 12px;
+    }
+}
+
+/* Third screen (1/3) - Medium snapped window */
+@media (min-width: 641px) and (max-width: 853px) {
+    .extended-nav {
+        /* Hide extended navigation items */
+        display: none;
+    }
+    
+    .more-nav {
+        /* Show more menu instead */
+        display: block !important;
+    }
+    
+    .chat-messages {
+        /* Adjust message layout for narrow windows */
+        padding: 8px;
+    }
+    
+    .message {
+        margin-bottom: 12px;
+    }
+}
+
+/* Height-based responsive adjustments */
+
+/* Short windows (taskbar visible, windowed mode) */
+@media (max-height: 600px) {
+    .app-header {
+        /* Compress header height */
+        min-height: 48px;
+        padding: 4px 12px;
+    }
+    
+    .chat-container {
+        /* Reduce top/bottom padding */
+        padding-top: 8px;
+        padding-bottom: 8px;
+    }
+    
+    .chat-messages {
+        /* Compact message spacing */
+        gap: 8px;
+    }
+}
+
+/* Very short windows (small windowed mode) */
+@media (max-height: 400px) {
+    .app-header {
+        min-height: 40px;
+        padding: 2px 8px;
+    }
+    
+    .nav-button {
+        padding: 6px 8px;
+        font-size: 12px;
+    }
+    
+    .chat-input {
+        padding: 8px;
+        font-size: 13px;
+    }
+}
+
+/* Prevent interface from becoming too small */
+@media (max-width: 320px) or (max-height: 240px) {
+    body {
+        font-size: max(12px, 1rem);
+    }
+    
+    .chat-input {
+        min-height: 36px;
+    }
+    
+    .nav-button {
+        min-height: 32px;
+        min-width: 32px;
+    }
+}
+
+/* Scale buttons and inputs properly across all sizes */
+button, .btn, input, textarea, select {
+    /* Ensure minimum clickable size */
+    min-height: 36px;
+    touch-action: manipulation;
+}
+
+@media (min-width: 1367px) {
+    button, .btn, input, textarea, select {
+        min-height: 40px;
+    }
+}
+
+@media (min-width: 2561px) {
+    button, .btn, input, textarea, select {
+        min-height: 48px;
+    }
+}
+
+/* Fix container layout for all window sizes */
+.container {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Ensure chat area scales properly */
+.chat-page-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.chat-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0; /* Allow flexbox to shrink */
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+}
+
+.chat-input-container {
+    flex-shrink: 0;
+}

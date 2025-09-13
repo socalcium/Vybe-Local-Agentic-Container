@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include '_head.html' %}
+    <title>Vybe - Developer Tools</title>
+    <!-- Page-specific CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/devtools.css') }}">
+    <script>
+        // Initialize theme early to prevent flash
+        (function() {
+            function setTheme(theme) {
+                const html = document.documentElement;
+                html.classList.remove('theme-light', 'theme-dark', 'theme-system');
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (theme === 'system') {
+                    const body = document.body;
+                    html.classList.add('theme-system');
+                    html.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+                    body.classList.toggle('dark-mode', prefersDark);
+                } else {
+                    html.classList.add(`theme-${theme}`);
+                    html.setAttribute('data-theme', theme);
+                    document.body.classList.toggle('dark-mode', theme === 'dark');
+                }
+            }
+            
+            // Load theme from API or localStorage
+            fetch('/api/settings/theme_mode')
+                .then(response => response.ok ? response.json() : Promise.reject())
+                .then(data => {
+                    if (data && data.theme_mode) {
+                        setTheme(data.theme_mode || 'system');
+                    } else {
+                        setTheme('system');
+                    }
+                })
+                .catch(() => setTheme('system'));
+        })();
+    </script>
+</head>
+<body>
+    <div class="container">
+       {% include '_header_new.html' %}
+
+        <div class="page-title">
+            <h1>🐞 Developer Tools</h1>
+            <div class="help-section">
+                <div class="help-toggle" onclick="toggleHelp()">
+                    <span id="help-icon">❓</span>
+                    <span>Help</span>
+                </div>
+                <div id="help-content" class="help-content" style="display: none;">
+                    <p><strong>What are Developer Tools?</strong></p>
+                    <p>This section provides development and debugging utilities for the Vybe application. Use these tools to monitor system performance, manage background jobs, and analyze application state.</p>
+                    <ul>
+                        <li><strong>System Monitor:</strong> View real-time system metrics like CPU, memory, and disk usage</li>
+                        <li><strong>Job Manager:</strong> Monitor and control background tasks and scheduled operations</li>
+                        <li><strong>Database Viewer:</strong> Inspect database tables and records for debugging</li>
+                        <li><strong>Log Viewer:</strong> Access application logs to troubleshoot issues</li>
+                    </ul>
+                    <p><strong>Note:</strong> These tools are intended for development and administrative purposes.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="devtools-container">
+            <!-- System Information Section -->
+            <div class="devtools-section">
+                <div class="section-header">
+                    <h2>📊 System Information</h2>
+                    <button id="refresh-system-info" class="refresh-button">🔄 Refresh</button>
+                </div>
+                <div class="system-info-grid">
+                    <div class="info-card">
+                        <h3>CPU Usage</h3>
+                        <div class="metric-display">
+                            <div class="metric-value" id="cpu-usage">--</div>
+                            <div class="metric-unit">%</div>
+                        </div>
+                        <div class="metric-bar">
+                            <div class="metric-progress" id="cpu-progress"></div>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <h3>Memory Usage</h3>
+                        <div class="metric-display">
+                            <div class="metric-value" id="memory-usage">--</div>
+                            <div class="metric-unit">%</div>
+                        </div>
+                        <div class="metric-bar">
+                            <div class="metric-progress" id="memory-progress"></div>
+                        </div>
+                        <div class="metric-details">
+                            <span id="memory-details">-- / -- GB</span>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <h3>GPU Usage</h3>
+                        <div class="metric-display">
+                            <div class="metric-value" id="gpu-usage">--</div>
+                            <div class="metric-unit">%</div>
+                        </div>
+                        <div class="metric-bar">
+                            <div class="metric-progress" id="gpu-progress"></div>
+                        </div>
+                        <div class="metric-details">
+                            <span id="gpu-details">Not available</span>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <h3>Disk Usage</h3>
+                        <div class="metric-display">
+                            <div class="metric-value" id="disk-usage">--</div>
+                            <div class="metric-unit">%</div>
+                        </div>
+                        <div class="metric-bar">
+                            <div class="metric-progress" id="disk-progress"></div>
+                        </div>
+                        <div class="metric-details">
+                            <span id="disk-details">-- / -- GB</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Log Viewer Section -->
+            <div class="devtools-section">
+                <div class="section-header">
+                    <h2>📋 Live Log Viewer</h2>
+                    <div class="log-controls">
+                        <button id="refresh-logs" class="refresh-button">🔄 Refresh</button>
+                        <button id="clear-logs" class="clear-button">🗑️ Clear View</button>
+                        <button id="auto-refresh-toggle" class="toggle-button">⏱️ Auto Refresh: OFF</button>
+                    </div>
+                </div>
+                <div class="log-viewer-container">
+                    <div class="log-filters">
+                        <label>
+                            Filter Level:
+                            <select id="log-level-filter">
+                                <option value="">All Levels</option>
+                                <option value="DEBUG">DEBUG</option>
+                                <option value="INFO">INFO</option>
+                                <option value="WARNING">WARNING</option>
+                                <option value="ERROR">ERROR</option>
+                                <option value="CRITICAL">CRITICAL</option>
+                            </select>
+                        </label>
+                        <label>
+                            Lines to show:
+                            <select id="log-lines-count">
+                                <option value="50">50</option>
+                                <option value="100" selected>100</option>
+                                <option value="200">200</option>
+                                <option value="500">500</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div class="log-viewer" id="log-viewer">
+                        <div class="log-loading">Loading logs...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Configuration Display Section -->
+            <div class="devtools-section">
+                <div class="section-header">
+                    <h2>⚙️ Application Configuration</h2>
+                    <button id="refresh-config" class="refresh-button">🔄 Refresh</button>
+                </div>
+                <div class="config-viewer">
+                    <div class="config-tabs">
+                        <button class="config-tab active" data-tab="app-config">App Config</button>
+                        <button class="config-tab" data-tab="app-settings">App Settings</button>
+                        <button class="config-tab" data-tab="environment">Environment</button>
+                    </div>
+                    <div class="config-content">
+                        <div id="app-config" class="config-panel active">
+                            <div class="config-loading">Loading configuration...</div>
+                        </div>
+                        <div id="app-settings" class="config-panel">
+                            <div class="config-loading">Loading settings...</div>
+                        </div>
+                        <div id="environment" class="config-panel">
+                            <div class="config-loading">Loading environment info...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Application Status Section -->
+            <div class="devtools-section">
+                <div class="section-header">
+                    <h2>🔧 Application Status</h2>
+                    <button id="refresh-status" class="refresh-button">🔄 Refresh</button>
+                </div>
+                <div class="status-grid">
+                    <div class="status-card">
+                        <h3>LLM Backend</h3>
+                        <div class="status-indicator" id="llm-backend-status">
+                            <span class="status-dot unknown"></span>
+                            <span class="status-text">Checking...</span>
+                        </div>
+                    </div>
+                    <div class="status-card">
+                        <h3>Database</h3>
+                        <div class="status-indicator" id="database-status">
+                            <span class="status-dot unknown"></span>
+                            <span class="status-text">Checking...</span>
+                        </div>
+                    </div>
+                    <div class="status-card">
+                        <h3>RAG System</h3>
+                        <div class="status-indicator" id="rag-status">
+                            <span class="status-dot unknown"></span>
+                            <span class="status-text">Checking...</span>
+                        </div>
+                    </div>
+                    <div class="status-card">
+                        <h3>Job Manager</h3>
+                        <div class="status-indicator" id="job-manager-status">
+                            <span class="status-dot unknown"></span>
+                            <span class="status-text">Checking...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/devtools.js') }}"></script>
+    <script>
+        // Help section toggle functionality
+        function toggleHelp() {
+            const helpContent = document.getElementById('help-content');
+            const helpIcon = document.getElementById('help-icon');
+            
+            if (helpContent.style.display === 'none' || helpContent.style.display === '') {
+                helpContent.style.display = 'block';
+                helpIcon.textContent = '❌';
+            } else {
+                helpContent.style.display = 'none';
+                helpIcon.textContent = '❓';
+            }
+        }
+
+        // Close help when clicking outside
+        document.addEventListener('click', function(event) {
+            const helpSection = document.querySelector('.help-section');
+            const helpContent = document.getElementById('help-content');
+            
+            if (!helpSection.contains(event.target) && helpContent.style.display === 'block') {
+                helpContent.style.display = 'none';
+                document.getElementById('help-icon').textContent = '❓';
+            }
+        });
+    </script>
+    
+    <!-- Scripts -->
+    {% include '_scripts.html' %}
+    <!-- Page-specific scripts -->
+    <script src="{{ url_for('static', filename='js/devtools.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+# Vybe System Orchestration Task Specification
+
+## **🎯 Primary Task: System Orchestration & Intent Analysis**
+
+### **Core Responsibility**
+The model must excel at understanding user requests and orchestrating Vybe's tools and resources to complete tasks efficiently, while operating within constrained resources to allow concurrent larger model usage.
+
+### **Key Capabilities Required**
+
+#### **1. Intent Recognition & Classification**
+- **Input**: Natural language user requests
+- **Output**: Structured intent classification with confidence scores
+- **Context Usage**: Efficient use of 2K-4K context window
+- **Examples**:
+  - "Generate an image of a sunset" → INTENT: image_generation, CONFIDENCE: 0.95
+  - "Help me write a Python script" → INTENT: code_generation, CONFIDENCE: 0.88
+  - "What's the weather like?" → INTENT: information_request, CONFIDENCE: 0.92
+
+#### **2. Tool Selection & Parameter Extraction**
+- **Input**: Task description and available tools
+- **Output**: Optimal tool selection with extracted parameters
+- **Memory Efficiency**: Compact parameter representation
+- **Examples**:
+  - "Create a bar chart from my CSV data" → TOOL: ai_execute_python, PARAMS: {"task": "data_visualization", "chart_type": "bar", "data_source": "csv"}
+  - "Summarize this document" → TOOL: ai_analyze_text, PARAMS: {"action": "summarize", "length": "concise"}
+
+#### **3. Workflow Orchestration**
+- **Input**: Complex multi-step requests
+- **Output**: Sequential tool execution plan
+- **Context Management**: Efficient workflow representation
+- **Examples**:
+  - "Analyze this data and create a report" → [ai_analyze_data, ai_generate_report, ai_save_file]
+  - "Download a model and test it" → [ai_download_model, ai_load_model, ai_test_model]
+
+#### **4. Resource Management**
+- **Input**: Task requirements and system resources
+- **Output**: Resource allocation and optimization decisions
+- **Concurrent Awareness**: Consider other running models
+- **Examples**:
+  - "Use the fastest model for this task" → MODEL: phi-3-mini (fastest available)
+  - "Optimize for quality over speed" → MODEL: llama-3.1-8b (highest quality, if VRAM available)
+
+### **Specialized Methods & Techniques**
+
+#### **1. Context-Aware Decision Making**
+- Remember user preferences and previous interactions
+- Adapt tool selection based on user's technical level
+- Consider hardware limitations and resource availability
+- **Memory Efficiency**: Compact context representation
+
+#### **2. Error Recovery & Fallback Strategies**
+- Detect when primary tool fails
+- Suggest alternative approaches
+- Provide helpful error messages and recovery steps
+- **Resource Optimization**: Suggest CPU alternatives when GPU is busy
+
+#### **3. Performance Optimization**
+- Choose tools based on speed vs. quality requirements
+- Optimize for memory usage and processing time
+- Balance between local and cloud resources
+- **Concurrent Model Awareness**: Avoid resource conflicts
+
+### **Resource Constraints & Optimization**
+
+#### **1. Context Window Management**
+- **Maximum Context**: 4,096 tokens (Phi-3-Mini)
+- **Efficient Prompting**: Concise, focused prompts
+- **Context Truncation**: Smart truncation of long conversations
+- **Memory Pooling**: Reuse context where possible
+
+#### **2. VRAM Optimization**
+- **Target Usage**: ≤2GB VRAM for backend model
+- **Model Loading**: Efficient model loading/unloading
+- **Concurrent Awareness**: Monitor other model usage
+- **Fallback Strategies**: CPU execution when GPU busy
+
+#### **3. Response Optimization**
+- **Concise Outputs**: Structured, compact responses
+- **Token Efficiency**: Minimize response length
+- **Batch Processing**: Group similar operations
+- **Caching**: Cache frequent operations
+
+### **Training Data Requirements**
+- 5,000+ intent classification examples
+- 3,000+ tool selection scenarios
+- 2,000+ workflow orchestration cases
+- 1,000+ error handling examples
+- **Context Efficiency**: Examples optimized for 2K-4K context
+
+### **Success Metrics**
+- Intent classification accuracy: >90%
+- Tool selection appropriateness: >85%
+- Workflow completion rate: >80%
+- User satisfaction with orchestration: >4.5/5
+- **Resource Efficiency**: ≤2GB VRAM usage
+- **Concurrent Compatibility**: No interference with larger models

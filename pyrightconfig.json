@@ -1,0 +1,25 @@
+{
+  "pythonPath": "C:/Users/Matt/miniconda3/python.exe",
+  "pythonVersion": "3.11",
+  "typeCheckingMode": "basic",
+  "include": [
+    "vybe_app"
+  ],
+  "exclude": [
+    "**/node_modules",
+    "**/__pycache__",
+    "**/.*",
+    "vybe-env-311",
+    "vybe-env-311-fixed"
+  ],
+  "executionEnvironments": [
+    {
+      "root": ".",
+      "pythonVersion": "3.11",
+      "pythonPath": "C:/Users/Matt/miniconda3/python.exe",
+      "extraPaths": [
+        "C:/Users/Matt/miniconda3/Lib/site-packages"
+      ]
+    }
+  ]
+}

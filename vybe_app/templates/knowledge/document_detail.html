@@ -1,0 +1,354 @@
+{% extends "base.html" %}
+
+{% block title %}{{ document.title }} - Knowledge Base{% endblock %}
+
+{% block extra_css %}
+<style>
+.document-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+}
+
+.chunk-container {
+    margin-bottom: 2rem;
+}
+
+.chunk-item {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    background: white;
+    overflow: hidden;
+}
+
+.chunk-header {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: between;
+    align-items: center;
+}
+
+.chunk-id {
+    font-family: monospace;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.chunk-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-edit, .btn-delete-chunk {
+    padding: 0.25rem 0.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+.btn-edit {
+    background: #007bff;
+    color: white;
+}
+
+.btn-delete-chunk {
+    background: #dc3545;
+    color: white;
+}
+
+.chunk-content {
+    padding: 1.5rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.chunk-content.editing {
+    padding: 0;
+}
+
+.chunk-textarea {
+    width: 100%;
+    min-height: 200px;
+    padding: 1.5rem;
+    border: none;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    line-height: 1.6;
+    resize: vertical;
+    outline: none;
+}
+
+.chunk-edit-actions {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+.btn-save, .btn-cancel {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-save {
+    background: #28a745;
+    color: white;
+}
+
+.btn-cancel {
+    background: #6c757d;
+    color: white;
+}
+
+.document-info {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 2rem;
+}
+
+.info-item {
+    margin-bottom: 0.5rem;
+}
+
+.info-label {
+    font-weight: 600;
+    color: #333;
+    display: inline-block;
+    width: 120px;
+}
+
+.back-button {
+    background: #6c757d;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 1rem;
+}
+
+.search-chunks {
+    width: 100%;
+    max-width: 500px;
+    padding: 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    margin-bottom: 2rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="document-header">
+    <div class="container">
+        <h1>📄 {{ document.title }}</h1>
+        <p>Manage document chunks with full transparency</p>
+    </div>
+</div>
+
+<div class="container">
+    <a href="{{ url_for('knowledge.knowledge_dashboard') }}" class="back-button">
+        ← Back to Knowledge Base
+    </a>
+
+    <!-- Document Information -->
+    <div class="document-info">
+        <h3>Document Information</h3>
+        <div class="info-item">
+            <span class="info-label">Added:</span>
+            {{ document.added_date[:19] }}
+        </div>
+        <div class="info-item">
+            <span class="info-label">Source Type:</span>
+            {{ document.source_type }}
+        </div>
+        {% if document.source_url %}
+        <div class="info-item">
+            <span class="info-label">Source URL:</span>
+            <a href="{{ document.source_url }}" target="_blank">{{ document.source_url }}</a>
+        </div>
+        {% endif %}
+        <div class="info-item">
+            <span class="info-label">Content Length:</span>
+            {{ (document.content_length / 1000)|round(1) }}K characters
+        </div>
+        <div class="info-item">
+            <span class="info-label">Total Chunks:</span>
+            {{ document.chunk_count }}
+        </div>
+    </div>
+
+    <!-- Search Chunks -->
+    <input type="text" class="search-chunks" placeholder="🔍 Search within chunks..." id="searchChunks">
+
+    <!-- Chunks -->
+    <div class="chunk-container">
+        <h3>Document Chunks</h3>
+        <p>These are the individual pieces of text that the AI uses for context. You can edit or delete chunks to control exactly what information is available.</p>
+
+        {% for chunk in chunks %}
+        <div class="chunk-item" data-chunk-id="{{ chunk.id }}" data-search-text="{{ chunk.text|lower }}">
+            <div class="chunk-header">
+                <span class="chunk-id">Chunk {{ chunk.chunk_index + 1 }}: {{ chunk.id }}</span>
+                <div class="chunk-actions">
+                    <button class="btn-edit" onclick="editChunk('{{ chunk.id }}')">✏️ Edit</button>
+                    <button class="btn-delete-chunk" onclick="deleteChunk('{{ chunk.id }}', '{{ chunk.chunk_index + 1 }}')">🗑️ Delete</button>
+                </div>
+            </div>
+            
+            <div class="chunk-content" id="content-{{ chunk.id }}">{{ chunk.text }}</div>
+            
+            <div class="chunk-edit-actions" id="edit-actions-{{ chunk.id }}" style="display: none;">
+                <button class="btn-cancel" onclick="cancelEdit('{{ chunk.id }}')">Cancel</button>
+                <button class="btn-save" onclick="saveChunk('{{ chunk.id }}')">Save Changes</button>
+            </div>
+        </div>
+        {% endfor %}
+
+        {% if not chunks %}
+        <p>No chunks found for this document.</p>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+let originalContent = {};
+
+// Search functionality
+document.getElementById('searchChunks').addEventListener('input', function(e) {
+    const query = e.target.value.toLowerCase();
+    const chunks = document.querySelectorAll('.chunk-item');
+    
+    chunks.forEach(chunk => {
+        const text = chunk.getAttribute('data-search-text');
+        if (text.includes(query)) {
+            chunk.style.display = 'block';
+        } else {
+            chunk.style.display = 'none';
+        }
+    });
+});
+
+function editChunk(chunkId) {
+    const contentDiv = document.getElementById(`content-${chunkId}`);
+    const editActions = document.getElementById(`edit-actions-${chunkId}`);
+    
+    // Store original content
+    originalContent[chunkId] = contentDiv.textContent;
+    
+    // Create textarea
+    const textarea = document.createElement('textarea');
+    textarea.className = 'chunk-textarea';
+    textarea.value = contentDiv.textContent;
+    textarea.id = `textarea-${chunkId}`;
+    
+    // Replace content with textarea
+    contentDiv.innerHTML = '';
+    contentDiv.appendChild(textarea);
+    contentDiv.classList.add('editing');
+    
+    // Show edit actions
+    editActions.style.display = 'flex';
+    
+    // Focus textarea
+    textarea.focus();
+}
+
+function cancelEdit(chunkId) {
+    const contentDiv = document.getElementById(`content-${chunkId}`);
+    const editActions = document.getElementById(`edit-actions-${chunkId}`);
+    
+    // Restore original content
+    contentDiv.textContent = originalContent[chunkId];
+    contentDiv.classList.remove('editing');
+    
+    // Hide edit actions
+    editActions.style.display = 'none';
+    
+    // Clear stored content
+    delete originalContent[chunkId];
+}
+
+function saveChunk(chunkId) {
+    const textarea = document.getElementById(`textarea-${chunkId}`);
+    const newText = textarea.value;
+    
+    // Send update request
+    fetch(`/knowledge/api/chunk/${chunkId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            text: newText
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update content display
+            const contentDiv = document.getElementById(`content-${chunkId}`);
+            contentDiv.textContent = newText;
+            contentDiv.classList.remove('editing');
+            
+            // Update search attribute
+            const chunkItem = document.querySelector(`[data-chunk-id="${chunkId}"]`);
+            chunkItem.setAttribute('data-search-text', newText.toLowerCase());
+            
+            // Hide edit actions
+            const editActions = document.getElementById(`edit-actions-${chunkId}`);
+            editActions.style.display = 'none';
+            
+            // Clear stored content
+            delete originalContent[chunkId];
+            
+            alert('Chunk updated successfully!');
+        } else {
+            alert('Error updating chunk');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating chunk');
+    });
+}
+
+function deleteChunk(chunkId, chunkNumber) {
+    if (confirm(`Are you sure you want to delete chunk ${chunkNumber}? This cannot be undone.`)) {
+        fetch(`/knowledge/api/chunk/${chunkId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Remove chunk from UI
+                document.querySelector(`[data-chunk-id="${chunkId}"]`).remove();
+                alert('Chunk deleted successfully!');
+            } else {
+                alert('Error deleting chunk');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error deleting chunk');
+        });
+    }
+}
+</script>
+{% endblock %}
