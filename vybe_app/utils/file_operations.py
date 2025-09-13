@@ -147,7 +147,16 @@ class BackupManager:
     """Manages file backups with versioning and cleanup"""
     
     def __init__(self, backup_dir: Optional[Path] = None):
-        self.backup_dir = backup_dir or get_workspace_path() / ".backups"
+        # Use lazy initialization for workspace path to avoid Flask context issues
+        if backup_dir:
+            self.backup_dir = backup_dir
+        else:
+            try:
+                self.backup_dir = get_workspace_path() / ".backups"
+            except Exception:
+                # Fallback to temp directory if workspace path fails
+                self.backup_dir = Path(tempfile.gettempdir()) / "vybe_backups"
+        
         self.backup_dir.mkdir(parents=True, exist_ok=True)
         self.max_backups_per_file = 5
         self.backup_retention_days = 30
@@ -548,30 +557,47 @@ def get_workspace_path() -> Path:
     Returns:
         Path object for the workspace directory
     """
-    from ..models import AppSetting
-    
-    # Get workspace path from settings or use default
-    setting = AppSetting.query.filter_by(key='vybe_workspace_path').first()
-    if setting and setting.value:
-        workspace_path = Path(setting.value)
-    else:
-        # Default to vybe_workspace subdirectory in app root
-        app_root = Path(current_app.root_path).parent
-        workspace_path = app_root / 'vybe_workspace'
+    try:
+        from ..models import AppSetting
         
-        # Save default path to settings
-        if not setting:
-            from ..models import db
-            try:
-                setting = AppSetting()
-                setting.key = 'vybe_workspace_path'
-                setting.value = str(workspace_path.absolute())
-                db.session.add(setting)
-                db.session.commit()
-            except Exception as e:
-                db.session.rollback()
-                log_error(f"Failed to save workspace path setting: {e}")
-                # Continue anyway, we can use the default path
+        # Try to get workspace path from settings if Flask context is available
+        try:
+            setting = AppSetting.query.filter_by(key='vybe_workspace_path').first()
+            if setting and setting.value:
+                workspace_path = Path(setting.value)
+            else:
+                # Default to vybe_workspace subdirectory in app root
+                try:
+                    app_root = Path(current_app.root_path).parent
+                    workspace_path = app_root / 'vybe_workspace'
+                except RuntimeError:
+                    # No Flask context available, use fallback
+                    workspace_path = Path.cwd() / 'workspace'
+                
+                # Save default path to settings if possible
+                if not setting:
+                    from ..models import db
+                    try:
+                        setting = AppSetting()
+                        setting.key = 'vybe_workspace_path'
+                        setting.value = str(workspace_path.absolute())
+                        db.session.add(setting)
+                        db.session.commit()
+                    except Exception as e:
+                        try:
+                            db.session.rollback()
+                        except:
+                            pass
+                        log_error(f"Failed to save workspace path setting: {e}")
+                        # Continue anyway, we can use the default path
+        except RuntimeError:
+            # Flask context not available, use fallback
+            workspace_path = Path.cwd() / 'workspace'
+    
+    except Exception as e:
+        log_error(f"Error getting workspace path: {e}")
+        # Ultimate fallback
+        workspace_path = Path.cwd() / 'workspace'
     
     # Ensure workspace directory exists
     workspace_path.mkdir(parents=True, exist_ok=True)
@@ -630,7 +656,7 @@ def ai_list_files_in_directory(path: str = "") -> str:
         directories = []
         
         for item in target_path.iterdir():
-            file_info = file_processor.get_file_info(item)
+            file_info = get_file_processor().get_file_info(item)
             if file_info:
                 if file_info.is_directory:
                     directories.append(file_info)
@@ -687,7 +713,7 @@ def ai_read_file(file_path: str) -> str:
             return f"Error: '{file_path}' is not a file."
         
         # Validate file before reading
-        is_valid, validation_message = file_processor.validate_file(target_path)
+        is_valid, validation_message = get_file_processor().validate_file(target_path)
         if not is_valid:
             return f"Error: File validation failed - {validation_message}"
         
@@ -744,7 +770,7 @@ def ai_write_file(file_path: str, content: str, mode: str = "w") -> str:
             # Create backup of existing file if it exists
             backup_info = None
             if target_path.exists() and mode == 'w':
-                backup_info = backup_manager.create_backup(target_path)
+                backup_info = get_backup_manager().create_backup(target_path)
                 if backup_info:
                     log_info(f"Created backup before overwriting: {backup_info.backup_path}")
             
@@ -784,7 +810,7 @@ def ai_write_file(file_path: str, content: str, mode: str = "w") -> str:
             # Verify write success
             if not target_path.exists():
                 if backup_info:
-                    backup_manager.restore_backup(backup_info, verify_integrity=True)
+                    get_backup_manager().restore_backup(backup_info, verify_integrity=True)
                 return f"Error: File write verification failed for '{file_path}'"
             
             log_info(f"Successfully wrote {len(content)} characters to '{file_path}'")
@@ -1030,6 +1056,20 @@ def call_ai_tool(tool_name: str, **kwargs) -> str:
         return f"Error in tool '{tool_name}': {str(e)}"
 
 
-# Global instances - initialized after function definitions
-backup_manager = BackupManager()
-file_processor = FileProcessor()
+# Global instances - use lazy initialization to avoid Flask context issues
+backup_manager = None
+file_processor = None
+
+def get_backup_manager():
+    """Get or create backup manager instance"""
+    global backup_manager
+    if backup_manager is None:
+        backup_manager = BackupManager()
+    return backup_manager
+
+def get_file_processor():
+    """Get or create file processor instance"""
+    global file_processor
+    if file_processor is None:
+        file_processor = FileProcessor()
+    return file_processor

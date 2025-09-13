@@ -25,9 +25,9 @@ from ..utils.resource_cleanup import ResourceCleanupManager, register_thread_cle
 
 # Cloud storage SDKs
 try:
-    import dropbox
-    from dropbox.exceptions import ApiError as DropboxApiError
-    from dropbox import files as dropbox_files
+    import dropbox  # type: ignore
+    from dropbox.exceptions import ApiError as DropboxApiError  # type: ignore
+    from dropbox import files as dropbox_files  # type: ignore
     DROPBOX_AVAILABLE = True
 except ImportError:
     DROPBOX_AVAILABLE = False
@@ -641,9 +641,9 @@ class DropboxProvider:
             temp_dir = Path(tempfile.gettempdir())
             local_path = temp_dir / f"dropbox_{Path(remote_path).name}"
             
-            metadata, response = self.client.files_download(remote_path)
+            metadata, response = self.client.files_download(remote_path)  # type: ignore
             with open(local_path, 'wb') as f:
-                f.write(response.content)
+                f.write(response.content)  # type: ignore
             
             return local_path
         except Exception as e:

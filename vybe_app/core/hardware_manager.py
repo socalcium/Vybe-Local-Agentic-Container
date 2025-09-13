@@ -14,7 +14,7 @@ from pathlib import Path
 from datetime import datetime
 
 try:
-    import pynvml
+    import pynvml  # GPU monitoring (nvidia-ml-py package)
     PYNVML_AVAILABLE = True
 except ImportError:
     PYNVML_AVAILABLE = False

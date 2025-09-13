@@ -47,7 +47,7 @@ sentence-transformers>=2.2.0
 
 # System Information and Hardware
 psutil>=5.9.0
-pynvml>=11.0.0
+nvidia-ml-py>=13.580.0
 
 # Development Tools and Scheduling
 APScheduler>=3.10.0

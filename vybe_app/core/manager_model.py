@@ -17,6 +17,12 @@ from ..core.context_optimizer import get_context_optimizer
 from ..utils.llm_model_manager import LLMModelManager
 from ..models import db, AppSetting
 
+try:
+    import pynvml  # GPU monitoring (nvidia-ml-py package)
+    PYNVML_AVAILABLE = True
+except ImportError:
+    PYNVML_AVAILABLE = False
+
 # Import app for Flask application context
 try:
     from .. import app
@@ -314,10 +320,9 @@ class ManagerModel:
         except Exception as e:
             logger.debug(f"Could not get VRAM from hardware safety: {e}")
         
-        # Fallback: try nvidia-ml-py if available
-        try:
+        # Use pynvml for VRAM detection if available
+        if PYNVML_AVAILABLE:
             try:
-                import pynvml
                 pynvml.nvmlInit()
                 device_count = pynvml.nvmlDeviceGetCount()
                 if device_count > 0:
@@ -325,10 +330,10 @@ class ManagerModel:
                     mem_info = pynvml.nvmlDeviceGetMemoryInfo(handle)
                     if hasattr(mem_info, 'total') and isinstance(mem_info.total, (int, float)):
                         return float(mem_info.total) / (1024**3)  # Convert to GB
-            except ImportError:
-                logger.debug("pynvml not available for VRAM detection")
-        except Exception as e:
-            logger.debug(f"Could not detect VRAM via pynvml: {e}")
+            except Exception as e:
+                logger.debug(f"Could not detect VRAM via pynvml: {e}")
+        else:
+            logger.debug("pynvml not available for VRAM detection")
         
         return None
 

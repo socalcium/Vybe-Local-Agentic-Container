@@ -110,12 +110,50 @@ temp/
 ehthumbs.db
 Thumbs.db
 
-# IDE files
+# IDE and Development Tools
 .vscode/
 .idea/
+.cursor/
 *.swp
 *.swo
 *~
+
+# GitHub Copilot and AI Assistant files
+.github-copilot/
+copilot/
+.copilot/
+
+# Development and debugging
+.debug/
+debug/
+.pytest_cache/
+.mypy_cache/
+.tox/
+.coverage
+htmlcov/
+
+# Editor backups and temporary files
+*.bak
+*.tmp
+*.orig
+*~
+.#*
+#*#
+
+# OS and system files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Windows thumbnail cache files
+Thumbs.db
+ehthumbs.db
+ehthumbs_vista.db
 
 # Model files (too large for git)
 models/*.gguf
@@ -155,6 +193,55 @@ vector_db/
 !rag_data/README.md
 !rag_data/.gitkeep
 
-# Cache
+# Cache and temporary files
 .cache/
 *.cache
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+
+# Package manager files
+package-lock.json.bak
+yarn.lock.bak
+.pnpm-store/
+
+# Documentation generation
+docs/_build/
+docs/.doctrees/
+site/
+
+# Testing and CI/CD
+.tox/
+.coverage
+.coveragerc
+htmlcov/
+.github/
+.gitlab-ci.yml
+.travis.yml
+appveyor.yml
+
+# Development containers and virtualization
+.devcontainer/
+.docker/
+Dockerfile.dev
+docker-compose.dev.yml
+
+# Profiling and performance
+.profile
+*.prof
+*.pstats
+
+# Security and secrets (extra safety)
+.env.*
+!.env.example
+.secrets/
+secrets.json
+config/secrets/
+
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints/
+
+# Backup and archive files
+*.zip.bak
+*.tar.gz.bak
+*.backup

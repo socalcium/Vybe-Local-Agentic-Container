@@ -526,8 +526,8 @@ class SecureCodeInterpreter:
             logger.error(f"Failed to cleanup workspace {self.workspace_dir}: {e}")
             # Try alternative cleanup method
             try:
+                import subprocess
                 if os.name == 'nt':  # Windows
-                    import subprocess
                     subprocess.run(['rmdir', '/s', '/q', str(workspace_path)], 
                                  shell=True, check=False)
                 else:  # Unix/Linux

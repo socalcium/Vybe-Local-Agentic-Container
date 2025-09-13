@@ -20,7 +20,7 @@ from ..logger import log_info, log_warning, log_error
 
 # Optional hardware monitoring libraries
 try:
-    import pynvml
+    import pynvml  # GPU monitoring (nvidia-ml-py package)
     PYNVML_AVAILABLE = True
 except ImportError:
     PYNVML_AVAILABLE = False
@@ -127,7 +127,6 @@ class HardwareSafetyMonitor:
             gpu_name = None
             if PYNVML_AVAILABLE:
                 try:
-                    import pynvml
                     pynvml.nvmlInit()
                     gpu_count = pynvml.nvmlDeviceGetCount()
                     if gpu_count > 0:
@@ -167,11 +166,10 @@ class HardwareSafetyMonitor:
     
     def _init_gpu_monitoring(self):
         """Initialize GPU monitoring capabilities"""
-        if not self.gpu_available or not PYNVML_AVAILABLE:
+        if not self.gpu_available:
             return
         
         try:
-            import pynvml
             # Test GPU temperature monitoring
             if self.gpu_handle:
                 try:
@@ -362,7 +360,6 @@ class HardwareSafetyMonitor:
             return None
         
         try:
-            import pynvml
             temp = pynvml.nvmlDeviceGetTemperature(self.gpu_handle, pynvml.NVML_TEMPERATURE_GPU)
             return float(temp)
         except Exception as e:
@@ -371,13 +368,10 @@ class HardwareSafetyMonitor:
     
     def _get_vram_usage(self) -> Optional[float]:
         """Get current VRAM usage percentage"""
-    def _get_vram_usage_percent(self) -> Optional[float]:
-        """Get current VRAM usage percentage"""
         if not self.gpu_available or not self.gpu_handle or not PYNVML_AVAILABLE:
             return None
         
         try:
-            import pynvml
             gpu_info = pynvml.nvmlDeviceGetMemoryInfo(self.gpu_handle)
             usage_percent = (float(gpu_info.used) / float(gpu_info.total)) * 100
             return usage_percent

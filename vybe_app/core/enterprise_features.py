@@ -18,7 +18,7 @@ from functools import wraps
 
 # Optional cryptography libraries
 try:
-    import jwt
+    import jwt  # type: ignore
     JWT_AVAILABLE = True
 except ImportError:
     JWT_AVAILABLE = False

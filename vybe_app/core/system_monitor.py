@@ -12,7 +12,7 @@ from collections import deque
 import os
 
 try:
-    import pynvml
+    import pynvml  # GPU monitoring (nvidia-ml-py package)
     PYNVML_AVAILABLE = True
 except ImportError:
     pynvml = None

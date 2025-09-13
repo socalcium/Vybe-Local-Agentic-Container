@@ -67,7 +67,7 @@ Vybe is a Windows AI workstation that runs everything locally: chat, RAG, agents
 ### Installation
 
 1. **Download**: Get the latest installer from releases
-2. **Run**: Execute `Vybe_Setup_Master.exe` 
+2. **Run**: Execute `Vybe_Setup_v0.8_Professional.exe` 
 3. **Launch**: Click the desktop shortcut or run `launch_vybe_master.bat`
 4. **First Run**: Follow the guided setup that downloads your first model
 
@@ -308,7 +308,7 @@ python scripts/run_functional_tests.py
 .\build_desktop.bat
 
 # Build installer
-.\build_installer_master.bat
+.\build_professional_installer.bat
 
 # Validate build
 python validate_build.py
