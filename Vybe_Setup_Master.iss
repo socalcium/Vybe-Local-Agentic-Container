@@ -38,7 +38,6 @@ Name: "custom"; Description: "Custom Installation"; Flags: iscustom
 
 [Components]
 Name: "core"; Description: "Core Application Files"; Types: full minimal custom; Flags: fixed
-Name: "desktop"; Description: "Desktop Application (Tauri)"; Types: full custom
 Name: "models"; Description: "Default AI Model (637MB)"; Types: full custom; ExtraDiskSpaceRequired: 668000000
 Name: "docs"; Description: "Documentation and Guides"; Types: full custom
 Name: "shortcuts"; Description: "Desktop and Start Menu Shortcuts"; Types: full custom
@@ -62,12 +61,10 @@ Name: "{app}\temp"; Permissions: users-full
 [Icons]
 ; Start Menu
 Name: "{group}\Vybe AI Assistant"; Filename: "{app}\launch_vybe_master.bat"; WorkingDir: "{app}"; IconFilename: "{app}\assets\VybeLight.ico"; Components: shortcuts
-Name: "{group}\Vybe Desktop"; Filename: "{app}\vybe-desktop\vybe-desktop.exe"; WorkingDir: "{app}\vybe-desktop"; IconFilename: "{app}\assets\VybeLight.ico"; Components: desktop and shortcuts
 Name: "{group}\{cm:UninstallProgram,Vybe AI Assistant}"; Filename: "{uninstallexe}"; Components: shortcuts
 
 ; Desktop
 Name: "{autodesktop}\Vybe AI Assistant"; Filename: "{app}\launch_vybe_master.bat"; WorkingDir: "{app}"; IconFilename: "{app}\assets\VybeLight.ico"; Tasks: desktopicon
-Name: "{autodesktop}\Vybe Desktop"; Filename: "{app}\vybe-desktop\vybe-desktop.exe"; WorkingDir: "{app}\vybe-desktop"; IconFilename: "{app}\assets\VybeLight.ico"; Tasks: desktopicon; Components: desktop
 
 ; Quick Launch
 Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\Vybe AI"; Filename: "{app}\launch_vybe_master.bat"; WorkingDir: "{app}"; IconFilename: "{app}\assets\VybeLight.ico"; Tasks: quicklaunchicon
@@ -86,32 +83,26 @@ Root: HKCR; Subkey: "VybeProject\shell\open\command"; ValueType: string; ValueNa
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "VybeAI"; ValueData: """{app}\launch_vybe_master.bat"" --minimized"; Tasks: systemtray
 
 [Run]
-; Download files from GitHub
-Filename: "powershell.exe"; Parameters: "-ExecutionPolicy Bypass -Command ""Write-Host 'Downloading Vybe from GitHub...'; try {{ Invoke-WebRequest -Uri 'https://github.com/socalcium/Vybe-Local-Agentic-Container/archive/refs/heads/master.zip' -OutFile '{tmp}\vybe-master.zip' -UseBasicParsing; Write-Host 'Download completed successfully' }} catch {{ Write-Host 'Download failed:' $_.Exception.Message; exit 1 }}"""; WorkingDir: "{tmp}"; Flags: waituntilterminated; StatusMsg: "Downloading application files from GitHub..."
+; Download files from GitHub (silent)
+Filename: "powershell.exe"; Parameters: "-WindowStyle Hidden -ExecutionPolicy Bypass -Command ""try {{ Invoke-WebRequest -Uri 'https://github.com/socalcium/Vybe-Local-Agentic-Container/archive/refs/heads/master.zip' -OutFile '{tmp}\vybe-master.zip' -UseBasicParsing }} catch {{ exit 1 }}"""; WorkingDir: "{tmp}"; Flags: runhidden waituntilterminated; StatusMsg: "Downloading application files from GitHub..."
 
-; Extract downloaded files
-Filename: "powershell.exe"; Parameters: "-ExecutionPolicy Bypass -Command ""Write-Host 'Extracting application files...'; try {{ Expand-Archive -Path '{tmp}\vybe-master.zip' -DestinationPath '{tmp}' -Force; Write-Host 'Extraction completed' }} catch {{ Write-Host 'Extraction failed:' $_.Exception.Message; exit 1 }}"""; WorkingDir: "{tmp}"; Flags: waituntilterminated; StatusMsg: "Extracting application files..."
+; Extract downloaded files (silent)
+Filename: "powershell.exe"; Parameters: "-WindowStyle Hidden -ExecutionPolicy Bypass -Command ""try {{ Expand-Archive -Path '{tmp}\vybe-master.zip' -DestinationPath '{tmp}' -Force }} catch {{ exit 1 }}"""; WorkingDir: "{tmp}"; Flags: runhidden waituntilterminated; StatusMsg: "Extracting application files..."
 
-; Copy application files to installation directory
-Filename: "powershell.exe"; Parameters: "-ExecutionPolicy Bypass -Command ""Write-Host 'Installing application files...'; try {{ $src = '{tmp}\Vybe-Local-Agentic-Container-master'; $dst = '{app}'; if (Test-Path $src) {{ Copy-Item -Path '$src\*' -Destination $dst -Recurse -Force; Write-Host 'Application files installed successfully' }} else {{ Write-Host 'Source directory not found'; exit 1 }} }} catch {{ Write-Host 'Installation failed:' $_.Exception.Message; exit 1 }}"""; WorkingDir: "{app}"; Flags: waituntilterminated; StatusMsg: "Installing application files..."
+; Copy application files to installation directory (silent)
+Filename: "powershell.exe"; Parameters: "-WindowStyle Hidden -ExecutionPolicy Bypass -Command ""try {{ $src = '{tmp}\Vybe-Local-Agentic-Container-master'; $dst = '{app}'; if (Test-Path $src) {{ Copy-Item -Path '$src\*' -Destination $dst -Recurse -Force }} else {{ exit 1 }} }} catch {{ exit 1 }}"""; WorkingDir: "{app}"; Flags: runhidden waituntilterminated; StatusMsg: "Installing application files..."
 
-; Verify critical files were copied successfully
-Filename: "powershell.exe"; Parameters: "-ExecutionPolicy Bypass -Command ""Write-Host 'Verifying installation...'; $critical_files = @('setup_python_env.bat', 'run.py', 'requirements.txt'); $missing = @(); foreach ($file in $critical_files) {{ if (-not (Test-Path (Join-Path '{app}' $file))) {{ $missing += $file }} }}; if ($missing.Count -gt 0) {{ Write-Host 'ERROR: Missing critical files:' ($missing -join ', '); exit 1 }} else {{ Write-Host 'All critical files verified successfully' }}"""; WorkingDir: "{app}"; Flags: waituntilterminated; StatusMsg: "Verifying installation..."
+; Download and install Python silently if needed
+Filename: "powershell.exe"; Parameters: "-WindowStyle Hidden -ExecutionPolicy Bypass -Command ""if (-not (Get-Command python -ErrorAction SilentlyContinue)) {{ Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.11.9/python-3.11.9-amd64.exe' -OutFile '{tmp}\python-installer.exe' -UseBasicParsing; Start-Process '{tmp}\python-installer.exe' -ArgumentList '/quiet','InstallAllUsers=1','PrependPath=1','Include_test=0' -Wait }}"""; WorkingDir: "{tmp}"; Flags: runhidden waituntilterminated; StatusMsg: "Installing Python 3.11..."; Check: not IsPythonInstalled
 
-; Download and install Python if needed
-Filename: "powershell.exe"; Parameters: "-ExecutionPolicy Bypass -Command ""if (-not (Get-Command python -ErrorAction SilentlyContinue)) {{ Write-Host 'Downloading Python 3.11...'; Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.11.9/python-3.11.9-amd64.exe' -OutFile '{tmp}\python-installer.exe' -UseBasicParsing; Write-Host 'Installing Python...'; Start-Process '{tmp}\python-installer.exe' -ArgumentList '/quiet','InstallAllUsers=1','PrependPath=1','Include_test=0' -Wait }} else {{ Write-Host 'Python already installed' }}"""; WorkingDir: "{tmp}"; Flags: waituntilterminated; StatusMsg: "Installing Python 3.11..."; Check: not IsPythonInstalled
-
-; Setup Python environment and install dependencies
-Filename: "{app}\setup_python_env.bat"; Parameters: ""; StatusMsg: "Setting up Python environment..."; Flags: runhidden waituntilterminated; WorkingDir: "{app}"
+; Create virtual environment and install all requirements (silent)
+Filename: "powershell.exe"; Parameters: "-WindowStyle Hidden -ExecutionPolicy Bypass -Command ""try {{ cd '{app}'; python -m venv vybe-env; & '{app}\vybe-env\Scripts\activate.ps1'; python -m pip install --upgrade pip; pip install -r requirements.txt }} catch {{ exit 1 }}"""; StatusMsg: "Installing Python dependencies..."; Flags: runhidden waituntilterminated; WorkingDir: "{app}"
 
 ; Download default model (if component selected)
-Filename: "python"; Parameters: """{app}\download_default_model.py"""; StatusMsg: "Downloading default AI model (this may take several minutes)..."; Flags: runhidden waituntilterminated; WorkingDir: "{app}"; Components: models; Check: HasInternetConnection
+Filename: "powershell.exe"; Parameters: "-WindowStyle Hidden -ExecutionPolicy Bypass -Command ""try {{ cd '{app}'; & '{app}\vybe-env\Scripts\activate.ps1'; python download_default_model.py }} catch {{ Write-Host 'Model download failed but continuing...' }}"""; StatusMsg: "Downloading default AI model (this may take several minutes)..."; Flags: runhidden waituntilterminated; WorkingDir: "{app}"; Components: models; Check: HasInternetConnection
 
-; Build Tauri desktop app (if component selected)
-Filename: "{app}\vybe-desktop\build.bat"; Parameters: ""; StatusMsg: "Building desktop application..."; Flags: runhidden waituntilterminated; WorkingDir: "{app}\vybe-desktop"; Components: desktop; Check: HasNodeJS
-
-; First launch setup
-Filename: "python"; Parameters: """{app}\run.py"" --setup"; StatusMsg: "Running first-time setup..."; Flags: runhidden waituntilterminated; WorkingDir: "{app}"
+; First launch setup (silent)
+Filename: "powershell.exe"; Parameters: "-WindowStyle Hidden -ExecutionPolicy Bypass -Command ""try {{ cd '{app}'; & '{app}\vybe-env\Scripts\activate.ps1'; python run.py --setup }} catch {{ exit 1 }}"""; StatusMsg: "Running first-time setup..."; Flags: runhidden waituntilterminated; WorkingDir: "{app}"
 
 [UninstallRun]
 ; Clean shutdown

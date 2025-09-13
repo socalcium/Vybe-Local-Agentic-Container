@@ -3,7 +3,7 @@ TITLE Vybe AI Assistant - Master Launcher
 
 :: --- DEFINE CORE PATHS ---
 SET "VYBE_DIR=%~dp0"
-SET "PYTHON_EXE=%VYBE_DIR%vybe-env-311-fixed\Scripts\python.exe"
+SET "PYTHON_EXE=%VYBE_DIR%vybe-env\Scripts\python.exe"
 SET "TAURI_APP=%VYBE_DIR%vybe-desktop\src-tauri\target\release\Vybe AI Desktop.exe"
 SET "SHUTDOWN_SCRIPT=%VYBE_DIR%shutdown.bat"
 SET "LOCK_FILE=%VYBE_DIR%vybe.lock"
